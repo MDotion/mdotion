@@ -1,13 +1,13 @@
-# Risk register — mdotion
+# Risk register
 
 | ID | Risk | Impact | Mitigation | Status |
 |----|------|--------|------------|--------|
-| R1 | `@tiptap/markdown` beta / incomplete GFM | High | ADR-001 spike; adapter port; round-trip CI | Open |
-| R2 | Silent loss of unsupported syntax | Critical | Opaque blocks; no auto-rewrite; `unsupported.md` fixture | Open |
-| R3 | Webview ↔ document sync loop | High | Revisions; `applyingEdit` guard; integration tests | Mitigated (partial) |
-| R4 | Undo/redo split (PM vs IDE) | High | ADR-003; forward shortcuts to host | Open |
-| R5 | Cursor vs VS Code drift | Medium | Same VSIX; smoke matrix in README | Open |
-| R6 | Full-document replace performance | Medium | Benchmark 100KB–1MB; incremental edits later | Open |
-| R7 | Webview XSS from Markdown | High | CSP; no remote scripts; sanitize HTML display | Mitigated (partial) |
+| R1 | `@tiptap/markdown` incomplete for real-world Markdown | High | `MarkdownAdapter` port, stability check per block, raw blocks (ADR-002), round-trip tests | Mitigated |
+| R2 | Silent loss of unsupported syntax | Critical | Source map + raw blocks: untouched blocks written back byte for byte (ADR-002) | Mitigated |
+| R3 | Webview ↔ document sync loop or lost keystrokes | High | Versioned protocol, own-change detection by text, minimal replace steps (ADR-004) | Mitigated |
+| R4 | Undo/redo split between ProseMirror and the IDE | High | Webview owns undo while focused, keyboard guard (ADR-003) | Mitigated |
+| R5 | Cursor vs VS Code drift (keybindings, internal commands) | Medium | Same VSIX, fallbacks for internal commands, manual checklist in `docs/TESTING.md` | Open |
+| R6 | Performance on large documents | Medium | Minimal text edits, serialization proportional to edited blocks (ADR-005); benchmarks still to do | Open |
+| R7 | Webview XSS from Markdown content | High | Strict CSP with nonce, no remote scripts, allow-list HTML sanitizer for previews | Mitigated |
 
-Update this table at the end of each milestone (see [PIANO-ESECUZIONE.md](./PIANO-ESECUZIONE.md)).
+Update this table when a risk changes status.

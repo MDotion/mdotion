@@ -18,7 +18,9 @@ dist/**/*.map
 playground/**
 eslint.config.mjs
 scripts/**
-piano-sviluppo-notion-like-markdown-editor.md
-TESTARE.md
 .nvmrc
 .gitignore
+.github/**
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md

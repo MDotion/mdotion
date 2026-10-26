@@ -2,7 +2,7 @@
 
 **Prodotto:** estensione VS Code / Cursor per editing visuale di file `.md`  
 **Nome:** mdotion  
-**Riferimento:** [piano-sviluppo-notion-like-markdown-editor.md](../piano-sviluppo-notion-like-markdown-editor.md) v1.0  
+**Riferimento:** [piano-sviluppo-notion-like-markdown-editor.md](./original-plan.it.md) v1.0  
 **Versione piano esecuzione:** 1.0  
 **Stato repo:** `0.3.0` — editor Notion-like completo, round-trip con source map, sync versionata, test unit + e2e verdi (vedi CHANGELOG e ADR 002–005, 008)
 

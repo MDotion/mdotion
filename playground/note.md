@@ -1,8 +1,8 @@
-# Prova Mdotion
+# Try Mdotion
 
-Scrivi qui. Usa **/** per il menu blocchi.
+Type here. Press **/** for the block menu, or hover a block to see the `+` and `⋮⋮` handles.
 
-- [ ] checklist
-- elemento lista
+- [ ] a to-do
+- a list item
 
-**grassetto** e *corsivo*
+**bold** and *italic*
