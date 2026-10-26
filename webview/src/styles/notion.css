@@ -1,0 +1,1634 @@
+/* ---------------------------------------------------------------------------
+ * Mdotion — Notion look & feel.
+ * Light / dark follow the VS Code theme kind (body.vscode-light / vscode-dark).
+ * ------------------------------------------------------------------------- */
+
+/* Light: default, VS Code light themes, or forced with the `mdotion.theme` setting. */
+:root,
+body.vscode-light,
+body.vscode-high-contrast-light,
+body[data-mdotion-theme='light'] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --text: rgb(55, 53, 47);
+  --text-secondary: rgba(55, 53, 47, 0.65);
+  --text-tertiary: rgba(55, 53, 47, 0.45);
+  --divider: rgba(55, 53, 47, 0.09);
+  --divider-strong: rgba(55, 53, 47, 0.16);
+  --hover: rgba(55, 53, 47, 0.08);
+  --active: rgba(55, 53, 47, 0.16);
+  --accent: #2383e2;
+  --accent-hover: #0077d4;
+  --selection: rgba(35, 131, 226, 0.28);
+  --block-selection: rgba(35, 131, 226, 0.14);
+  --popover-bg: #ffffff;
+  --popover-shadow: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 3px 6px,
+    rgba(15, 15, 15, 0.2) 0 9px 24px;
+  --tile-bg: #ffffff;
+  --code-bg: rgb(247, 246, 243);
+  --inline-code: #eb5757;
+  --inline-code-bg: rgba(135, 131, 120, 0.15);
+  --table-header: rgb(247, 246, 243);
+  --embed-bg: rgb(242, 241, 238);
+  --danger: #eb5757;
+  --banner-bg: rgb(251, 243, 219);
+  --checkbox-border: rgba(55, 53, 47, 0.85);
+
+  --callout-note: rgb(231, 243, 248);
+  --callout-tip: rgb(237, 243, 236);
+  --callout-important: rgb(244, 240, 247);
+  --callout-warning: rgb(251, 243, 219);
+  --callout-caution: rgb(253, 235, 236);
+
+  --hl-comment: #708090;
+  --hl-keyword: #0077aa;
+  --hl-string: #669900;
+  --hl-number: #990055;
+  --hl-title: #dd4a68;
+  --hl-attr: #669900;
+  --hl-variable: #ee9900;
+  --hl-meta: #9a6e3a;
+  --hl-punct: #999999;
+
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Display', 'Segoe UI',
+    Helvetica, 'Apple Color Emoji', Arial, sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --font-serif: Lyon-Text, Georgia, ui-serif, serif;
+  --font-mono: iawriter-mono, Nitti, Menlo, Courier, monospace;
+  --font-code: 'SFMono-Regular', Menlo, Consolas, 'PT Mono', 'Liberation Mono', Courier, monospace;
+}
+
+/* Dark: VS Code dark themes (unless light is forced), or forced dark. Must stay after the light block. */
+body.vscode-dark:not([data-mdotion-theme='light']),
+body.vscode-high-contrast:not([data-mdotion-theme='light']),
+body[data-mdotion-theme='dark'] {
+  color-scheme: dark;
+  --bg: #191919;
+  --text: rgba(255, 255, 255, 0.81);
+  --text-secondary: rgba(255, 255, 255, 0.46);
+  --text-tertiary: rgba(255, 255, 255, 0.282);
+  --divider: rgba(255, 255, 255, 0.094);
+  --divider-strong: rgba(255, 255, 255, 0.13);
+  --hover: rgba(255, 255, 255, 0.055);
+  --active: rgba(255, 255, 255, 0.1);
+  --selection: rgba(35, 131, 226, 0.36);
+  --block-selection: rgba(35, 131, 226, 0.2);
+  --popover-bg: #252525;
+  --popover-shadow: rgba(255, 255, 255, 0.094) 0 0 0 1px, rgba(15, 15, 15, 0.2) 0 3px 6px,
+    rgba(15, 15, 15, 0.4) 0 9px 24px;
+  --tile-bg: #2f2f2f;
+  --code-bg: rgb(32, 32, 32);
+  --inline-code: #ff7369;
+  --inline-code-bg: rgba(135, 131, 120, 0.15);
+  --table-header: rgb(32, 32, 32);
+  --embed-bg: rgb(37, 37, 37);
+  --danger: #ff7369;
+  --banner-bg: rgb(86, 67, 40);
+  --checkbox-border: rgba(255, 255, 255, 0.6);
+
+  --callout-note: rgb(20, 58, 78);
+  --callout-tip: rgb(36, 61, 48);
+  --callout-important: rgb(60, 45, 73);
+  --callout-warning: rgb(86, 67, 40);
+  --callout-caution: rgb(82, 46, 42);
+
+  --hl-comment: #7f848e;
+  --hl-keyword: #c678dd;
+  --hl-string: #98c379;
+  --hl-number: #d19a66;
+  --hl-title: #61afef;
+  --hl-attr: #e5c07b;
+  --hl-variable: #e06c75;
+  --hl-meta: #56b6c2;
+  --hl-punct: #abb2bf;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: auto;
+}
+
+::selection {
+  background: var(--selection);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.mdotion-boot-error {
+  padding: 24px;
+  color: var(--danger);
+  white-space: pre-wrap;
+  font-family: var(--font-code);
+  font-size: 13px;
+}
+
+/* ---- App chrome --------------------------------------------------------- */
+
+.mdotion-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mdotion-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 45px;
+  padding: 0 12px;
+  background: var(--bg);
+  font-size: 14px;
+}
+
+.mdotion-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mdotion-breadcrumb-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mdotion-topbar-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mdotion-topbar-button {
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.mdotion-topbar-button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.mdotion-topbar-more {
+  letter-spacing: 1px;
+  font-size: 12px;
+}
+
+.mdotion-settings {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  width: 240px;
+  padding: 6px 0;
+}
+
+.mdotion-font-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.mdotion-font-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mdotion-font-option:hover {
+  background: var(--hover);
+}
+
+.mdotion-font-option.is-active {
+  color: var(--accent);
+}
+
+.mdotion-font-sample {
+  font-size: 22px;
+  color: var(--text);
+}
+
+.mdotion-font-option.is-active .mdotion-font-sample {
+  color: var(--accent);
+}
+
+.mdotion-font-serif .mdotion-font-sample {
+  font-family: var(--font-serif);
+}
+
+.mdotion-font-mono .mdotion-font-sample {
+  font-family: var(--font-mono);
+}
+
+.mdotion-switch {
+  position: relative;
+  width: 26px;
+  height: 14px;
+  margin-left: auto;
+  border-radius: 44px;
+  background: var(--active);
+  transition: background 120ms ease;
+}
+
+.mdotion-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 120ms ease;
+}
+
+.mdotion-switch.is-on {
+  background: var(--accent);
+}
+
+.mdotion-switch.is-on::after {
+  transform: translateX(12px);
+}
+
+.mdotion-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px auto 0;
+  width: min(900px, calc(100% - 24px));
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--banner-bg);
+  font-size: 14px;
+}
+
+.mdotion-banner span {
+  flex: 1 1 280px;
+}
+
+.mdotion-banner.is-error {
+  background: var(--callout-caution);
+}
+
+.mdotion-banner button {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--divider-strong);
+  border-radius: 4px;
+  background: transparent;
+}
+
+.mdotion-button-primary,
+.mdotion-banner .mdotion-button-primary {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mdotion-button-primary:hover {
+  background: var(--accent-hover);
+}
+
+.mdotion-scroller {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---- Page --------------------------------------------------------------- */
+
+.mdotion-page {
+  position: relative;
+  width: 100%;
+  max-width: calc(708px + 2 * 96px);
+  padding: 72px 96px 0;
+  font-size: 16px;
+}
+
+.mdotion-page.is-loading {
+  visibility: hidden;
+}
+
+.mdotion-page.is-full-width {
+  max-width: none;
+}
+
+.mdotion-page.is-small-text {
+  font-size: 14px;
+}
+
+.mdotion-page.is-font-serif {
+  font-family: var(--font-serif);
+}
+
+.mdotion-page.is-font-mono {
+  font-family: var(--font-mono);
+}
+
+.mdotion-page-tail {
+  min-height: 30vh;
+  cursor: text;
+}
+
+@media (max-width: 760px) {
+  .mdotion-page {
+    padding: 40px 56px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .mdotion-page {
+    padding: 24px 24px 0 52px;
+  }
+}
+
+/* ---- Properties (front matter) ----------------------------------------- */
+
+.mdotion-page-actions {
+  height: 28px;
+  margin-bottom: 8px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.mdotion-page:hover .mdotion-page-actions,
+.mdotion-page-actions:focus-within {
+  opacity: 1;
+}
+
+.mdotion-page-actions button,
+.mdotion-properties-edit {
+  height: 28px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+.mdotion-page-actions button:hover,
+.mdotion-properties-edit:hover {
+  background: var(--hover);
+  color: var(--text-secondary);
+}
+
+.mdotion-properties {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--divider);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.mdotion-property {
+  display: flex;
+  align-items: baseline;
+  min-height: 34px;
+  padding: 6px 4px;
+  border-radius: 4px;
+}
+
+.mdotion-property:hover {
+  background: var(--hover);
+}
+
+.mdotion-property-key {
+  flex: 0 0 160px;
+  overflow: hidden;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mdotion-property-key::before {
+  content: '≡';
+  margin-right: 8px;
+  color: var(--text-tertiary);
+}
+
+.mdotion-property-value {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mdotion-muted {
+  color: var(--text-tertiary);
+}
+
+.mdotion-properties-source {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1px solid var(--divider-strong);
+  border-radius: 4px;
+  background: var(--code-bg);
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+}
+
+/* ---- Editor content ----------------------------------------------------- */
+
+.mdotion-prose {
+  outline: none;
+  caret-color: var(--text);
+  word-break: break-word;
+}
+
+.mdotion-prose > * {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.mdotion-prose p {
+  margin: 2px 0;
+  padding: 3px 2px;
+  min-height: 1.5em;
+}
+
+.mdotion-prose h1,
+.mdotion-prose h2,
+.mdotion-prose h3,
+.mdotion-prose h4,
+.mdotion-prose h5,
+.mdotion-prose h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 3px 2px;
+  margin-bottom: 1px;
+}
+
+.mdotion-prose h1 {
+  font-size: 1.875em;
+  margin-top: 1.4em;
+}
+
+.mdotion-prose h2 {
+  font-size: 1.5em;
+  margin-top: 1.1em;
+}
+
+.mdotion-prose h3 {
+  font-size: 1.25em;
+  margin-top: 1em;
+}
+
+.mdotion-prose h4,
+.mdotion-prose h5,
+.mdotion-prose h6 {
+  font-size: 1.1em;
+  margin-top: 0.8em;
+}
+
+/* The first H1 of the file plays the role of Notion's page title. */
+.mdotion-prose > h1:first-child {
+  font-size: 2.5em;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 12px;
+}
+
+.mdotion-prose > :first-child {
+  margin-top: 0;
+}
+
+.mdotion-prose strong {
+  font-weight: 600;
+}
+
+.mdotion-prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.mdotion-prose a:hover {
+  text-decoration-color: var(--text-secondary);
+}
+
+.mdotion-prose code {
+  font-family: var(--font-code);
+  font-size: 85%;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  background: var(--inline-code-bg);
+  color: var(--inline-code);
+}
+
+.mdotion-prose ul,
+.mdotion-prose ol {
+  margin: 2px 0;
+  padding-left: 1.7em;
+}
+
+.mdotion-prose li {
+  padding-left: 2px;
+}
+
+.mdotion-prose li > p {
+  margin: 1px 0;
+  padding: 3px 2px;
+}
+
+.mdotion-prose li::marker {
+  color: var(--text);
+}
+
+.mdotion-prose ul {
+  list-style-type: disc;
+}
+
+.mdotion-prose ul ul {
+  list-style-type: circle;
+}
+
+.mdotion-prose ul ul ul {
+  list-style-type: square;
+}
+
+.mdotion-prose ol ol {
+  list-style-type: lower-alpha;
+}
+
+.mdotion-prose ol ol ol {
+  list-style-type: lower-roman;
+}
+
+/* To-do list */
+.mdotion-prose ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* Nested to-dos already sit after the parent's checkbox column. */
+.mdotion-prose ul[data-type='taskList'] ul[data-type='taskList'] {
+  padding-left: 0;
+}
+
+.mdotion-prose ul[data-type='taskList'] > li {
+  display: flex;
+  align-items: flex-start;
+  padding-left: 2px;
+}
+
+.mdotion-prose ul[data-type='taskList'] > li > label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: calc(1.5em + 6px);
+  margin-right: 2px;
+  user-select: none;
+}
+
+.mdotion-prose ul[data-type='taskList'] > li > label > span {
+  display: none;
+}
+
+.mdotion-prose ul[data-type='taskList'] > li input[type='checkbox'] {
+  appearance: none;
+  display: grid;
+  place-content: center;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1.5px solid var(--checkbox-border);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mdotion-prose ul[data-type='taskList'] > li input[type='checkbox']:hover {
+  background: var(--hover);
+}
+
+.mdotion-prose ul[data-type='taskList'] > li input[type='checkbox']:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.mdotion-prose ul[data-type='taskList'] > li input[type='checkbox']:checked::after {
+  content: '';
+  width: 9px;
+  height: 5px;
+  margin-top: -2px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+}
+
+.mdotion-prose ul[data-type='taskList'] > li > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.mdotion-prose ul[data-type='taskList'] > li[data-checked='true'] > div > p {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-tertiary);
+}
+
+/* Quote */
+.mdotion-prose blockquote {
+  margin: 4px 0;
+  padding: 0 0 0 14px;
+  border-left: 3px solid currentColor;
+  font-size: 1.2em;
+}
+
+.mdotion-prose blockquote blockquote {
+  font-size: 1em;
+}
+
+/* Divider */
+.mdotion-prose hr {
+  height: 13px;
+  margin: 6px 0;
+  border: none;
+  background: linear-gradient(var(--divider-strong), var(--divider-strong)) center / 100% 1px no-repeat;
+  cursor: pointer;
+}
+
+/* Callout */
+.mdotion-callout {
+  display: flex;
+  margin: 4px 0;
+  padding: 16px 16px 16px 12px;
+  border-radius: 4px;
+  background: var(--callout-note);
+}
+
+.mdotion-callout-tip {
+  background: var(--callout-tip);
+}
+
+.mdotion-callout-important {
+  background: var(--callout-important);
+}
+
+.mdotion-callout-warning {
+  background: var(--callout-warning);
+}
+
+.mdotion-callout-caution {
+  background: var(--callout-caution);
+}
+
+.mdotion-callout-icon-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.mdotion-callout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mdotion-callout-icon:hover {
+  background: var(--hover);
+}
+
+.mdotion-callout-menu {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  z-index: 60;
+  width: 160px;
+  padding: 4px;
+}
+
+.mdotion-callout-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 14px;
+  text-align: left;
+}
+
+.mdotion-callout-menu button:hover,
+.mdotion-callout-menu button.is-active {
+  background: var(--hover);
+}
+
+.mdotion-callout-content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 8px;
+}
+
+.mdotion-callout-content > div > :first-child {
+  margin-top: 0;
+}
+
+.mdotion-callout-content p {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Code block */
+.mdotion-code {
+  position: relative;
+  margin: 4px 0;
+  border-radius: 4px;
+  background: var(--code-bg);
+}
+
+.mdotion-code-bar {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  font-family: var(--font-sans);
+}
+
+.mdotion-code:hover .mdotion-code-bar,
+.mdotion-code:focus-within .mdotion-code-bar {
+  opacity: 1;
+}
+
+.mdotion-code-language,
+.mdotion-code-copy {
+  height: 22px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.mdotion-code-language:hover,
+.mdotion-code-copy:hover {
+  background: var(--hover);
+}
+
+.mdotion-code-language option {
+  background: var(--popover-bg);
+  color: var(--text);
+}
+
+.mdotion-code pre {
+  margin: 0;
+  padding: 34px 16px 28px 26px;
+  overflow-x: auto;
+  font-family: var(--font-code);
+  font-size: 85%;
+  line-height: 1.5;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.mdotion-code pre code {
+  padding: 0;
+  background: none;
+  color: var(--text);
+  font-size: inherit;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--hl-comment);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: var(--hl-keyword);
+}
+
+.hljs-string,
+.hljs-addition,
+.hljs-regexp {
+  color: var(--hl-string);
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-deletion {
+  color: var(--hl-number);
+}
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.class_,
+.hljs-name {
+  color: var(--hl-title);
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-type,
+.hljs-built_in,
+.hljs-selector-class,
+.hljs-selector-id {
+  color: var(--hl-attr);
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params,
+.hljs-property {
+  color: var(--hl-variable);
+}
+
+.hljs-meta,
+.hljs-tag {
+  color: var(--hl-meta);
+}
+
+.hljs-punctuation {
+  color: var(--hl-punct);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 600;
+}
+
+/* Table */
+.mdotion-prose .tableWrapper {
+  margin: 8px 0;
+  padding-bottom: 4px;
+  overflow-x: auto;
+}
+
+.mdotion-prose table {
+  border-collapse: collapse;
+  table-layout: auto;
+  min-width: 50%;
+}
+
+.mdotion-prose th,
+.mdotion-prose td {
+  position: relative;
+  min-width: 100px;
+  padding: 7px 9px;
+  border: 1px solid var(--divider-strong);
+  vertical-align: top;
+  text-align: left;
+}
+
+.mdotion-prose th {
+  background: var(--table-header);
+  font-weight: 500;
+}
+
+.mdotion-prose th > p,
+.mdotion-prose td > p {
+  margin: 0;
+  padding: 0;
+  min-height: 1.5em;
+}
+
+.mdotion-prose th[style*='text-align: center'],
+.mdotion-prose td[style*='text-align: center'] {
+  text-align: center;
+}
+
+.mdotion-prose .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--block-selection);
+  pointer-events: none;
+}
+
+/* Image */
+.mdotion-image figure {
+  position: relative;
+  margin: 8px 0;
+}
+
+.mdotion-image img {
+  display: block;
+  max-width: 100%;
+  border-radius: 2px;
+}
+
+.mdotion-image[data-selected] img,
+.mdotion-image[data-selected] .mdotion-image-broken {
+  box-shadow: 0 0 0 3px var(--selection);
+}
+
+.mdotion-image-tools {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.mdotion-image figure:hover .mdotion-image-tools {
+  opacity: 1;
+}
+
+.mdotion-image-tools button {
+  height: 26px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(15, 15, 15, 0.7);
+  color: #fff;
+  font-size: 12px;
+}
+
+.mdotion-image-caption {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 2px 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  outline: none;
+}
+
+.mdotion-image-caption:placeholder-shown {
+  opacity: 0;
+}
+
+.mdotion-image figure:hover .mdotion-image-caption,
+.mdotion-image-caption:focus {
+  opacity: 1;
+}
+
+.mdotion-image-caption::placeholder {
+  color: var(--text-tertiary);
+}
+
+.mdotion-image-broken {
+  padding: 16px;
+  border-radius: 4px;
+  background: var(--embed-bg);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.mdotion-embed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0;
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: var(--embed-bg);
+  font-size: 14px;
+}
+
+.mdotion-embed-icon {
+  font-size: 20px;
+}
+
+.mdotion-embed-input,
+.mdotion-input {
+  flex: 1 1 220px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--divider-strong);
+  border-radius: 4px;
+  background: var(--bg);
+  font-size: 14px;
+  outline: none;
+}
+
+.mdotion-embed-input:focus,
+.mdotion-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.25);
+}
+
+/* Raw (opaque) blocks */
+.mdotion-raw {
+  position: relative;
+  margin: 4px 0;
+  padding: 6px 10px;
+  border: 1px dashed var(--divider-strong);
+  border-radius: 4px;
+}
+
+.mdotion-raw[data-selected] {
+  background: var(--block-selection);
+}
+
+.mdotion-raw-label {
+  position: absolute;
+  top: -10px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+  background: var(--bg);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.mdotion-raw:hover .mdotion-raw-label,
+.mdotion-raw[data-selected] .mdotion-raw-label {
+  opacity: 1;
+}
+
+.mdotion-raw-label button {
+  padding: 0 4px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.mdotion-raw-preview img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.mdotion-raw-preview p {
+  margin: 4px 0;
+}
+
+.mdotion-raw-preview a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--text-tertiary);
+}
+
+.mdotion-raw-preview details > summary {
+  cursor: pointer;
+}
+
+.mdotion-raw-code,
+.mdotion-raw-source {
+  display: block;
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  color: var(--text-secondary);
+}
+
+.mdotion-raw-source {
+  min-height: 3em;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  resize: none;
+  outline: none;
+}
+
+.mdotion-html-inline {
+  border-radius: 3px;
+}
+
+.mdotion-html-inline.is-source {
+  font-family: var(--font-code);
+  font-size: 85%;
+  color: var(--text-tertiary);
+}
+
+.mdotion-html-inline.ProseMirror-selectednode {
+  background: var(--block-selection);
+}
+
+.mdotion-prose kbd,
+.mdotion-raw-preview kbd {
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--divider-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font-family: var(--font-code);
+  font-size: 0.85em;
+}
+
+/* Placeholder */
+.mdotion-prose .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* Selections */
+.mdotion-prose .ProseMirror-selectednode {
+  outline: none;
+}
+
+.mdotion-prose > .ProseMirror-selectednode:not(.mdotion-image):not(.mdotion-raw),
+.mdotion-prose li.ProseMirror-selectednode {
+  border-radius: 4px;
+  background: var(--block-selection);
+}
+
+.mdotion-prose hr.ProseMirror-selectednode {
+  background:
+    linear-gradient(var(--divider-strong), var(--divider-strong)) center / 100% 1px no-repeat,
+    var(--block-selection);
+}
+
+.mdotion-dropcursor {
+  background: rgba(35, 131, 226, 0.5);
+}
+
+/* ---- Block handle ------------------------------------------------------- */
+
+.mdotion-block-handle {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  color: var(--text-tertiary);
+}
+
+.mdotion-handle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}
+
+.mdotion-handle-button:hover {
+  background: var(--hover);
+  color: var(--text-secondary);
+}
+
+.mdotion-drag {
+  width: 18px;
+  cursor: grab;
+}
+
+.mdotion-drag:active {
+  cursor: grabbing;
+}
+
+/* ---- Popovers & menus --------------------------------------------------- */
+
+.mdotion-popover {
+  z-index: 100;
+  border-radius: 10px;
+  background: var(--popover-bg);
+  box-shadow: var(--popover-shadow);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.mdotion-menu {
+  min-width: 220px;
+  padding: 4px 0;
+}
+
+.mdotion-menu-section {
+  padding: 8px 14px 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.mdotion-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 8px);
+  height: 28px;
+  margin: 0 4px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.mdotion-menu-item:hover,
+.mdotion-menu-item.is-active {
+  background: var(--hover);
+}
+
+.mdotion-menu-icon {
+  display: inline-flex;
+  justify-content: center;
+  width: 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.mdotion-menu-shortcut {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.mdotion-menu-divider {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--divider);
+}
+
+.mdotion-menu-empty {
+  padding: 10px 14px;
+  color: var(--text-secondary);
+}
+
+.mdotion-danger,
+.mdotion-danger .mdotion-menu-icon {
+  color: var(--danger);
+}
+
+.mdotion-block-menu {
+  position: absolute;
+  z-index: 70;
+  width: 240px;
+}
+
+.mdotion-submenu-anchor {
+  position: relative;
+}
+
+.mdotion-submenu {
+  position: absolute;
+  top: -4px;
+  left: calc(100% + 4px);
+  width: 220px;
+}
+
+/* Slash menu */
+.mdotion-slash {
+  width: 324px;
+  max-height: min(380px, 45vh);
+  overflow-y: auto;
+  padding: 4px 0 6px;
+}
+
+.mdotion-slash-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 8px);
+  margin: 0 4px;
+  padding: 4px 10px 4px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+}
+
+.mdotion-slash-item.is-selected {
+  background: var(--hover);
+}
+
+.mdotion-slash-icon {
+  flex: 0 0 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  border: 1px solid var(--divider-strong);
+  border-radius: 4px;
+  background: var(--tile-bg);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.mdotion-slash-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.mdotion-slash-title {
+  font-size: 14px;
+}
+
+.mdotion-slash-desc {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mdotion-slash-hint {
+  color: var(--text-tertiary);
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+/* Bubble toolbar */
+.mdotion-bubble {
+  border-radius: 6px;
+}
+
+.mdotion-bubble-row {
+  display: flex;
+  align-items: stretch;
+  height: 32px;
+  padding: 0 2px;
+}
+
+.mdotion-bubble-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  margin: 3px 0;
+  padding: 0 6px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.mdotion-bubble-button:hover {
+  background: var(--hover);
+}
+
+.mdotion-bubble-button.is-active {
+  color: var(--accent);
+}
+
+.mdotion-bubble-wide {
+  padding: 0 8px;
+}
+
+.mdotion-bubble-sep {
+  width: 1px;
+  margin: 0 2px;
+  background: var(--divider);
+}
+
+.mdotion-bubble-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mdotion-mono {
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+.mdotion-caret {
+  margin-left: 4px;
+  color: var(--text-tertiary);
+  font-size: 10px;
+}
+
+.mdotion-turn-into {
+  position: relative;
+  display: flex;
+}
+
+.mdotion-turn-into-menu {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.mdotion-link-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 380px;
+  max-width: 90vw;
+  padding: 6px;
+}
+
+.mdotion-link-popover {
+  display: flex;
+  align-items: stretch;
+  height: 32px;
+  padding: 0 2px;
+  border-radius: 6px;
+}
+
+.mdotion-link-target {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 280px;
+  margin: 3px 0;
+  padding: 0 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.mdotion-link-target:hover {
+  background: var(--hover);
+}
+
+.mdotion-link-href {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mdotion-table-menu .mdotion-bubble-button {
+  font-size: 13px;
+}
+
+/* ---- Block selection (Notion) ------------------------------------------- */
+
+/* An overlay, so blocks with their own background (callouts, code, tables) are tinted too. */
+.mdotion-prose .mdotion-block-selected {
+  position: relative;
+}
+
+.mdotion-prose .mdotion-block-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 4px;
+  background: var(--block-selection);
+  pointer-events: none;
+}
+
+/* While blocks are selected, the text selection underneath is not shown. */
+.mdotion-prose.mdotion-has-block-selection *::selection {
+  background: transparent;
+}
+
+.mdotion-prose.mdotion-has-block-selection {
+  caret-color: transparent;
+}
+
+.mdotion-marquee {
+  position: fixed;
+  z-index: 80;
+  border-radius: 2px;
+  background: rgba(35, 131, 226, 0.12);
+  pointer-events: none;
+}
+
+/* ---- View switch & copy ------------------------------------------------- */
+
+.mdotion-view-switch {
+  display: flex;
+  margin-right: 4px;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--hover);
+}
+
+.mdotion-view-switch button {
+  height: 24px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.mdotion-view-switch button:hover:not(.is-active) {
+  color: var(--text);
+}
+
+.mdotion-view-switch button.is-active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 1px 2px;
+  cursor: default;
+}
+
+.mdotion-copy-all {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mdotion-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  padding: 0;
+}
+
+.mdotion-theme-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 0 8px 4px;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--hover);
+}
+
+.mdotion-theme-picker button {
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.mdotion-theme-picker button.is-active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px;
+}

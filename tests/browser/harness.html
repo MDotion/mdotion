@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--
+  Runs the built webview in a normal browser with a fake VS Code host, to work on
+  the UI without launching an Extension Development Host:
+
+    npm run build:webview && npm run harness   →  http://localhost:5178/tests/browser/harness.html
+
+  ?theme=dark switches the VS Code theme class. The right panel shows the Markdown
+  the extension would write to disk.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mdotion harness</title>
+    <link rel="stylesheet" href="/dist/webview/assets/index.css" />
+    <style>
+      body { display: grid; grid-template-columns: 1fr 420px; height: 100vh; overflow: hidden; }
+      #root { overflow: auto; }
+      #host { display: flex; flex-direction: column; border-left: 1px solid #8884; font: 12px/1.5 Menlo, monospace; }
+      #host header { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-bottom: 1px solid #8884; }
+      #host pre { flex: 1; margin: 0; padding: 8px; overflow: auto; white-space: pre-wrap; }
+      #log { max-height: 120px; overflow: auto; padding: 4px 8px; border-top: 1px solid #8884; opacity: 0.7; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <aside id="host">
+      <header>
+        <strong>Host document</strong> <span id="version"></span>
+        <button id="external" type="button">External edit</button>
+      </header>
+      <pre id="source"></pre>
+      <div id="log"></div>
+    </aside>
+    <script>
+      const params = new URLSearchParams(location.search);
+      document.body.classList.add(params.get('theme') === 'dark' ? 'vscode-dark' : 'vscode-light');
+      const host = {
+        text: '',
+        version: 1,
+        lastSent: 1,
+        theme: params.get('mdotionTheme') || 'auto',
+        render() {
+          document.getElementById('source').textContent = this.text;
+          document.getElementById('version').textContent = 'v' + this.version;
+        },
+        log(line) {
+          const el = document.getElementById('log');
+          el.textContent = line + '\n' + el.textContent;
+          console.log('[host]', line);
+        },
+        send(message) {
+          window.postMessage(message, '*');
+        },
+      };
+      window.__host = host;
+      window.acquireVsCodeApi = () => ({
+        postMessage(message) {
+          host.log('← ' + message.type + (message.href ? ' ' + message.href : ''));
+          if (message.type === 'ready') {
+            host.lastSent = host.version;
+            host.send({
+              type: 'init',
+              text: host.text,
+              version: host.version,
+              fileName: 'notion.md',
+              documentDirUri: location.origin + '/tests/fixtures/',
+              settings: { fullWidth: false, smallText: false, font: 'default' },
+              theme: host.theme,
+            });
+          } else if (message.type === 'setTheme') {
+            // Like the real host: the setting is stored, then broadcast back.
+            host.theme = message.theme;
+            host.send({ type: 'theme', theme: message.theme });
+          } else if (message.type === 'copyMarkdown') {
+            navigator.clipboard.writeText(host.text).catch(() => host.log('clipboard write refused'));
+          } else if (message.type === 'edit') {
+            if (message.baseVersion !== host.lastSent) {
+              host.send({ type: 'conflict', rejectedText: message.text });
+            } else {
+              host.text = message.text;
+              host.version += 1;
+            }
+          }
+          host.render();
+        },
+        getState() {},
+        setState() {},
+      });
+      document.getElementById('external').addEventListener('click', () => {
+        host.text = host.text.replace(/^# (.*)$/m, (_, title) => `# ${title} (edited outside)`);
+        host.version += 1;
+        host.lastSent = host.version;
+        host.render();
+        host.send({ type: 'update', text: host.text, version: host.version });
+      });
+      fetch('/tests/fixtures/' + (params.get('file') || 'notion.md'))
+        .then((response) => response.text())
+        .then((text) => {
+          host.text = text;
+          host.render();
+          const script = document.createElement('script');
+          script.src = '/dist/webview/assets/index.js';
+          document.body.appendChild(script);
+        });
+    </script>
+  </body>
+</html>

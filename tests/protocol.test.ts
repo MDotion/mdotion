@@ -1,0 +1,26 @@
+import { describe, expect, it } from 'vitest';
+import { MAX_DOCUMENT_CHARS, parseWebviewMessage } from '../src/shared/messages';
+
+describe('webview message validation', () => {
+  it('accepts well-formed edits', () => {
+    expect(parseWebviewMessage({ type: 'edit', text: '# Hi', baseVersion: 3 })).toEqual({
+      type: 'edit',
+      text: '# Hi',
+      baseVersion: 3,
+    });
+  });
+
+  it.each([
+    null,
+    'edit',
+    { type: 'unknown' },
+    { type: 'edit', text: 1, baseVersion: 0 },
+    { type: 'edit', text: 'x', baseVersion: -1 },
+    { type: 'edit', text: 'x'.repeat(MAX_DOCUMENT_CHARS + 1), baseVersion: 0 },
+    { type: 'openLink', href: '' },
+    { type: 'saveSettings', settings: { fullWidth: 'yes' } },
+    { type: 'setTheme', theme: 'sepia' },
+  ])('rejects %j', (raw) => {
+    expect(parseWebviewMessage(raw)).toBeNull();
+  });
+});

@@ -1,0 +1,198 @@
+{
+  "name": "mdotion",
+  "displayName": "Mdotion",
+  "description": "Notion-like visual editor for Markdown — slash menu, block handles, callouts, tables. Files stay plain .md on disk.",
+  "version": "0.5.0",
+  "publisher": "mdotion",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdotion/mdotion"
+  },
+  "engines": {
+    "node": ">=20.11.0",
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "mdotion.markdownEditor",
+        "displayName": "Mdotion",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mdotion.openVisualEditor",
+        "title": "Open Visual Editor",
+        "category": "Mdotion",
+        "icon": "$(book)"
+      },
+      {
+        "command": "mdotion.openSource",
+        "title": "Open Markdown Source",
+        "category": "Mdotion",
+        "icon": "$(code)"
+      },
+      {
+        "command": "mdotion.toggleEditor",
+        "title": "Switch Visual / Markdown Editor",
+        "category": "Mdotion",
+        "icon": "$(book)"
+      },
+      {
+        "command": "mdotion.copyMarkdown",
+        "title": "Copy All Markdown",
+        "category": "Mdotion",
+        "icon": "$(copy)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mdotion.toggleEditor",
+          "when": "editorLangId == markdown && activeEditor == workbench.editors.files.textFileEditor",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "mdotion.copyMarkdown",
+          "when": "editorLangId == markdown && activeEditor == workbench.editors.files.textFileEditor",
+          "group": "navigation@-1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mdotion.openVisualEditor",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
+          "group": "navigation@99"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "mdotion.openVisualEditor",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
+          "group": "1_open@1"
+        },
+        {
+          "command": "mdotion.openSource",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
+          "group": "1_open@2"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "mdotion.toggleEditor",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m",
+        "when": "activeCustomEditorId == mdotion.markdownEditor || (editorLangId == markdown && activeEditor == workbench.editors.files.textFileEditor)"
+      },
+      {
+        "command": "mdotion.copyMarkdown",
+        "key": "ctrl+shift+alt+c",
+        "mac": "cmd+shift+alt+c",
+        "when": "activeCustomEditorId == mdotion.markdownEditor || (editorLangId == markdown && activeEditor == workbench.editors.files.textFileEditor)"
+      }
+    ],
+    "configuration": {
+      "title": "Mdotion",
+      "properties": {
+        "mdotion.theme": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "light",
+            "dark"
+          ],
+          "enumDescriptions": [
+            "Follow the VS Code / Cursor colour theme.",
+            "Always use the Notion light theme.",
+            "Always use the Notion dark theme."
+          ],
+          "default": "auto",
+          "description": "Colour theme of the Mdotion visual editor. Also changed from the sun / moon button in the editor."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node scripts/check-node.mjs && npm run build:webview && npm run build:extension",
+    "build:extension": "node esbuild.mjs",
+    "build:webview": "node --import ./scripts/register-crypto.mjs ./node_modules/vite/bin/vite.js build",
+    "watch": "npm run build:webview && concurrently \"npm run watch:extension\" \"npm run watch:webview\"",
+    "watch:extension": "node esbuild.mjs --watch",
+    "watch:webview": "node --import ./scripts/register-crypto.mjs ./node_modules/vite/bin/vite.js build --watch",
+    "lint": "eslint src webview/src tests",
+    "format": "prettier --write \"src/**/*.ts\" \"webview/src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build && node tests/e2e/run.mjs",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run build",
+    "harness": "python3 -m http.server 5178 --bind 127.0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.1",
+    "concurrently": "^9.1.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "happy-dom": "^15.11.7",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@tiptap/core": "3.32.0",
+    "@tiptap/extension-code-block-lowlight": "3.32.0",
+    "@tiptap/extension-image": "3.32.0",
+    "@tiptap/extension-link": "3.32.0",
+    "@tiptap/extension-paragraph": "3.32.0",
+    "@tiptap/extension-table": "3.32.0",
+    "@tiptap/extension-task-item": "3.32.0",
+    "@tiptap/extension-task-list": "3.32.0",
+    "@tiptap/extensions": "3.32.0",
+    "@tiptap/markdown": "3.32.0",
+    "@tiptap/pm": "3.32.0",
+    "@tiptap/react": "3.32.0",
+    "@tiptap/starter-kit": "3.32.0",
+    "@tiptap/suggestion": "3.32.0",
+    "lowlight": "3.3.0",
+    "marked": "17.0.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.24.1"
+  },
+  "keywords": [
+    "markdown",
+    "notion",
+    "wysiwyg",
+    "editor",
+    "visual",
+    "block editor"
+  ]
+}

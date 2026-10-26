@@ -1,0 +1,53 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.5.0] - 2026-10-26
+
+### Added
+
+- Light / dark theme switch (sun / moon button in the top bar, **Auto · Light · Dark** in the `•••` menu). The choice is stored in the `mdotion.theme` setting, so it persists and applies to every Mdotion tab; **Auto** follows the VS Code / Cursor theme.
+
+## [0.4.0] - 2026-10-23
+
+### Added
+
+- Notion block selection: dragging text across blocks, dragging a rectangle from the margins, `Esc`, `Shift+↑/↓` and `⌘A` (twice) select whole blocks. Selected blocks can be copied, cut, deleted, duplicated (`⌘D`), moved (`⌘⇧↑/↓` or drag) and turned into another type together.
+- Copy always writes Markdown as plain text: untouched blocks keep their exact source, text inside one block is copied as inline Markdown.
+- **Visual | Markdown** switch in the top bar and `⌘⌥M` / `Ctrl+Alt+M`; the switch replaces the tab in place and keeps unsaved changes.
+- **Copy all Markdown**: top-bar button, editor title button in the source editor and `⌘⇧⌥C` / `Ctrl+Shift+Alt+C`.
+
+## [0.3.0] - 2026-10-23
+
+### Added
+
+- Notion UI: page layout and typography, page title, light/dark palettes, page options (full width, small text, fonts).
+- Block handles with drag & drop and block menu (Turn into, Duplicate, Move, Copy as Markdown, Delete).
+- Selection toolbar with Turn into and link editing (`⌘K`), link popover (open / edit / remove).
+- Notion slash menu with icons, hints and ranking; callouts, tables, images, code blocks with language and highlighting.
+- Callouts as GitHub alerts, GFM tables, images with relative paths and captions, front matter as page properties.
+- Raw blocks and inline HTML atoms: unsupported Markdown is kept verbatim, previewed and editable as source.
+- Markdown paste / copy, placeholders, Notion keyboard shortcuts.
+- Conflict banner with "Restore my version".
+- Browser harness (`npm run harness`), editor-sync tests, real e2e checks.
+
+### Fixed
+
+- Tables, images, HTML and `<details>` were deleted on the first edit; unchanged blocks are now written back byte for byte and edits touch only the edited block.
+- Opening or editing rewrote the whole file (`[url](url)` autolinks, `\[!NOTE\]`, `snake\_case`, `&amp;`, lost final newline).
+- The caret jumped and typed characters could be lost because the host echoed every edit back with `setContent`.
+- Every `⌘Z` undid twice; `⌘B` toggled the sidebar and `⌘K`/`⌘I` triggered Cursor commands from inside the editor.
+- Clicking a link to edit it opened the browser.
+- Double debounce (webview + host) could save stale content on `⌘S`.
+- Toggle Editor / Open Source did nothing when invoked from the visual editor.
+- The webview stylesheet was never emitted (404) and the placeholder never showed.
+- `npm run lint` (ESLint 9 flat config) and `npm run test:e2e` (executable path, `ELECTRON_RUN_AS_NODE`) were broken.
+
+## [0.1.0] - 2026-10-23
+
+### Added
+
+- Tiptap 3 + `@tiptap/markdown` adapter, custom editor for `*.md`, typed protocol, first slash menu.
