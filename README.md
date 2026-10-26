@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/SebastianI5/mdotion/raw/HEAD/images/logo-dark.png">
+    <img src="images/logo-light.png" alt="MDotion" width="360">
+  </picture>
+</p>
+
 # Mdotion
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -82,5 +89,7 @@ Architecture notes and design decisions live in [docs/adr](docs/adr/README.md).
 
 Mdotion is released under the [MIT License](LICENSE).
 It bundles open-source packages (Tiptap, ProseMirror, React, highlight.js, marked, zod and others) whose licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+The MIT License covers the source code. The Mdotion name and logo (files in [`assets/`](assets/) and the derived images in `images/`) identify the project: you may use them to refer to Mdotion, but not to brand forks or other products as if they were Mdotion.
 
 Mdotion is an independent project and is not affiliated with or endorsed by Notion Labs, Inc. "Notion" is a trademark of its respective owner and is used here only to describe the editing style.

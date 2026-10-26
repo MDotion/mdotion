@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Mdotion is now an **optional** editor: it no longer opens every Markdown file by default. The first time a Markdown file is opened it offers to become the default, and the new commands **Use as Default Markdown Editor** / **Stop Using as Default Markdown Editor** change it at any time.
+- Brand: extension icon and README logo (light / dark) from the MDotion brand files in `assets/`.
 - Marketplace readiness: preview flag, screenshots, gallery banner, clearer display name and keywords; CI on Linux, Windows and macOS plus the minimum VS Code version (1.85); release workflow publishing to the VS Code Marketplace and Open VSX.
 
 - Open-source project documentation: contributing guide, code of conduct, security policy, issue and pull request templates, manual testing guide in English.

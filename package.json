@@ -11,9 +11,10 @@
   },
   "license": "MIT",
   "pricing": "Free",
+  "icon": "images/icon.png",
   "galleryBanner": {
-    "color": "#191919",
-    "theme": "dark"
+    "color": "#F5F5F4",
+    "theme": "light"
   },
   "repository": {
     "type": "git",

@@ -29,5 +29,5 @@ A marketplace whose secret is missing is skipped, so releases also work before b
 
 ## Before the first public release
 
-- Add the extension icon as `images/icon.png` (PNG, at least 128×128, 256×256 recommended) and set `"icon": "images/icon.png"` in `package.json`.
+- The extension icon is `images/icon.png` (256×256 PNG rendered from `assets/mdotion-icon-dark.svg`); the README logos `images/logo-*.png` come from `assets/mdotion-lockup-*.svg`. The Marketplace rejects SVG icons and SVG images in the README, so regenerate the PNGs when the brand files change.
 - Go through the [manual testing checklist](TESTING.md) in VS Code and Cursor.
