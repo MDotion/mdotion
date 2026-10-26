@@ -14,7 +14,8 @@ You are in Mdotion when the page has a Notion-like layout with the file name at 
 
 Use `tests/fixtures/notion.md` (it contains every supported construct).
 
-- [ ] Opening the file does not mark it as modified.
+- [ ] On a fresh install, opening a `.md` file shows the text editor and the prompt *Open Markdown files in the Mdotion visual editor by default?*; **Use by default** switches the file to Mdotion, **Not now** asks again a week later, **Don't ask again** never asks.
+- [ ] Opening the file in Mdotion does not mark it as modified.
 - [ ] Edit one paragraph, save, switch to **Markdown**: only that line changed.
 - [ ] `/` opens the block menu, typing filters it, `Enter` inserts; `/xyz` shows "No results".
 - [ ] `+` and `⋮⋮` next to blocks: add a block, drag a block, block menu (Turn into, Duplicate, Move, Delete).

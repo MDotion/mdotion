@@ -5,6 +5,7 @@ import { openSource } from './commands/openSource';
 import { toggleEditor } from './commands/toggleEditor';
 import { getActiveMarkdown } from './commands/activeMarkdown';
 import { copyMarkdown } from './commands/copyMarkdown';
+import { registerDefaultEditorPrompt, setDefaultEditor } from './commands/defaultEditor';
 
 export function activate(context: vscode.ExtensionContext): void {
   const provider = new MarkdownEditorProvider(context.extensionUri, context.globalState);
@@ -44,6 +45,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('mdotion.openSource', openSource),
     vscode.commands.registerCommand('mdotion.toggleEditor', toggleEditor),
     vscode.commands.registerCommand('mdotion.copyMarkdown', (uri?: vscode.Uri) => copyMarkdown(provider, uri)),
+    vscode.commands.registerCommand('mdotion.useAsDefault', () => setDefaultEditor(true)),
+    vscode.commands.registerCommand('mdotion.stopUsingAsDefault', () => setDefaultEditor(false)),
+    registerDefaultEditorPrompt(context),
   );
 }
 

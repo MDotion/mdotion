@@ -57,20 +57,28 @@ export async function run(): Promise<void> {
     await vscode.commands.executeCommand('undo');
   });
 
-  await check('Switch replaces the tab in both directions, even with unsaved changes', async () => {
+  await check('Switch replaces the tab in both directions and never loses unsaved changes', async () => {
+    // In-place replacement of a dirty editor needs `reopenActiveEditorWith` (VS Code 1.100+).
+    const inPlace = (await vscode.commands.getCommands(true)).includes('reopenActiveEditorWith');
     await vscode.commands.executeCommand('vscode.openWith', uri, VIEW_TYPE);
     await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab');
-    const edit = new vscode.WorkspaceEdit();
-    edit.insert(uri, new vscode.Position(2, 0), 'Unsaved. ');
-    assert.ok(await vscode.workspace.applyEdit(edit));
 
+    // Clean document: every version replaces the tab.
     await vscode.commands.executeCommand('mdotion.toggleEditor');
     await waitFor(() => vscode.window.activeTextEditor?.document.uri.toString() === uri.toString(), 'text editor');
     await waitFor(() => tabsFor(uri) === 1, 'the visual tab to be replaced');
 
+    const edit = new vscode.WorkspaceEdit();
+    edit.insert(uri, new vscode.Position(2, 0), 'Unsaved. ');
+    assert.ok(await vscode.workspace.applyEdit(edit));
     await vscode.commands.executeCommand('mdotion.toggleEditor');
     await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab again');
-    await waitFor(() => tabsFor(uri) === 1, 'the text tab to be replaced');
+    if (inPlace) {
+      await waitFor(() => tabsFor(uri) === 1, 'the text tab to be replaced');
+    } else {
+      assert.ok(tabsFor(uri) <= 2, 'older IDEs keep the dirty tab open instead of discarding it');
+    }
+    await sleep(500);
     assert.ok(findDocument(uri)?.getText().includes('Unsaved. '), 'unsaved changes survive the switch');
   });
 
@@ -78,6 +86,16 @@ export async function run(): Promise<void> {
     await vscode.env.clipboard.writeText('');
     await vscode.commands.executeCommand('mdotion.copyMarkdown');
     assert.strictEqual(await vscode.env.clipboard.readText(), findDocument(uri)?.getText());
+  });
+
+  await check('Use / Stop Using as Default update the Markdown editor association', async () => {
+    const associations = () =>
+      vscode.workspace.getConfiguration('workbench').inspect<Record<string, string>>('editorAssociations')?.globalValue ?? {};
+    await vscode.commands.executeCommand('mdotion.useAsDefault');
+    assert.strictEqual(associations()['*.md'], VIEW_TYPE);
+    assert.strictEqual(associations()['*.markdown'], VIEW_TYPE);
+    await vscode.commands.executeCommand('mdotion.stopUsingAsDefault');
+    assert.strictEqual(associations()['*.md'], undefined);
   });
 
   await check('the theme is a persistent extension setting', async () => {

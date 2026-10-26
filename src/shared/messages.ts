@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-export const PROTOCOL_VERSION = 2;
+import { MAX_DOCUMENT_CHARS } from './protocolConstants';
 
-/** Hard cap for payloads coming from the (untrusted) webview. */
-export const MAX_DOCUMENT_CHARS = 10_000_000;
+export { DEFAULT_PAGE_SETTINGS, MAX_DOCUMENT_CHARS, PROTOCOL_VERSION } from './protocolConstants';
 
 export const pageSettingsSchema = z.object({
   fullWidth: z.boolean(),
@@ -13,7 +12,6 @@ export const pageSettingsSchema = z.object({
 
 export type PageSettings = z.infer<typeof pageSettingsSchema>;
 
-export const DEFAULT_PAGE_SETTINGS: PageSettings = { fullWidth: false, smallText: false, font: 'default' };
 
 /** `auto` follows the VS Code / Cursor theme; stored in the `mdotion.theme` setting. */
 export const themeSchema = z.enum(['auto', 'light', 'dark']);

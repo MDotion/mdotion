@@ -1,24 +1,45 @@
 {
   "name": "mdotion",
-  "displayName": "Mdotion",
-  "description": "Notion-like visual editor for Markdown — slash menu, block handles, callouts, tables. Files stay plain .md on disk.",
+  "displayName": "Mdotion – Visual Markdown Editor",
+  "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, callouts, tables and code. Files stay plain .md, untouched blocks are saved byte for byte.",
   "version": "0.5.0",
+  "preview": true,
   "publisher": "mdotion",
-  "license": "MIT",
   "author": {
     "name": "Sebastian Irimia",
     "url": "https://github.com/SebastianI5"
+  },
+  "license": "MIT",
+  "pricing": "Free",
+  "galleryBanner": {
+    "color": "#191919",
+    "theme": "dark"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/SebastianI5/mdotion.git"
   },
+  "bugs": {
+    "url": "https://github.com/SebastianI5/mdotion/issues"
+  },
+  "homepage": "https://github.com/SebastianI5/mdotion#readme",
   "engines": {
     "node": ">=20.11.0",
     "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "md",
+    "wysiwyg",
+    "visual editor",
+    "block editor",
+    "slash commands",
+    "callouts",
+    "tables",
+    "gfm"
   ],
   "activationEvents": [
     "onLanguage:markdown"
@@ -37,7 +58,7 @@
             "filenamePattern": "*.markdown"
           }
         ],
-        "priority": "default"
+        "priority": "option"
       }
     ],
     "commands": [
@@ -64,6 +85,16 @@
         "title": "Copy All Markdown",
         "category": "Mdotion",
         "icon": "$(copy)"
+      },
+      {
+        "command": "mdotion.useAsDefault",
+        "title": "Use as Default Markdown Editor",
+        "category": "Mdotion"
+      },
+      {
+        "command": "mdotion.stopUsingAsDefault",
+        "title": "Stop Using as Default Markdown Editor",
+        "category": "Mdotion"
       }
     ],
     "menus": {
@@ -149,7 +180,8 @@
     "package": "npm run notices && vsce package --no-dependencies",
     "vscode:prepublish": "npm run build",
     "harness": "python3 -m http.server 5178 --bind 127.0.0.1",
-    "notices": "node scripts/third-party-notices.mjs"
+    "notices": "node scripts/third-party-notices.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p webview/tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
@@ -166,6 +198,7 @@
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "happy-dom": "^15.11.7",
+    "ovsx": "1.3.0",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
@@ -186,22 +219,14 @@
     "@tiptap/react": "3.32.0",
     "@tiptap/starter-kit": "3.32.0",
     "@tiptap/suggestion": "3.32.0",
+    "highlight.js": "11.11.2",
     "lowlight": "3.3.0",
     "marked": "17.0.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "^3.24.1"
   },
-  "keywords": [
-    "markdown",
-    "notion",
-    "wysiwyg",
-    "editor",
-    "visual",
-    "block editor"
-  ],
-  "bugs": {
-    "url": "https://github.com/SebastianI5/mdotion/issues"
-  },
-  "homepage": "https://github.com/SebastianI5/mdotion#readme"
+  "overrides": {
+    "highlight.js": "11.11.2"
+  }
 }

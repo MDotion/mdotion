@@ -70,6 +70,10 @@ Mdotion is MIT-licensed and only bundles dependencies under permissive licenses 
 - Update `CHANGELOG.md` (under **Unreleased**) and the README or ADRs when behaviour changes.
 - Follow the existing code style (Prettier config in `.prettierrc`, `npm run format`).
 
+## Releases
+
+Maintainers publish releases by pushing a version tag; see [docs/RELEASING.md](docs/RELEASING.md).
+
 ## License of contributions
 
 Mdotion is released under the [MIT License](LICENSE). By submitting a contribution you agree that it is licensed under the same terms, and that you have the right to submit it.

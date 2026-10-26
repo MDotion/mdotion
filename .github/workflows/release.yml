@@ -1,0 +1,60 @@
+name: Release
+
+# Push a tag like `v0.6.0` (matching package.json "version") to publish:
+#   - a GitHub release with the .vsix attached;
+#   - the VS Code Marketplace (secret VSCE_PAT) — used by VS Code;
+#   - Open VSX (secret OVSX_PAT) — used by Cursor, VSCodium and others.
+# A marketplace is skipped when its secret is not configured.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Tag matches package.json version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $VERSION" >&2
+            exit 1
+          fi
+
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: xvfb-run -a npm run test:e2e
+
+      - name: Package
+        run: |
+          npm run package
+          echo "VSIX=$(ls *.vsix)" >> "$GITHUB_ENV"
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$VSIX" --title "$GITHUB_REF_NAME" --notes "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
+
+      - name: Publish to the VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        if: env.VSCE_PAT != ''
+        run: npx vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+
+      - name: Publish to Open VSX
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        if: env.OVSX_PAT != ''
+        run: npx ovsx publish "$VSIX" --pat "$OVSX_PAT"

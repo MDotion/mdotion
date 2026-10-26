@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DOCUMENT_CHARS, parseWebviewMessage } from '../src/shared/messages';
+import { hostToWebviewMessageSchema, MAX_DOCUMENT_CHARS, parseWebviewMessage } from '../src/shared/messages';
+import { HOST_MESSAGE_TYPES } from '../src/shared/protocolConstants';
 
 describe('webview message validation', () => {
   it('accepts well-formed edits', () => {
@@ -22,5 +23,12 @@ describe('webview message validation', () => {
     { type: 'setTheme', theme: 'sepia' },
   ])('rejects %j', (raw) => {
     expect(parseWebviewMessage(raw)).toBeNull();
+  });
+});
+
+describe('host message types', () => {
+  it('lists every message type of the schema (the webview filters on this list)', () => {
+    const types = hostToWebviewMessageSchema.options.map((option) => option.shape.type.value);
+    expect([...types].sort()).toEqual([...HOST_MESSAGE_TYPES].sort());
   });
 });

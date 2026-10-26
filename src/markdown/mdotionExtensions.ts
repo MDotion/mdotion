@@ -7,13 +7,14 @@ import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import StarterKit from '@tiptap/starter-kit';
-import { common, createLowlight } from 'lowlight';
+import { createLowlight } from 'lowlight';
+import { highlightLanguages } from './highlightLanguages';
 import { escapeParagraphLines } from './escape';
 import { Callout } from './extensions/Callout';
 import { HtmlInline } from './extensions/HtmlInline';
 import { RawBlock } from './extensions/RawBlock';
 
-export const lowlight = createLowlight(common);
+export const lowlight = createLowlight(highlightLanguages);
 
 /** Paragraph that escapes line starts which would otherwise re-parse as other blocks. */
 const MdotionParagraph = Paragraph.extend({

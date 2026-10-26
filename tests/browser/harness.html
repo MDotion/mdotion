@@ -5,7 +5,7 @@
 
     npm run build:webview && npm run harness   →  http://localhost:5178/tests/browser/harness.html
 
-  ?theme=dark switches the VS Code theme class. The right panel shows the Markdown
+  ?theme=dark switches the VS Code theme class, ?screenshot hides the host panel. The right panel shows the Markdown
   the extension would write to disk.
 -->
 <html lang="en">
@@ -36,6 +36,11 @@
     <script>
       const params = new URLSearchParams(location.search);
       document.body.classList.add(params.get('theme') === 'dark' ? 'vscode-dark' : 'vscode-light');
+      if (params.has('screenshot')) {
+        // README screenshots: editor only, without the fake host panel.
+        document.body.style.gridTemplateColumns = '1fr';
+        document.getElementById('host').style.display = 'none';
+      }
       const host = {
         text: '',
         version: 1,
@@ -64,7 +69,7 @@
               type: 'init',
               text: host.text,
               version: host.version,
-              fileName: 'notion.md',
+              fileName: params.get('file') || 'notion.md',
               documentDirUri: location.origin + '/tests/fixtures/',
               settings: { fullWidth: false, smallText: false, font: 'default' },
               theme: host.theme,

@@ -13,7 +13,8 @@ await new Promise((resolve, reject) => {
 
 // Returns the path of the VS Code executable (cached in .vscode-test). Recent macOS builds
 // name it `Code` while some @vscode/test-electron versions expect `Electron`.
-let vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
+// VSCODE_TEST_VERSION=1.85.2 checks the minimum version declared in package.json.
+let vscodeExecutablePath = await downloadAndUnzipVSCode(process.env.VSCODE_TEST_VERSION ?? 'stable');
 if (!existsSync(vscodeExecutablePath)) {
   const fallback = path.join(path.dirname(vscodeExecutablePath), 'Code');
   if (existsSync(fallback)) {

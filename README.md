@@ -6,6 +6,10 @@
 Notion-style visual editing for **plain Markdown** (`.md`) inside **VS Code** and **Cursor**.
 Files stay portable Markdown on disk — no account, no cloud, no proprietary format — and the blocks you don't touch are written back byte for byte, so Git diffs stay clean.
 
+![Mdotion editing a Markdown file with properties, a callout, to-dos and a table](images/screenshot-light.jpg)
+
+> **Preview** — Mdotion is young (0.x). Your files are always plain Markdown and the source editor is one click away, but please [report](https://github.com/SebastianI5/mdotion/issues) anything that looks wrong.
+
 ## Features
 
 - **Notion UI** — centered page, the first `# H1` as page title, Notion typography and colours, light / dark theme switch (sun / moon button; **Auto** follows the IDE), full-width, small-text, serif and mono page options (`•••`).
@@ -19,23 +23,27 @@ Files stay portable Markdown on disk — no account, no cloud, no proprietary fo
 - **Front matter** shown as page properties and edited as YAML.
 - **Nothing is lost** — HTML, reference definitions, badges and anything the editor cannot represent are kept verbatim as source blocks, with a sanitized preview.
 - **Copy as Markdown** — anything you copy pastes as formatted Markdown elsewhere; pasting Markdown creates blocks.
-- **Switch & copy** — **Visual | Markdown** toggle (`⌘⌥M` / `Ctrl+Alt+M`) replaces the tab in place; **Copy** (`⌘⇧⌥C` / `Ctrl+Shift+Alt+C`) copies the whole file.
+- **Switch & copy** — **Visual | Markdown** toggle (`⌘⌥M` / `Ctrl+Alt+M`) replaces the tab in place; **Copy** (`⌘⇧⌥C` / `Ctrl+Shift+Alt+C`) copies the whole file. (On editors older than VS Code 1.100 a file with unsaved changes opens in a second tab instead, so nothing is discarded.)
 - **Real files** — edits go through the IDE `TextDocument`: save, dirty state, undo in the source editor and Git work as usual; external changes appear live without moving the caret; conflicts never overwrite silently.
 
 ## Installation
 
-Mdotion is not on the Marketplace yet. Build the package and install it:
+- **VS Code:** install **Mdotion** from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=mdotion.mdotion), or run `ext install mdotion.mdotion` in Quick Open.
+- **Cursor, VSCodium and other editors using Open VSX:** install it from [Open VSX](https://open-vsx.org/extension/mdotion/mdotion).
+- **From source:** `npm install && npm run package`, then **Extensions → ⋯ → Install from VSIX…** (requires Node.js 20.11+).
 
-```bash
-git clone https://github.com/SebastianI5/mdotion.git
-cd mdotion
-nvm use          # Node.js 20.11+
-npm install
-npm run package  # produces mdotion-<version>.vsix
-```
+Requires VS Code 1.85 or later (or an editor built on it).
 
-Then in VS Code or Cursor: **Extensions** → **⋯** → **Install from VSIX…** and pick the generated file.
-Markdown files open in Mdotion by default; use **Reopen Editor With…** or the **Visual | Markdown** switch to change editor.
+## Getting started
+
+Mdotion never takes over your Markdown files on its own:
+
+- open any `.md` file and click the **book** icon in the editor title bar, the **Mdotion** status bar item, or press `⌘⌥M` / `Ctrl+Alt+M`;
+- the first time you open a Markdown file, Mdotion asks whether it should become your **default Markdown editor**. You can change this at any time with **Mdotion: Use as Default Markdown Editor** / **Mdotion: Stop Using as Default Markdown Editor**.
+
+| Slash menu (dark theme) | Block selection |
+|---|---|
+| ![Slash menu in the dark theme](images/screenshot-dark-slash-menu.jpg) | ![Several blocks selected at once](images/screenshot-block-selection.jpg) |
 
 ## Commands
 
@@ -45,6 +53,8 @@ Markdown files open in Mdotion by default; use **Reopen Editor With…** or the 
 | Mdotion: Open Markdown Source | `mdotion.openSource` | |
 | Mdotion: Switch Visual / Markdown Editor | `mdotion.toggleEditor` | `⌘⌥M` / `Ctrl+Alt+M` |
 | Mdotion: Copy All Markdown | `mdotion.copyMarkdown` | `⌘⇧⌥C` / `Ctrl+Shift+Alt+C` |
+| Mdotion: Use as Default Markdown Editor | `mdotion.useAsDefault` | |
+| Mdotion: Stop Using as Default Markdown Editor | `mdotion.stopUsingAsDefault` | |
 
 Also available from the editor title bar, the status bar, the explorer context menu and **Reopen Editor With…**. Shortcuts can be changed in **Keyboard Shortcuts**.
 

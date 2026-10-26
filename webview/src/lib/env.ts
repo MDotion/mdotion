@@ -1,4 +1,5 @@
-import type { WebviewToHostMessage } from '../../../src/shared/messages';
+import type { HostToWebviewMessage, WebviewToHostMessage } from '../../../src/shared/messages';
+import { HOST_MESSAGE_TYPES } from '../../../src/shared/protocolConstants';
 import { getVsCodeApi } from '../vscodeApi';
 
 let documentDirUri = '';
@@ -21,6 +22,17 @@ export function resolveResourceUrl(src: string): string {
   } catch {
     return src;
   }
+}
+
+/**
+ * Messages come from our own extension host (validated there with zod), so a
+ * shape check is enough here and keeps the validation library out of the webview.
+ */
+export function toHostMessage(raw: unknown): HostToWebviewMessage | null {
+  const type = (raw as { type?: unknown } | null)?.type;
+  return typeof type === 'string' && (HOST_MESSAGE_TYPES as readonly string[]).includes(type)
+    ? (raw as HostToWebviewMessage)
+    : null;
 }
 
 export function postToHost(message: WebviewToHostMessage): void {

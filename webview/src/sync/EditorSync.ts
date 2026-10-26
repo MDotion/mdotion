@@ -3,11 +3,8 @@ import type { Node as PMNode } from '@tiptap/pm/model';
 import { joinFrontMatter, splitFrontMatter } from '../../../src/markdown/FrontMatter';
 import type { MarkdownAdapter, SourceMap } from '../../../src/markdown/MarkdownAdapter';
 import { setSourceMap } from '../editor/adapter';
-import {
-  PROTOCOL_VERSION,
-  type HostToWebviewMessage,
-  type WebviewToHostMessage,
-} from '../../../src/shared/messages';
+import type { HostToWebviewMessage, WebviewToHostMessage } from '../../../src/shared/messages';
+import { PROTOCOL_VERSION } from '../../../src/shared/protocolConstants';
 
 const FLUSH_DELAY_MS = 300;
 /** Transaction meta marking changes that come from the host, not from the user. */

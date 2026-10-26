@@ -1,6 +1,7 @@
 import { EditorContent, useEditor } from '@tiptap/react';
 import { useEffect, useMemo, useState } from 'react';
-import { DEFAULT_PAGE_SETTINGS, parseHostMessage, type PageSettings, type Theme } from '../../src/shared/messages';
+import type { PageSettings, Theme } from '../../src/shared/messages';
+import { DEFAULT_PAGE_SETTINGS } from '../../src/shared/protocolConstants';
 import { BlockHandle } from './components/BlockHandle';
 import { BlockMarquee } from './components/BlockMarquee';
 import { BubbleToolbar } from './components/BubbleToolbar';
@@ -10,7 +11,7 @@ import { TableMenu } from './components/TableMenu';
 import { Topbar } from './components/Topbar';
 import { initAdapter } from './editor/adapter';
 import { createEditorExtensions } from './editor/extensions';
-import { openLink, postToHost, setDocumentDirUri } from './lib/env';
+import { openLink, postToHost, setDocumentDirUri, toHostMessage } from './lib/env';
 import { applyTheme } from './lib/theme';
 import { EditorSync, type SyncState } from './sync/EditorSync';
 
@@ -28,7 +29,7 @@ export function App(): React.ReactElement | null {
     [editor, extensions],
   );
   const [state, setState] = useState<SyncState | null>(null);
-  const [settings, setSettings] = useState<PageSettings>(DEFAULT_PAGE_SETTINGS);
+  const [settings, setSettings] = useState<PageSettings>({ ...DEFAULT_PAGE_SETTINGS });
   const [theme, setTheme] = useState<Theme>('auto');
   const [page, setPage] = useState<HTMLDivElement | null>(null);
   const [scroller, setScroller] = useState<HTMLElement | null>(null);
@@ -39,7 +40,7 @@ export function App(): React.ReactElement | null {
     }
     const unsubscribe = sync.subscribe(setState);
     const onMessage = (event: MessageEvent) => {
-      const message = parseHostMessage(event.data);
+      const message = toHostMessage(event.data);
       if (!message) {
         return;
       }

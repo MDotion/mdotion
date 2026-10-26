@@ -1,7 +1,4 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "workbench.editorAssociations": {
-    "*.md": "mdotion.markdownEditor"
-  }
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

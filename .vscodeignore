@@ -24,3 +24,5 @@ scripts/**
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 SECURITY.md
+images/**
+!images/icon.png

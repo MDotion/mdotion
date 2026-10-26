@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { lowlight } from '../../../src/markdown/mdotionExtensions';
 import { copyText } from '../lib/clipboard';
 
+/** Display names for the languages in `src/markdown/highlightLanguages.ts`. */
 const LANGUAGE_LABELS: Record<string, string> = {
   bash: 'Bash',
   c: 'C',
@@ -10,31 +11,24 @@ const LANGUAGE_LABELS: Record<string, string> = {
   csharp: 'C#',
   css: 'CSS',
   diff: 'Diff',
+  dockerfile: 'Dockerfile',
   go: 'Go',
   graphql: 'GraphQL',
-  ini: 'INI',
+  ini: 'INI / TOML',
   java: 'Java',
   javascript: 'JavaScript',
   json: 'JSON',
   kotlin: 'Kotlin',
-  less: 'Less',
-  lua: 'Lua',
-  makefile: 'Makefile',
   markdown: 'Markdown',
-  objectivec: 'Objective-C',
-  perl: 'Perl',
   php: 'PHP',
   python: 'Python',
-  r: 'R',
   ruby: 'Ruby',
   rust: 'Rust',
   scss: 'SCSS',
-  shell: 'Shell',
+  shell: 'Shell session',
   sql: 'SQL',
   swift: 'Swift',
   typescript: 'TypeScript',
-  vbnet: 'VB.NET',
-  wasm: 'WebAssembly',
   xml: 'HTML / XML',
   yaml: 'YAML',
 };
@@ -42,7 +36,8 @@ const LANGUAGE_LABELS: Record<string, string> = {
 export function CodeBlockView({ node, updateAttributes, editor }: ReactNodeViewProps): React.ReactElement {
   const language = (node.attrs.language as string | null) ?? '';
   const [copied, setCopied] = useState(false);
-  const languages = useMemo(() => lowlight.listLanguages().sort(), []);
+  // "Plain text" is the empty option; `plaintext` would duplicate it.
+  const languages = useMemo(() => lowlight.listLanguages().filter((name) => name !== 'plaintext').sort(), []);
   const known = language === '' || languages.includes(language) || lowlight.registered(language);
 
   const copy = () => {
