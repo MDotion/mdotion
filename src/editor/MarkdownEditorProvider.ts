@@ -19,7 +19,7 @@ const SETTINGS_KEY = 'mdotion.pageSettings';
 export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   public static readonly viewType = 'mdotion.markdownEditor';
 
-  /** Bridges of open Mdotion panels, so saves can wait for pending edits. */
+  /** Bridges of open MDotion panels, so saves can wait for pending edits. */
   private readonly bridges = new Map<string, Set<DocumentBridge>>();
 
   constructor(
@@ -48,7 +48,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     void config.update('theme', theme, target);
   }
 
-  /** Pushes the theme to every open Mdotion panel (call on configuration change). */
+  /** Pushes the theme to every open MDotion panel (call on configuration change). */
   broadcastTheme(): void {
     const theme = this.readTheme();
     this.bridges.forEach((set) => set.forEach((bridge) => bridge.onThemeChanged(theme)));
@@ -159,7 +159,7 @@ async function openLink(document: vscode.TextDocument, href: string): Promise<vo
     return;
   }
   if (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^file:/i.test(href)) {
-    void vscode.window.showWarningMessage(`Mdotion: links with this scheme are not opened (${href}).`);
+    void vscode.window.showWarningMessage(`MDotion: links with this scheme are not opened (${href}).`);
     return;
   }
   const [rawPath, fragment] = href.split('#', 2);
@@ -175,7 +175,7 @@ async function openLink(document: vscode.TextDocument, href: string): Promise<vo
         ? vscode.Uri.joinPath(vscode.workspace.getWorkspaceFolder(document.uri)?.uri ?? documentDir, decodeURI(rawPath))
         : vscode.Uri.joinPath(documentDir, decodeURI(rawPath));
   } catch {
-    void vscode.window.showWarningMessage(`Mdotion: invalid link ${href}`);
+    void vscode.window.showWarningMessage(`MDotion: invalid link ${href}`);
     return;
   }
   try {
@@ -185,7 +185,7 @@ async function openLink(document: vscode.TextDocument, href: string): Promise<vo
       return;
     }
   } catch {
-    void vscode.window.showWarningMessage(`Mdotion: file not found: ${rawPath}`);
+    void vscode.window.showWarningMessage(`MDotion: file not found: ${rawPath}`);
     return;
   }
   await vscode.commands.executeCommand('vscode.open', fragment ? target.with({ fragment }) : target);

@@ -50,7 +50,7 @@ export class DocumentBridge {
         if (message.protocolVersion !== PROTOCOL_VERSION) {
           this.host.postMessage({
             type: 'error',
-            message: `Mdotion webview protocol ${message.protocolVersion} does not match host protocol ${PROTOCOL_VERSION}. Reload the window.`,
+            message: `MDotion webview protocol ${message.protocolVersion} does not match host protocol ${PROTOCOL_VERSION}. Reload the window.`,
           });
           return;
         }
@@ -123,7 +123,7 @@ export class DocumentBridge {
     this.queue = this.queue.then(() => this.applyEdit(text, baseVersion)).catch((error: unknown) => {
       this.host.postMessage({
         type: 'error',
-        message: `Mdotion could not apply the edit: ${error instanceof Error ? error.message : String(error)}`,
+        message: `MDotion could not apply the edit: ${error instanceof Error ? error.message : String(error)}`,
       });
     });
   }

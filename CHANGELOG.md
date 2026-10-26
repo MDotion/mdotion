@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Mdotion is now an **optional** editor: it no longer opens every Markdown file by default. The first time a Markdown file is opened it offers to become the default, and the new commands **Use as Default Markdown Editor** / **Stop Using as Default Markdown Editor** change it at any time.
+- MDotion is now an **optional** editor: it no longer opens every Markdown file by default. The first time a Markdown file is opened it offers to become the default, and the new commands **Use as Default Markdown Editor** / **Stop Using as Default Markdown Editor** change it at any time.
 - Brand: extension icon and README logo (light / dark) from the MDotion brand files in `assets/`.
 - Marketplace readiness: preview flag, screenshots, gallery banner, clearer display name and keywords; CI on Linux, Windows and macOS plus the minimum VS Code version (1.85); release workflow publishing to the VS Code Marketplace and Open VSX.
 
@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Light / dark theme switch (sun / moon button in the top bar, **Auto · Light · Dark** in the `•••` menu). The choice is stored in the `mdotion.theme` setting, so it persists and applies to every Mdotion tab; **Auto** follows the VS Code / Cursor theme.
+- Light / dark theme switch (sun / moon button in the top bar, **Auto · Light · Dark** in the `•••` menu). The choice is stored in the `mdotion.theme` setting, so it persists and applies to every MDotion tab; **Auto** follows the VS Code / Cursor theme.
 
 ## [0.4.0] - 2026-10-23
 

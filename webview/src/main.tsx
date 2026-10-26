@@ -10,7 +10,7 @@ function showBootError(error: unknown): void {
   }
   const pre = document.createElement('pre');
   pre.className = 'mdotion-boot-error';
-  pre.textContent = `Mdotion failed to start.\n\n${error instanceof Error ? (error.stack ?? error.message) : String(error)}`;
+  pre.textContent = `MDotion failed to start.\n\n${error instanceof Error ? (error.stack ?? error.message) : String(error)}`;
   rootEl.replaceChildren(pre);
 }
 

@@ -5,7 +5,7 @@
   </picture>
 </p>
 
-# Mdotion
+# MDotion
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.85%2B-007ACC)](https://code.visualstudio.com/)
@@ -13,9 +13,9 @@
 Notion-style visual editing for **plain Markdown** (`.md`) inside **VS Code** and **Cursor**.
 Files stay portable Markdown on disk — no account, no cloud, no proprietary format — and the blocks you don't touch are written back byte for byte, so Git diffs stay clean.
 
-![Mdotion editing a Markdown file with properties, a callout, to-dos and a table](images/screenshot-light.jpg)
+![MDotion editing a Markdown file with properties, a callout, to-dos and a table](images/screenshot-light.jpg)
 
-> **Preview** — Mdotion is young (0.x). Your files are always plain Markdown and the source editor is one click away, but please [report](https://github.com/SebastianI5/mdotion/issues) anything that looks wrong.
+> **Preview** — MDotion is young (0.x). Your files are always plain Markdown and the source editor is one click away, but please [report](https://github.com/SebastianI5/mdotion/issues) anything that looks wrong.
 
 ## Features
 
@@ -35,7 +35,7 @@ Files stay portable Markdown on disk — no account, no cloud, no proprietary fo
 
 ## Installation
 
-- **VS Code:** install **Mdotion** from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=mdotion.mdotion), or run `ext install mdotion.mdotion` in Quick Open.
+- **VS Code:** install **MDotion** from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=mdotion.mdotion), or run `ext install mdotion.mdotion` in Quick Open.
 - **Cursor, VSCodium and other editors using Open VSX:** install it from [Open VSX](https://open-vsx.org/extension/mdotion/mdotion).
 - **From source:** `npm install && npm run package`, then **Extensions → ⋯ → Install from VSIX…** (requires Node.js 20.11+).
 
@@ -43,10 +43,10 @@ Requires VS Code 1.85 or later (or an editor built on it).
 
 ## Getting started
 
-Mdotion never takes over your Markdown files on its own:
+MDotion never takes over your Markdown files on its own:
 
-- open any `.md` file and click the **book** icon in the editor title bar, the **Mdotion** status bar item, or press `⌘⌥M` / `Ctrl+Alt+M`;
-- the first time you open a Markdown file, Mdotion asks whether it should become your **default Markdown editor**. You can change this at any time with **Mdotion: Use as Default Markdown Editor** / **Mdotion: Stop Using as Default Markdown Editor**.
+- open any `.md` file and click the **book** icon in the editor title bar, the **MDotion** status bar item, or press `⌘⌥M` / `Ctrl+Alt+M`;
+- the first time you open a Markdown file, MDotion asks whether it should become your **default Markdown editor**. You can change this at any time with **MDotion: Use as Default Markdown Editor** / **MDotion: Stop Using as Default Markdown Editor**.
 
 | Slash menu (dark theme) | Block selection |
 |---|---|
@@ -56,12 +56,12 @@ Mdotion never takes over your Markdown files on its own:
 
 | Command | ID | Shortcut |
 |---|---|---|
-| Mdotion: Open Visual Editor | `mdotion.openVisualEditor` | |
-| Mdotion: Open Markdown Source | `mdotion.openSource` | |
-| Mdotion: Switch Visual / Markdown Editor | `mdotion.toggleEditor` | `⌘⌥M` / `Ctrl+Alt+M` |
-| Mdotion: Copy All Markdown | `mdotion.copyMarkdown` | `⌘⇧⌥C` / `Ctrl+Shift+Alt+C` |
-| Mdotion: Use as Default Markdown Editor | `mdotion.useAsDefault` | |
-| Mdotion: Stop Using as Default Markdown Editor | `mdotion.stopUsingAsDefault` | |
+| MDotion: Open Visual Editor | `mdotion.openVisualEditor` | |
+| MDotion: Open Markdown Source | `mdotion.openSource` | |
+| MDotion: Switch Visual / Markdown Editor | `mdotion.toggleEditor` | `⌘⌥M` / `Ctrl+Alt+M` |
+| MDotion: Copy All Markdown | `mdotion.copyMarkdown` | `⌘⇧⌥C` / `Ctrl+Shift+Alt+C` |
+| MDotion: Use as Default Markdown Editor | `mdotion.useAsDefault` | |
+| MDotion: Stop Using as Default Markdown Editor | `mdotion.stopUsingAsDefault` | |
 
 Also available from the editor title bar, the status bar, the explorer context menu and **Reopen Editor With…**. Shortcuts can be changed in **Keyboard Shortcuts**.
 
@@ -77,7 +77,7 @@ CommonMark + GFM (tables, task lists, strikethrough, autolinks) and GitHub alert
 
 ## Privacy
 
-Mdotion runs entirely inside your editor. It collects no telemetry, makes no network requests of its own and never uploads your files. Remote images referenced by your Markdown are loaded by the editor preview like in any Markdown viewer, and links are opened only when you click them.
+MDotion runs entirely inside your editor. It collects no telemetry, makes no network requests of its own and never uploads your files. Remote images referenced by your Markdown are loaded by the editor preview like in any Markdown viewer, and links are opened only when you click them.
 
 ## Contributing
 
@@ -87,9 +87,9 @@ Architecture notes and design decisions live in [docs/adr](docs/adr/README.md).
 
 ## License
 
-Mdotion is released under the [MIT License](LICENSE).
+MDotion is released under the [MIT License](LICENSE).
 It bundles open-source packages (Tiptap, ProseMirror, React, highlight.js, marked, zod and others) whose licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The MIT License covers the source code. The Mdotion name and logo (files in [`assets/`](assets/) and the derived images in `images/`) identify the project: you may use them to refer to Mdotion, but not to brand forks or other products as if they were Mdotion.
+The MIT License covers the source code. The MDotion name and logo (files in [`assets/`](assets/) and the derived images in `images/`) identify the project: you may use them to refer to MDotion, but not to brand forks or other products as if they were MDotion.
 
-Mdotion is an independent project and is not affiliated with or endorsed by Notion Labs, Inc. "Notion" is a trademark of its respective owner and is used here only to describe the editing style.
+MDotion is an independent project and is not affiliated with or endorsed by Notion Labs, Inc. "Notion" is a trademark of its respective owner and is used here only to describe the editing style.

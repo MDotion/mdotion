@@ -1,6 +1,6 @@
 # Code of Conduct
 
-Mdotion adopts the [Contributor Covenant, version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) as its code of conduct.
+MDotion adopts the [Contributor Covenant, version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) as its code of conduct.
 
 In short: be respectful and welcoming, assume good intent, accept constructive feedback gracefully, and focus on what is best for the project and its community. Harassment, insulting or derogatory comments, personal or political attacks, and publishing others' private information are not acceptable.
 

@@ -1,4 +1,4 @@
-# Try Mdotion
+# Try MDotion
 
 Type here. Press **/** for the block menu, or hover a block to see the `+` and `⋮⋮` handles.
 

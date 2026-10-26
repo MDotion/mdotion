@@ -1,13 +1,13 @@
-# Contributing to Mdotion
+# Contributing to MDotion
 
-Thanks for your interest in Mdotion! Bug reports, feature ideas, documentation fixes and pull requests are all welcome.
+Thanks for your interest in MDotion! Bug reports, feature ideas, documentation fixes and pull requests are all welcome.
 
 By participating you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Reporting bugs and requesting features
 
 - Search the [existing issues](https://github.com/SebastianI5/mdotion/issues) first.
-- For bugs, include your editor (VS Code or Cursor) and version, the Mdotion version, and the smallest Markdown snippet that reproduces the problem. If content was changed or lost on save, include the original Markdown and what was written to disk.
+- For bugs, include your editor (VS Code or Cursor) and version, the MDotion version, and the smallest Markdown snippet that reproduces the problem. If content was changed or lost on save, include the original Markdown and what was written to disk.
 - Security vulnerabilities must **not** be reported in public issues — see [SECURITY.md](SECURITY.md).
 
 ## Development setup
@@ -20,7 +20,7 @@ npm run build        # webview (Vite) + extension host (esbuild)
 npm run watch        # rebuild on change
 ```
 
-Run the extension: open this folder in VS Code, start `npm run watch`, then **Run and Debug → Run Extension (Mdotion)** (F5). Try your changes in the `[Extension Development Host]` window and use **Developer: Reload Window** there after each rebuild.
+Run the extension: open this folder in VS Code, start `npm run watch`, then **Run and Debug → Run Extension (MDotion)** (F5). Try your changes in the `[Extension Development Host]` window and use **Developer: Reload Window** there after each rebuild.
 
 Work on the UI in a browser, without an Extension Development Host:
 
@@ -59,7 +59,7 @@ For UI changes, also go through the [manual test checklist](docs/TESTING.md) in 
 
 ## Dependencies and licenses
 
-Mdotion is MIT-licensed and only bundles dependencies under permissive licenses compatible with MIT (currently MIT and BSD-3-Clause). When you add or update a runtime dependency:
+MDotion is MIT-licensed and only bundles dependencies under permissive licenses compatible with MIT (currently MIT and BSD-3-Clause). When you add or update a runtime dependency:
 
 1. Check its license is compatible with MIT.
 2. Run `npm run notices` to regenerate [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and commit the result (`npm run package` also regenerates it).
@@ -76,4 +76,4 @@ Maintainers publish releases by pushing a version tag; see [docs/RELEASING.md](d
 
 ## License of contributions
 
-Mdotion is released under the [MIT License](LICENSE). By submitting a contribution you agree that it is licensed under the same terms, and that you have the right to submit it.
+MDotion is released under the [MIT License](LICENSE). By submitting a contribution you agree that it is licensed under the same terms, and that you have the right to submit it.

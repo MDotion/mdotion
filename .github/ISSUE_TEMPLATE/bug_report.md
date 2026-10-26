@@ -24,6 +24,6 @@ If content was changed or lost on save, paste what was written to disk too.
 **Environment**
 
 - Editor: VS Code / Cursor, version:
-- Mdotion version:
+- MDotion version:
 - OS:
 - Theme: light / dark

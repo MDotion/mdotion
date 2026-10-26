@@ -5,17 +5,17 @@ Automated tests cover the Markdown round-trip, the sync protocol and the main ID
 ## How to run the extension
 
 - **Packaged:** `npm run package`, then **Extensions → ⋯ → Install from VSIX…**, reload the window and open a `.md` file.
-- **Development:** `npm run watch`, then **Run Extension (Mdotion)** (F5) and test in the `[Extension Development Host]` window.
+- **Development:** `npm run watch`, then **Run Extension (MDotion)** (F5) and test in the `[Extension Development Host]` window.
 - **UI only, in a browser:** `npm run build:webview && npm run harness`, then open <http://localhost:5178/tests/browser/harness.html>. The right panel shows the Markdown that would be saved; **External edit** simulates a change made outside the editor.
 
-You are in Mdotion when the page has a Notion-like layout with the file name at the top left and **Visual | Markdown**, **Copy**, the theme button and **•••** at the top right. VS Code's built-in Markdown *preview* is read-only and shows **Preview | Markdown** instead.
+You are in MDotion when the page has a Notion-like layout with the file name at the top left and **Visual | Markdown**, **Copy**, the theme button and **•••** at the top right. VS Code's built-in Markdown *preview* is read-only and shows **Preview | Markdown** instead.
 
 ## Checklist
 
 Use `tests/fixtures/notion.md` (it contains every supported construct).
 
-- [ ] On a fresh install, opening a `.md` file shows the text editor and the prompt *Open Markdown files in the Mdotion visual editor by default?*; **Use by default** switches the file to Mdotion, **Not now** asks again a week later, **Don't ask again** never asks.
-- [ ] Opening the file in Mdotion does not mark it as modified.
+- [ ] On a fresh install, opening a `.md` file shows the text editor and the prompt *Open Markdown files in the MDotion visual editor by default?*; **Use by default** switches the file to MDotion, **Not now** asks again a week later, **Don't ask again** never asks.
+- [ ] Opening the file in MDotion does not mark it as modified.
 - [ ] Edit one paragraph, save, switch to **Markdown**: only that line changed.
 - [ ] `/` opens the block menu, typing filters it, `Enter` inserts; `/xyz` shows "No results".
 - [ ] `+` and `⋮⋮` next to blocks: add a block, drag a block, block menu (Turn into, Duplicate, Move, Delete).

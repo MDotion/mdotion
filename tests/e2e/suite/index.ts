@@ -108,7 +108,7 @@ export async function run(): Promise<void> {
 
   await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
   if (failures.length > 0) {
-    throw new Error(`Mdotion e2e failures:\n${failures.join('\n')}`);
+    throw new Error(`MDotion e2e failures:\n${failures.join('\n')}`);
   }
 }
 

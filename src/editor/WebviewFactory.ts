@@ -25,7 +25,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     <meta http-equiv="Content-Security-Policy" content="${csp}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="${styleUri}" />
-    <title>Mdotion</title>
+    <title>MDotion</title>
   </head>
   <body>
     <div id="root"></div>

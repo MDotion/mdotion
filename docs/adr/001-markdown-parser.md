@@ -5,7 +5,7 @@
 
 ## Context
 
-Mdotion must round-trip common GFM constructs without silent data loss. Tiptap needs a ProseMirror document; disk format is Markdown.
+MDotion must round-trip common GFM constructs without silent data loss. Tiptap needs a ProseMirror document; disk format is Markdown.
 
 ## Decision
 

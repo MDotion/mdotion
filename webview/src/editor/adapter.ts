@@ -12,7 +12,7 @@ export function initAdapter(extensions: Extensions, schema: Schema): MarkdownAda
 
 export function getAdapter(): MarkdownAdapter {
   if (!adapter) {
-    throw new Error('Mdotion: Markdown adapter used before the editor was created');
+    throw new Error('MDotion: Markdown adapter used before the editor was created');
   }
   return adapter;
 }

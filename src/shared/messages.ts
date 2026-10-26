@@ -65,7 +65,7 @@ export const hostToWebviewMessageSchema = z.discriminatedUnion('type', [
     theme: themeSchema,
   }),
   z.object({
-    /** The `mdotion.theme` setting changed (from any Mdotion tab or from the Settings UI). */
+    /** The `mdotion.theme` setting changed (from any MDotion tab or from the Settings UI). */
     type: z.literal('theme'),
     theme: themeSchema,
   }),

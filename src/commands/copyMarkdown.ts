@@ -6,7 +6,7 @@ import { getActiveMarkdown } from './activeMarkdown';
 export async function copyMarkdown(provider: MarkdownEditorProvider, uri?: vscode.Uri): Promise<void> {
   const target = uri ?? getActiveMarkdown()?.uri;
   if (!target) {
-    void vscode.window.showWarningMessage('Mdotion: no Markdown file is active.');
+    void vscode.window.showWarningMessage('MDotion: no Markdown file is active.');
     return;
   }
   const document = await vscode.workspace.openTextDocument(target);

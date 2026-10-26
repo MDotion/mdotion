@@ -11,7 +11,7 @@ export async function openVisualEditor(uri?: vscode.Uri): Promise<void> {
     await vscode.commands.executeCommand('vscode.openWith', target, MarkdownEditorProvider.viewType);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    void vscode.window.showErrorMessage(`Mdotion could not open the visual editor: ${message}`);
+    void vscode.window.showErrorMessage(`MDotion could not open the visual editor: ${message}`);
   }
 }
 

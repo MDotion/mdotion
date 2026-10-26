@@ -1,6 +1,6 @@
 # Brand assets
 
-Source files of the Mdotion logo. The images used by the extension and the README are rendered from these files into [`images/`](../images/).
+Source files of the MDotion logo. The images used by the extension and the README are rendered from these files into [`images/`](../images/).
 
 | File | Use |
 |---|---|
@@ -13,4 +13,4 @@ Source files of the Mdotion logo. The images used by the extension and the READM
 | `mdotion-lockup-dark.svg` | Mark + name for dark backgrounds — source of `images/logo-dark.png` |
 | `mdotion-construction.png` | Construction of the mark (geometry and proportions) |
 
-The MIT License of this repository covers the source code. The Mdotion name and logo identify the project: you may use them to refer to Mdotion, but not to brand forks or other products as if they were Mdotion.
+The MIT License of this repository covers the source code. The MDotion name and logo identify the project: you may use them to refer to MDotion, but not to brand forks or other products as if they were MDotion.

@@ -1,6 +1,6 @@
 {
   "name": "mdotion",
-  "displayName": "Mdotion – Visual Markdown Editor",
+  "displayName": "MDotion – Visual Markdown Editor",
   "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, callouts, tables and code. Files stay plain .md, untouched blocks are saved byte for byte.",
   "version": "0.5.0",
   "preview": true,
@@ -50,7 +50,7 @@
     "customEditors": [
       {
         "viewType": "mdotion.markdownEditor",
-        "displayName": "Mdotion",
+        "displayName": "MDotion",
         "selector": [
           {
             "filenamePattern": "*.md"
@@ -66,36 +66,36 @@
       {
         "command": "mdotion.openVisualEditor",
         "title": "Open Visual Editor",
-        "category": "Mdotion",
+        "category": "MDotion",
         "icon": "$(book)"
       },
       {
         "command": "mdotion.openSource",
         "title": "Open Markdown Source",
-        "category": "Mdotion",
+        "category": "MDotion",
         "icon": "$(code)"
       },
       {
         "command": "mdotion.toggleEditor",
         "title": "Switch Visual / Markdown Editor",
-        "category": "Mdotion",
+        "category": "MDotion",
         "icon": "$(book)"
       },
       {
         "command": "mdotion.copyMarkdown",
         "title": "Copy All Markdown",
-        "category": "Mdotion",
+        "category": "MDotion",
         "icon": "$(copy)"
       },
       {
         "command": "mdotion.useAsDefault",
         "title": "Use as Default Markdown Editor",
-        "category": "Mdotion"
+        "category": "MDotion"
       },
       {
         "command": "mdotion.stopUsingAsDefault",
         "title": "Stop Using as Default Markdown Editor",
-        "category": "Mdotion"
+        "category": "MDotion"
       }
     ],
     "menus": {
@@ -146,7 +146,7 @@
       }
     ],
     "configuration": {
-      "title": "Mdotion",
+      "title": "MDotion",
       "properties": {
         "mdotion.theme": {
           "type": "string",
@@ -161,7 +161,7 @@
             "Always use the Notion dark theme."
           ],
           "default": "auto",
-          "description": "Colour theme of the Mdotion visual editor. Also changed from the sun / moon button in the editor."
+          "description": "Colour theme of the MDotion visual editor. Also changed from the sun / moon button in the editor."
         }
       }
     }

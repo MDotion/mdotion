@@ -5,7 +5,7 @@
 
 ## Context
 
-Mdotion targets VS Code and Cursor using standard Extension APIs.
+MDotion targets VS Code and Cursor using standard Extension APIs.
 
 ## Decision
 

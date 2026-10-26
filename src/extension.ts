@@ -18,8 +18,8 @@ export function activate(context: vscode.ExtensionContext): void {
       status.hide();
       return;
     }
-    status.text = active.inVisualEditor ? '$(code) Markdown' : '$(book) Mdotion';
-    status.tooltip = active.inVisualEditor ? 'Show the Markdown source' : 'Open in the Mdotion visual editor';
+    status.text = active.inVisualEditor ? '$(code) Markdown' : '$(book) MDotion';
+    status.tooltip = active.inVisualEditor ? 'Show the Markdown source' : 'Open in the MDotion visual editor';
     status.show();
   };
   refreshStatus();

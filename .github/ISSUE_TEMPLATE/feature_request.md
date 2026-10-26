@@ -8,4 +8,4 @@ labels: enhancement
 
 **How does Notion (or another editor) handle it?** (optional)
 
-**How should it be stored in Markdown?** Mdotion only writes plain Markdown, so new features need a portable representation.
+**How should it be stored in Markdown?** MDotion only writes plain Markdown, so new features need a portable representation.
