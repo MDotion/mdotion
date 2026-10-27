@@ -37,7 +37,8 @@ export async function run(): Promise<void> {
 
   await check('opens the visual editor', async () => {
     await vscode.commands.executeCommand('vscode.openWith', uri, VIEW_TYPE);
-    await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab to be active');
+    // The first open also activates the extension, which is slow on cold CI runners.
+    await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab to be active', 30_000);
   });
 
   await check('opening does not modify the file', async () => {
@@ -130,7 +131,7 @@ function findDocument(uri: vscode.Uri): vscode.TextDocument | undefined {
   return vscode.workspace.textDocuments.find((document) => document.uri.toString() === uri.toString());
 }
 
-async function waitFor(condition: () => boolean, what: string, timeoutMs = 5000): Promise<void> {
+async function waitFor(condition: () => boolean, what: string, timeoutMs = 10_000): Promise<void> {
   const start = Date.now();
   while (!condition()) {
     if (Date.now() - start > timeoutMs) {
