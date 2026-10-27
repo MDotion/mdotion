@@ -12,5 +12,6 @@ Source files of the MDotion logo. The images used by the extension and the READM
 | `mdotion-lockup-light.svg` | Mark + name for light backgrounds — source of `images/logo-light.png` |
 | `mdotion-lockup-dark.svg` | Mark + name for dark backgrounds — source of `images/logo-dark.png` |
 | `mdotion-construction.png` | Construction of the mark (geometry and proportions) |
+| `mdotion-social-preview.png` | 1280 × 640 GitHub social preview (Settings → General → Social preview) |
 
 The MIT License of this repository covers the source code. The MDotion name and logo identify the project: you may use them to refer to MDotion, but not to brand forks or other products as if they were MDotion.
