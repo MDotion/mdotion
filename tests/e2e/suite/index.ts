@@ -36,8 +36,13 @@ export async function run(): Promise<void> {
   };
 
   await check('opens the visual editor', async () => {
+    // Activate first: an open racing the startup of a fresh profile can land in a text tab.
+    const extension = vscode.extensions.all.find((candidate) =>
+      candidate.packageJSON?.contributes?.customEditors?.some((editor: { viewType: string }) => editor.viewType === VIEW_TYPE),
+    );
+    assert.ok(extension, 'the extension under test should be installed');
+    await extension.activate();
     await vscode.commands.executeCommand('vscode.openWith', uri, VIEW_TYPE);
-    // The first open also activates the extension, which is slow on cold CI runners.
     await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab to be active', 30_000);
   });
 
@@ -118,6 +123,22 @@ function activeViewType(): string | undefined {
   return input instanceof vscode.TabInputCustom ? input.viewType : undefined;
 }
 
+function describeActiveTab(): string {
+  const tab = vscode.window.tabGroups.activeTabGroup.activeTab;
+  if (!tab) {
+    return 'none';
+  }
+  const kind =
+    tab.input instanceof vscode.TabInputCustom
+      ? `custom ${tab.input.viewType}`
+      : tab.input instanceof vscode.TabInputText
+        ? 'text'
+        : tab.input instanceof vscode.TabInputWebview
+          ? `webview ${tab.input.viewType}`
+          : 'other';
+  return `"${tab.label}" (${kind})`;
+}
+
 function tabsFor(uri: vscode.Uri): number {
   return vscode.window.tabGroups.all
     .flatMap((group) => group.tabs)
@@ -135,7 +156,7 @@ async function waitFor(condition: () => boolean, what: string, timeoutMs = 10_00
   const start = Date.now();
   while (!condition()) {
     if (Date.now() - start > timeoutMs) {
-      throw new Error(`Timed out waiting for ${what}`);
+      throw new Error(`Timed out waiting for ${what} (active tab: ${describeActiveTab()})`);
     }
     await sleep(100);
   }

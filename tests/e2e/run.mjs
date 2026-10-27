@@ -29,5 +29,6 @@ await runTests({
   vscodeExecutablePath,
   extensionDevelopmentPath: root,
   extensionTestsPath: path.join(root, 'tests/e2e/out/suite.js'),
-  launchArgs: ['--disable-extensions', '--no-sandbox', root],
+  // Startup editors (welcome page, release notes) can take focus from the first editor opened by the suite.
+  launchArgs: ['--disable-extensions', '--no-sandbox', '--skip-welcome', '--skip-release-notes', '--disable-workspace-trust', root],
 });
