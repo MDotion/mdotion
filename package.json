@@ -1,5 +1,5 @@
 {
-  "name": "mdotion",
+  "name": "mdotion-editor",
   "displayName": "MDotion – Visual Markdown Editor",
   "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, callouts, tables and code. Files stay plain .md, untouched blocks are saved byte for byte.",
   "version": "0.1.0",
