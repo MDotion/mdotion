@@ -10,7 +10,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.85%2B-007ACC)](https://code.visualstudio.com/)
 
-Notion-style visual editing for **plain Markdown** (`.md`) inside **VS Code** and **Cursor**.
+**Read and edit every Markdown file like a Notion page, right inside VS Code and Cursor.**
+
+AI agents now write Markdown into our projects all day: plans, specs, docs, notes. Reading and editing those files shouldn't be a chore. MDotion opens any `.md` file in the Notion-style editor we all love, with slash menu, draggable blocks, callouts, to-dos and tables.
+
 Files stay portable Markdown on disk — no account, no cloud, no proprietary format — and the blocks you don't touch are written back byte for byte, so Git diffs stay clean.
 
 ![MDotion editing a Markdown file with properties, a callout, to-dos and a table](images/screenshot-light.jpg)
