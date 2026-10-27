@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/MDotion/mdotion/issues"
   },
-  "homepage": "https://github.com/MDotion/mdotion#readme",
+  "homepage": "https://mdotion.app",
   "engines": {
     "node": ">=20.11.0",
     "vscode": "^1.85.0"

@@ -9,6 +9,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.85%2B-007ACC)](https://code.visualstudio.com/)
+[![Website](https://img.shields.io/badge/website-mdotion.app-0F1419)](https://mdotion.app)
 
 **Read and edit every Markdown file like a Notion page, right inside VS Code and Cursor.**
 
