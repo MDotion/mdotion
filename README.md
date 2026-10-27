@@ -93,6 +93,6 @@ Architecture notes and design decisions live in [docs/adr](docs/adr/README.md).
 MDotion is released under the [MIT License](LICENSE).
 It bundles open-source packages (Tiptap, ProseMirror, React, highlight.js, marked, zod and others) whose licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The MIT License covers the source code. The MDotion name and logo (files in [`assets/`](assets/) and the derived images in `images/`) identify the project: you may use them to refer to MDotion, but not to brand forks or other products as if they were MDotion.
+The MIT License covers the source code. The MDotion name and logo (including the images in `images/`) identify the project: you may use them to refer to MDotion, but not to brand forks or other products as if they were MDotion.
 
 MDotion is an independent project and is not affiliated with or endorsed by Notion Labs, Inc. "Notion" is a trademark of its respective owner and is used here only to describe the editing style.
