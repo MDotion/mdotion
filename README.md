@@ -35,7 +35,7 @@ Files stay portable Markdown on disk — no account, no cloud, no proprietary fo
 
 ## Installation
 
-- **VS Code:** install **MDotion** from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SebastianIrimia.mdotion), or run `ext install SebastianIrimia.mdotion` in Quick Open.
+- **VS Code:** install **MDotion** from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=MDotion.mdotion), or run `ext install MDotion.mdotion` in Quick Open.
 - **Cursor, VSCodium and other editors using Open VSX:** install it from [Open VSX](https://open-vsx.org/extension/mdotion/mdotion).
 - **From source:** `npm install && npm run package`, then **Extensions → ⋯ → Install from VSIX…** (requires Node.js 20.11+).
 

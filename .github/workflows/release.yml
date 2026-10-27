@@ -1,6 +1,6 @@
 name: Release
 
-# Push a tag like `v0.6.0` (matching package.json "version") to publish:
+# Push a tag like `v0.1.0` (matching package.json "version") to publish:
 #   - a GitHub release with the .vsix attached;
 #   - the VS Code Marketplace (secret VSCE_PAT) — used by VS Code;
 #   - Open VSX (secret OVSX_PAT) — used by Cursor, VSCodium and others.
