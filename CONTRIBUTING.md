@@ -6,7 +6,7 @@ By participating you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Reporting bugs and requesting features
 
-- Search the [existing issues](https://github.com/SebastianI5/mdotion/issues) first.
+- Search the [existing issues](https://github.com/MDotion/mdotion/issues) first.
 - For bugs, include your editor (VS Code or Cursor) and version, the MDotion version, and the smallest Markdown snippet that reproduces the problem. If content was changed or lost on save, include the original Markdown and what was written to disk.
 - Security vulnerabilities must **not** be reported in public issues — see [SECURITY.md](SECURITY.md).
 

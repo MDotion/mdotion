@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/SebastianI5/mdotion/raw/HEAD/images/logo-dark.png">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/MDotion/mdotion/raw/HEAD/images/logo-dark.png">
     <img src="images/logo-light.png" alt="MDotion" width="360">
   </picture>
 </p>
@@ -15,7 +15,7 @@ Files stay portable Markdown on disk — no account, no cloud, no proprietary fo
 
 ![MDotion editing a Markdown file with properties, a callout, to-dos and a table](images/screenshot-light.jpg)
 
-> **Preview** — MDotion is young (0.x). Your files are always plain Markdown and the source editor is one click away, but please [report](https://github.com/SebastianI5/mdotion/issues) anything that looks wrong.
+> **Preview** — MDotion is young (0.x). Your files are always plain Markdown and the source editor is one click away, but please [report](https://github.com/MDotion/mdotion/issues) anything that looks wrong.
 
 ## Features
 

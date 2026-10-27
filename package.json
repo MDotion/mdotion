@@ -1,6 +1,6 @@
 {
   "name": "mdotion-editor",
-  "displayName": "MDotion – Visual Markdown Editor",
+  "displayName": "MDotion: Visual Markdown Editor",
   "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, callouts, tables and code. Files stay plain .md, untouched blocks are saved byte for byte.",
   "version": "0.1.0",
   "preview": true,
@@ -18,12 +18,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/SebastianI5/mdotion.git"
+    "url": "https://github.com/MDotion/mdotion.git"
   },
   "bugs": {
-    "url": "https://github.com/SebastianI5/mdotion/issues"
+    "url": "https://github.com/MDotion/mdotion/issues"
   },
-  "homepage": "https://github.com/SebastianI5/mdotion#readme",
+  "homepage": "https://github.com/MDotion/mdotion#readme",
   "engines": {
     "node": ">=20.11.0",
     "vscode": "^1.85.0"
