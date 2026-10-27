@@ -5,12 +5,12 @@ Releases are published by the [Release workflow](../.github/workflows/release.ym
 ## One-time setup
 
 1. **VS Code Marketplace** (used by VS Code)
-   - Create the publisher `mdotion` (the `publisher` field of `package.json`) at <https://marketplace.visualstudio.com/manage>.
+   - Create the publisher `SebastianIrimia` (the `publisher` field of `package.json`) at <https://marketplace.visualstudio.com/manage>.
    - Create an Azure DevOps personal access token with the **Marketplace → Manage** scope ([guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token)).
    - Add it to the repository secrets as `VSCE_PAT`.
 2. **Open VSX** (used by Cursor, VSCodium and others)
    - Sign in at <https://open-vsx.org> with GitHub, sign the publisher agreement and create an access token.
-   - Create the namespace once: `npx ovsx create-namespace mdotion -p <token>` (it must match the `publisher` field).
+   - Create the namespace once: `npx ovsx create-namespace SebastianIrimia -p <token>` (it must match the `publisher` field).
    - Add the token to the repository secrets as `OVSX_PAT`.
 
 A marketplace whose secret is missing is skipped, so releases also work before both accounts exist.
