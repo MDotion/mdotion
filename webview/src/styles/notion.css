@@ -372,8 +372,10 @@ button {
   font-family: var(--font-mono);
 }
 
+/* Room after the last block, like VS Code's "scroll beyond last line", so the
+   outline can bring any heading, even the last one, right below the top bar. */
 .mdotion-page-tail {
-  min-height: 30vh;
+  min-height: max(30vh, calc(100vh - 96px));
   cursor: text;
 }
 
@@ -1684,15 +1686,6 @@ button {
 .mdotion-body > .mdotion-scroller {
   min-width: 0;
   align-self: stretch;
-}
-
-.mdotion-prose h1,
-.mdotion-prose h2,
-.mdotion-prose h3,
-.mdotion-prose h4,
-.mdotion-prose h5,
-.mdotion-prose h6 {
-  scroll-margin-top: 56px;
 }
 
 .mdotion-outline {

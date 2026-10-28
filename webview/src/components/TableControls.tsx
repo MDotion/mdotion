@@ -2,6 +2,7 @@ import type { Editor } from '@tiptap/core';
 import { CellSelection } from '@tiptap/pm/tables';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { columnWidths } from '../editor/table/columnWidths';
+import { inControlZone } from '../editor/table/controlZone';
 import {
   columnAlign,
   columnCount,
@@ -110,6 +111,9 @@ export function TableControls({ editor, container }: { editor: Editor; container
   const [grow, setGrow] = useState<Grow | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const busy = useRef(false);
+  /** The hovered table, read by the pointer listener without re-subscribing. */
+  const hoverRef = useRef<Hover | null>(null);
+  hoverRef.current = hover;
 
   const refresh = useCallback(
     (target: Hover | null) => {
@@ -139,9 +143,16 @@ export function TableControls({ editor, container }: { editor: Editor; container
       }
       const cell = target.closest('td, th');
       if (!cell || !editor.view.dom.contains(cell)) {
-        if (!target.closest('.tableWrapper')) {
-          refresh(null);
+        // Keep the controls while the pointer travels from the table to a grip or a + bar.
+        const current = hoverRef.current;
+        const dom = current ? tableDom(editor, current.tablePos) : null;
+        if (
+          dom &&
+          inControlZone(dom.table.getBoundingClientRect(), dom.wrapper.getBoundingClientRect(), event.clientX, event.clientY)
+        ) {
+          return;
         }
+        refresh(null);
         return;
       }
       const found = tableAround(editor.state.doc.resolve(editor.view.posAtDOM(cell, 0)));

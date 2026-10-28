@@ -196,3 +196,18 @@ describe('tableAround', () => {
     expect(tableAround(ed.state.doc.resolve(before + 2))).toMatchObject({ row: 2, col: 1 });
   });
 });
+
+describe('table control zone', () => {
+  it('keeps the controls on the way to the + bars, also outside the table wrapper', async () => {
+    const { inControlZone } = await import('../webview/src/editor/table/controlZone');
+    // A table as wide as its wrapper: the + column bar is outside both.
+    const table = { left: 100, top: 100, right: 700, bottom: 300 };
+    const wrapper = { left: 100, top: 92, right: 700, bottom: 308 };
+    expect(inControlZone(table, wrapper, 712, 200)).toBe(true); // right + bar
+    expect(inControlZone(table, wrapper, 400, 320)).toBe(true); // bottom + bar
+    expect(inControlZone(table, wrapper, 90, 200)).toBe(true); // row grips
+    expect(inControlZone(table, wrapper, 400, 92)).toBe(true); // column grips
+    expect(inControlZone(table, wrapper, 760, 200)).toBe(false);
+    expect(inControlZone(table, wrapper, 400, 360)).toBe(false);
+  });
+});

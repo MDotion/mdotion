@@ -1,6 +1,7 @@
 import type { HostToWebviewMessage, WebviewToHostMessage } from '../../../src/shared/messages';
 import { HOST_MESSAGE_TYPES } from '../../../src/shared/protocolConstants';
 import { getVsCodeApi } from '../vscodeApi';
+import { scrollToHeading } from './scroll';
 import { slugify } from './slug';
 
 let documentDirUri = '';
@@ -59,7 +60,7 @@ function scrollToAnchor(anchor: string): void {
     const count = seen.get(slug) ?? 0;
     seen.set(slug, count + 1);
     if ((count === 0 ? slug : `${slug}-${count}`) === target) {
-      heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToHeading(heading);
       return;
     }
   }
