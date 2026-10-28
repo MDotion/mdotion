@@ -13,16 +13,16 @@ The workflow signs in with a **Microsoft Entra identity** (an app registration) 
 3. **Federated credential.** In the app: **Certificates & secrets → Federated credentials → Add credential**:
    - scenario **GitHub Actions deploying Azure resources**;
    - organization `MDotion`, repository `mdotion`, and their numeric ids when asked (`gh api repos/MDotion/mdotion --jq '.owner.id, .id'`);
-   - entity **Environment**, name `marketplace`.
+   - entity **Environment**, name `vscode-marketplace`.
 
-   The subject identifier must match what GitHub sends. This repository uses immutable subjects (`gh api repos/MDotion/mdotion/actions/oidc/customization/sub`), so it is `repo:MDotion@<org id>/mdotion@<repo id>:environment:marketplace`.
+   The subject identifier must match what GitHub sends. This repository uses immutable subjects (`gh api repos/MDotion/mdotion/actions/oidc/customization/sub`), so it is `repo:MDotion@<org id>/mdotion@<repo id>:environment:vscode-marketplace`.
 4. **Repository variables** (not secrets: these are identifiers). Under **Settings → Secrets and variables → Actions → Variables**, add `AZURE_CLIENT_ID` and `AZURE_TENANT_ID`. Or use `gh variable set AZURE_CLIENT_ID --body <id>`.
 5. **Marketplace id of the identity.** Under **Actions → Release → Run workflow**, run the workflow on `main`. The run summary shows an id.
 6. **Publisher member.** At <https://marketplace.visualstudio.com/manage>, open the `MDotion` publisher → **Members** → add that id as **Contributor**.
 
 A user-assigned **managed identity** with the same federated credential works too. It needs a subscription that can register the `Microsoft.ManagedIdentity` provider (student subscriptions such as Azure Dev Tools for Teaching cannot), a **Reader** role on its resource group, and the `AZURE_SUBSCRIPTION_ID` variable.
 
-The `marketplace` environment is created by the first run. Required reviewers can be added to it (**Settings → Environments**) to approve each publish.
+The `vscode-marketplace` environment is created by the first run. Required reviewers can be added to it (**Settings → Environments**) to approve each publish.
 
 **Fallback:** if the `AZURE_*` variables are not set, the workflow uses a `VSCE_PAT` secret. That is an Azure DevOps token for **All accessible organizations** with the **Marketplace → Manage** scope, and it only works until December 1, 2026.
 

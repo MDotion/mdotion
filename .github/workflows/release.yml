@@ -26,8 +26,8 @@ jobs:
   release:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    # The Entra federated credential trusts this environment (subject repo:<owner>/<repo>:environment:marketplace).
-    environment: marketplace
+    # The Entra federated credential trusts this environment (subject repo:<owner>/<repo>:environment:vscode-marketplace).
+    environment: vscode-marketplace
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -90,7 +90,7 @@ jobs:
   marketplace-identity:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    environment: marketplace
+    environment: vscode-marketplace
     steps:
       - uses: azure/login@v2
         with:
