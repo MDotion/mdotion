@@ -5,7 +5,7 @@
 
     npm run build:webview && npm run harness   →  http://localhost:5178/tests/browser/harness.html
 
-  ?theme=dark switches the VS Code theme class, ?screenshot hides the host panel. The right panel shows the Markdown
+  ?theme=dark switches the VS Code theme class, ?screenshot hides the host panel, ?outline opens the outline. The right panel shows the Markdown
   the extension would write to disk.
 -->
 <html lang="en">
@@ -46,6 +46,9 @@
         version: 1,
         lastSent: 1,
         theme: params.get('mdotionTheme') || 'auto',
+        settings: { fullWidth: false, smallText: false, font: 'default', outline: params.has('outline') },
+        // Like the workspace state of the real host: survives a reload of the page.
+        viewState: JSON.parse(sessionStorage.getItem('mdotion-view-state') || '{"folded":[],"tableWidths":{}}'),
         render() {
           document.getElementById('source').textContent = this.text;
           document.getElementById('version').textContent = 'v' + this.version;
@@ -71,9 +74,20 @@
               version: host.version,
               fileName: params.get('file') || 'notion.md',
               documentDirUri: location.origin + '/tests/fixtures/',
-              settings: { fullWidth: false, smallText: false, font: 'default' },
+              settings: host.settings,
               theme: host.theme,
+              viewState: host.viewState,
             });
+          } else if (message.type === 'readClipboard') {
+            navigator.clipboard.readText().then(
+              (text) => host.send({ type: 'clipboardText', text }),
+              () => host.log('clipboard read refused'),
+            );
+          } else if (message.type === 'saveSettings') {
+            host.settings = message.settings;
+          } else if (message.type === 'saveViewState') {
+            host.viewState = message.viewState;
+            sessionStorage.setItem('mdotion-view-state', JSON.stringify(message.viewState));
           } else if (message.type === 'setTheme') {
             // Like the real host: the setting is stored, then broadcast back.
             host.theme = message.theme;

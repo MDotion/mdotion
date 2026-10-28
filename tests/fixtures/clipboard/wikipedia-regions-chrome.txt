@@ -1,0 +1,38 @@
+
+Map	Macroregion
+Italian name	Regions	Major city	Population
+1 January 2026	Area (km2)	Population
+density
+(km2)	MEPs
+Number	%	km2	%
+
+Centre
+Centro	Lazio
+Marche
+Tuscany
+Umbria	Rome	11,740,836	19.91%	58,084 km2 (22,426 sq mi)	19.23%	201.4	15
+
+North-West
+Nord-Ovest	Aosta Valley
+Liguria
+Lombardy
+Piedmont	Milan	15,848,100	26.87%	57,928 km2 (22,366 sq mi)	19.18%	275.4	20
+
+North-East
+Nord-Est	Emilia-Romagna
+Friuli-Venezia Giulia
+Trentino-Alto Adige/Südtirol
+Veneto	Bologna	11,561,676	19.60%	62,328 km2 (24,065 sq mi)	20.63%	186.4	15
+
+South
+Sud	Abruzzo
+Apulia
+Basilicata
+Calabria
+Campania
+Molise	Naples	13,451,861	22.81%	73,800 km2 (28,500 sq mi)	24.43%	180.8	18
+
+Islands
+Isole or Insulare	Sardinia
+Sicily	Palermo	6,380,649	10.82%	49,932 km2 (19,279 sq mi)	16.53%	126.8	8
+

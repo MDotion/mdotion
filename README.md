@@ -28,9 +28,11 @@ Files stay portable Markdown on disk — no account, no cloud, no proprietary fo
 - **Block handles** — hover a block for `+` (add below, ⌥-click above) and `⋮⋮` (drag to move, click for Turn into / Duplicate / Move / Copy as Markdown / Delete).
 - **Block selection** — drag across blocks or from the margin, `Esc`, `Shift+↑/↓`, `⌘A` twice; selected blocks can be copied, deleted, duplicated, moved or converted together.
 - **Selection toolbar** — Turn into, bold, italic, strikethrough, code, link (`⌘K`).
-- **Markdown shortcuts** — `# `, `- `, `1. `, `[] `, `> `, ` ``` `, `---`, plus `⌘B/I/E`, `⌘⇧S`, `⌘⌥1–3`, `⌘⇧7/8/9`, `⌘↵` (toggle to-do), `⌘D` (duplicate), `⌘⇧↑/↓` (move block), `Tab` / `⇧Tab` (indent).
+- **Markdown shortcuts** — `# `, `- `, `1. `, `[] `, `> `, ` ``` `, `---`, plus `⌘B/I/E`, `⌘⇧S`, `⌘⌥1–3`, `⌘⇧7/8/9`, `⌘↵` (toggle to-do), `⌘D` (duplicate), `⌘⇧↑/↓` (move block, or the row in a table), `⌘⇧O` (go to heading), `Tab` / `⇧Tab` (indent).
 - **Callouts** stored as GitHub alerts (`> [!NOTE]`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`).
-- **Code blocks** with language picker, syntax highlighting and copy button; **tables** with row / column controls; **images** with relative paths and captions (alt text).
+- **Tables, fast** — paste a range from Excel, Numbers or Google Sheets (or a table from a web page) and get a clean GFM table; grips to reorder rows and columns, `+` bars to add several at once, column alignment, resizable columns, `Enter` to go down a row like in a spreadsheet.
+- **Outline** — a side panel with the headings of the page: jump to a section, drag a whole section (content and subsections) to reorder the document, fold sections while you work, spot duplicate titles and skipped levels; `⌘⇧O` searches the headings.
+- **Code blocks** with language picker, syntax highlighting and copy button; **images** with relative paths and captions (alt text).
 - **Front matter** shown as page properties and edited as YAML.
 - **Nothing is lost** — HTML, reference definitions, badges and anything the editor cannot represent are kept verbatim as source blocks, with a sanitized preview.
 - **Copy as Markdown** — anything you copy pastes as formatted Markdown elsewhere; pasting Markdown creates blocks.
@@ -64,6 +66,8 @@ MDotion never takes over your Markdown files on its own:
 | MDotion: Open Markdown Source | `mdotion.openSource` | |
 | MDotion: Switch Visual / Markdown Editor | `mdotion.toggleEditor` | `⌘⌥M` / `Ctrl+Alt+M` |
 | MDotion: Copy All Markdown | `mdotion.copyMarkdown` | `⌘⇧⌥C` / `Ctrl+Shift+Alt+C` |
+| MDotion: Toggle Outline | `mdotion.toggleOutline` | `⌘⌥O` / `Ctrl+Alt+O` |
+| MDotion: Go to Heading | `mdotion.goToHeading` | `⌘⇧O` / `Ctrl+Shift+O` |
 | MDotion: Use as Default Markdown Editor | `mdotion.useAsDefault` | |
 | MDotion: Stop Using as Default Markdown Editor | `mdotion.stopUsingAsDefault` | |
 
@@ -77,7 +81,7 @@ Also available from the editor title bar, the status bar, the explorer context m
 
 ## Supported Markdown
 
-CommonMark + GFM (tables, task lists, strikethrough, autolinks) and GitHub alerts are editable visually; everything else is preserved verbatim. Details in [ADR-008](docs/adr/008-mvp-capability-guarantee.md).
+CommonMark + GFM (tables, task lists, strikethrough, autolinks) and GitHub alerts are editable visually; everything else is preserved verbatim. Column widths and folded sections are kept by the editor, not in the file. Details in [ADR-008](docs/adr/008-mvp-capability-guarantee.md).
 
 ## Privacy
 

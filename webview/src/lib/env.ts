@@ -1,6 +1,7 @@
 import type { HostToWebviewMessage, WebviewToHostMessage } from '../../../src/shared/messages';
 import { HOST_MESSAGE_TYPES } from '../../../src/shared/protocolConstants';
 import { getVsCodeApi } from '../vscodeApi';
+import { slugify } from './slug';
 
 let documentDirUri = '';
 
@@ -48,20 +49,16 @@ export function openLink(href: string): void {
   postToHost({ type: 'openLink', href });
 }
 
-/** GitHub-style heading slug. */
-export function slugify(text: string): string {
-  return text
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s_-]/gu, '')
-    .replace(/\s/g, '-');
-}
-
 function scrollToAnchor(anchor: string): void {
   const target = decodeURIComponent(anchor).toLowerCase();
   const headings = document.querySelectorAll<HTMLElement>('.ProseMirror h1, .ProseMirror h2, .ProseMirror h3, .ProseMirror h4, .ProseMirror h5, .ProseMirror h6');
+  // Same anchors as GitHub: repeated titles get -1, -2… in document order.
+  const seen = new Map<string, number>();
   for (const heading of headings) {
-    if (slugify(heading.textContent ?? '') === target) {
+    const slug = slugify(heading.textContent ?? '');
+    const count = seen.get(slug) ?? 0;
+    seen.set(slug, count + 1);
+    if ((count === 0 ? slug : `${slug}-${count}`) === target) {
       heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }

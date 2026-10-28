@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DocumentBridge, type DocumentBridgeHost } from '../src/editor/DocumentBridge';
-import { DEFAULT_PAGE_SETTINGS, PROTOCOL_VERSION, type HostToWebviewMessage } from '../src/shared/messages';
+import { DEFAULT_PAGE_SETTINGS, EMPTY_VIEW_STATE, PROTOCOL_VERSION, type HostToWebviewMessage, type ViewState } from '../src/shared/messages';
 
 /** In-memory TextDocument: applying an edit bumps the version and fires a change event, like VS Code. */
 function createHost(initial: string) {
@@ -9,6 +9,7 @@ function createHost(initial: string) {
   const posted: HostToWebviewMessage[] = [];
   const applied: string[] = [];
   const themes: string[] = [];
+  const savedViewStates: ViewState[] = [];
   let bridge: DocumentBridge;
   const host: DocumentBridgeHost = {
     getText: () => text,
@@ -21,7 +22,9 @@ function createHost(initial: string) {
       return true;
     },
     postMessage: (message) => posted.push(message),
-    getInitInfo: () => ({ fileName: 'a.md', documentDirUri: 'https://x/', settings: DEFAULT_PAGE_SETTINGS, theme: 'auto' }),
+    getInitInfo: () => ({ fileName: 'a.md', documentDirUri: 'https://x/', settings: DEFAULT_PAGE_SETTINGS, theme: 'auto', viewState: EMPTY_VIEW_STATE }),
+    saveViewState: (viewState) => savedViewStates.push(viewState),
+    readClipboard: async () => 'from the clipboard',
     setTheme: (theme) => themes.push(theme),
   };
   bridge = new DocumentBridge(host);
@@ -30,6 +33,7 @@ function createHost(initial: string) {
     posted,
     applied,
     themes,
+    savedViewStates,
     externalEdit(next: string) {
       text = next;
       version += 1;
@@ -56,6 +60,7 @@ describe('DocumentBridge', () => {
         documentDirUri: 'https://x/',
         settings: DEFAULT_PAGE_SETTINGS,
         theme: 'auto',
+        viewState: EMPTY_VIEW_STATE,
       },
     ]);
   });
@@ -120,6 +125,33 @@ describe('DocumentBridge', () => {
     expect(doc.themes).toEqual(['light']);
     doc.bridge.onThemeChanged('dark');
     expect(doc.posted.at(-1)).toEqual({ type: 'theme', theme: 'dark' });
+  });
+
+  it('stores the view state of the file without touching the document', () => {
+    const doc = createHost('# A\n');
+    doc.bridge.handleMessage(ready);
+    const viewState = { folded: ['a'], tableWidths: { 'Feature|Status#0': [120, 80] } };
+    doc.bridge.handleMessage({ type: 'saveViewState', viewState });
+    expect(doc.savedViewStates).toEqual([viewState]);
+    expect(doc.applied).toEqual([]);
+  });
+
+  it('forwards IDE commands to the editor UI once it is ready', () => {
+    const doc = createHost('a\n');
+    doc.bridge.runCommand('toggleOutline');
+    expect(doc.posted).toEqual([]);
+    doc.bridge.handleMessage(ready);
+    doc.bridge.runCommand('goToHeading');
+    expect(doc.posted.at(-1)).toEqual({ type: 'command', command: 'goToHeading' });
+  });
+
+  it('answers readClipboard with the clipboard text (paste as plain text)', async () => {
+    const doc = createHost('a\n');
+    doc.bridge.handleMessage(ready);
+    doc.bridge.handleMessage({ type: 'readClipboard' });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(doc.posted.at(-1)).toEqual({ type: 'clipboardText', text: 'from the clipboard' });
   });
 
   it('ignores messages after dispose', async () => {

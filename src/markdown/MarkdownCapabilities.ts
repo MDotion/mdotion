@@ -19,6 +19,7 @@ export const EDITABLE_CAPABILITIES = [
   'code-block',
   'horizontal-rule',
   'table',
+  'table-alignment',
   'image',
   'hard-break',
 ] as const;

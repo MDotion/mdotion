@@ -1,8 +1,8 @@
 {
   "name": "mdotion-editor",
   "displayName": "MDotion: Visual Markdown Editor",
-  "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, callouts, tables and code. Files stay plain .md, untouched blocks are saved byte for byte.",
-  "version": "0.1.0",
+  "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, an outline to reorder sections, tables you can paste from Excel or Sheets. Files stay plain .md, untouched blocks are saved byte for byte.",
+  "version": "0.2.0",
   "preview": true,
   "publisher": "MDotion",
   "author": {
@@ -40,6 +40,9 @@
     "slash commands",
     "callouts",
     "tables",
+    "table editor",
+    "paste from excel",
+    "outline",
     "gfm"
   ],
   "activationEvents": [
@@ -88,6 +91,17 @@
         "icon": "$(copy)"
       },
       {
+        "command": "mdotion.toggleOutline",
+        "title": "Toggle Outline",
+        "category": "MDotion",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "mdotion.goToHeading",
+        "title": "Go to Heading",
+        "category": "MDotion"
+      },
+      {
         "command": "mdotion.useAsDefault",
         "title": "Use as Default Markdown Editor",
         "category": "MDotion"
@@ -129,6 +143,16 @@
           "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
           "group": "1_open@2"
         }
+      ],
+      "commandPalette": [
+        {
+          "command": "mdotion.toggleOutline",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.goToHeading",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        }
       ]
     },
     "keybindings": [
@@ -143,6 +167,18 @@
         "key": "ctrl+shift+alt+c",
         "mac": "cmd+shift+alt+c",
         "when": "activeCustomEditorId == mdotion.markdownEditor || (editorLangId == markdown && activeEditor == workbench.editors.files.textFileEditor)"
+      },
+      {
+        "command": "mdotion.toggleOutline",
+        "key": "ctrl+alt+o",
+        "mac": "cmd+alt+o",
+        "when": "activeCustomEditorId == mdotion.markdownEditor"
+      },
+      {
+        "command": "mdotion.goToHeading",
+        "key": "ctrl+shift+o",
+        "mac": "cmd+shift+o",
+        "when": "activeCustomEditorId == mdotion.markdownEditor"
       }
     ],
     "configuration": {

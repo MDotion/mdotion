@@ -1,18 +1,23 @@
 import { EditorContent, useEditor } from '@tiptap/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PageSettings, Theme } from '../../src/shared/messages';
 import { DEFAULT_PAGE_SETTINGS } from '../../src/shared/protocolConstants';
 import { BlockHandle } from './components/BlockHandle';
 import { BlockMarquee } from './components/BlockMarquee';
 import { BubbleToolbar } from './components/BubbleToolbar';
+import { HeadingJump } from './components/HeadingJump';
 import { LinkPopover } from './components/LinkPopover';
+import { OutlinePanel } from './components/OutlinePanel';
 import { Properties } from './components/Properties';
-import { TableMenu } from './components/TableMenu';
+import { TableControls } from './components/TableControls';
 import { Topbar } from './components/Topbar';
 import { initAdapter } from './editor/adapter';
 import { createEditorExtensions } from './editor/extensions';
+import { insertPlainText } from './editor/MarkdownClipboard';
 import { openLink, postToHost, setDocumentDirUri, toHostMessage } from './lib/env';
 import { applyTheme } from './lib/theme';
+import { emitUiEvent } from './lib/uiEvents';
+import { viewState } from './lib/viewState';
 import { EditorSync, type SyncState } from './sync/EditorSync';
 
 export function App(): React.ReactElement | null {
@@ -30,6 +35,9 @@ export function App(): React.ReactElement | null {
   );
   const [state, setState] = useState<SyncState | null>(null);
   const [settings, setSettings] = useState<PageSettings>({ ...DEFAULT_PAGE_SETTINGS });
+  /** Latest settings, for commands coming from the IDE (handled outside React renders). */
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
   const [theme, setTheme] = useState<Theme>('auto');
   const [page, setPage] = useState<HTMLDivElement | null>(null);
   const [scroller, setScroller] = useState<HTMLElement | null>(null);
@@ -53,7 +61,27 @@ export function App(): React.ReactElement | null {
         setTheme(message.theme);
         return;
       }
+      if (message.type === 'clipboardText') {
+        if (editor) {
+          insertPlainText(editor.view, message.text);
+        }
+        return;
+      }
+      if (message.type === 'command') {
+        if (message.command === 'toggleOutline') {
+          const next = { ...settingsRef.current, outline: !settingsRef.current.outline };
+          setSettings(next);
+          postToHost({ type: 'saveSettings', settings: next });
+        } else {
+          emitUiEvent('jumpToHeading', undefined);
+        }
+        return;
+      }
       sync.handleMessage(message);
+      if (message.type === 'init') {
+        // After the document is loaded, so folded sections can be found by anchor.
+        viewState.load(message.viewState);
+      }
     };
     window.addEventListener('message', onMessage);
     sync.start();
@@ -104,6 +132,13 @@ export function App(): React.ReactElement | null {
       // Save, close, switch view (⌘⌥M) and copy all (⌘⇧⌥C) are IDE commands: send pending edits first.
       if (key === 's' || key === 'w' || (event.altKey && (event.code === 'KeyM' || event.code === 'KeyC'))) {
         sync.flush();
+        return;
+      }
+      // ⌘⇧O is VS Code's Go to Symbol, which custom editors do not have: search the headings instead.
+      if (key === 'o' && event.shiftKey && !event.altKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        emitUiEvent('jumpToHeading', undefined);
         return;
       }
       const target = event.target as HTMLElement;
@@ -166,11 +201,12 @@ export function App(): React.ReactElement | null {
   ].join(' ');
 
   return (
-    <div className="mdotion-app">
+    <div className={`mdotion-app${settings.outline ? ' has-outline' : ''}`}>
       <Topbar
         fileName={state?.fileName ?? ''}
         settings={settings}
         onSettingsChange={updateSettings}
+        onToggleOutline={() => updateSettings({ ...settings, outline: !settings.outline })}
         theme={theme}
         onThemeChange={(next) => {
           setTheme(next);
@@ -206,18 +242,24 @@ export function App(): React.ReactElement | null {
           </button>
         </div>
       ) : null}
-      <main className="mdotion-scroller" ref={setScroller}>
-        <div className={pageClass} ref={setPage}>
-          <Properties frontMatter={state?.frontMatter ?? null} onChange={(fm) => sync.setFrontMatter(fm)} />
-          <EditorContent editor={editor} className="mdotion-editor" />
-          <div className="mdotion-page-tail" />
-          <BlockHandle editor={editor} container={page} />
-        </div>
-      </main>
+      <div className="mdotion-body">
+        <main className="mdotion-scroller" ref={setScroller}>
+          <div className={pageClass} ref={setPage}>
+            <Properties frontMatter={state?.frontMatter ?? null} onChange={(fm) => sync.setFrontMatter(fm)} />
+            <EditorContent editor={editor} className="mdotion-editor" />
+            <div className="mdotion-page-tail" />
+            <BlockHandle editor={editor} container={page} />
+            <TableControls editor={editor} container={page} />
+          </div>
+        </main>
+        {settings.outline && state?.status === 'ready' ? (
+          <OutlinePanel editor={editor} onClose={() => updateSettings({ ...settings, outline: false })} />
+        ) : null}
+      </div>
       <BlockMarquee editor={editor} container={scroller} />
       <BubbleToolbar editor={editor} />
       <LinkPopover editor={editor} />
-      <TableMenu editor={editor} />
+      <HeadingJump editor={editor} />
     </div>
   );
 }

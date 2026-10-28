@@ -8,7 +8,7 @@ import { copyMarkdown } from './commands/copyMarkdown';
 import { registerDefaultEditorPrompt, setDefaultEditor } from './commands/defaultEditor';
 
 export function activate(context: vscode.ExtensionContext): void {
-  const provider = new MarkdownEditorProvider(context.extensionUri, context.globalState);
+  const provider = new MarkdownEditorProvider(context.extensionUri, context.globalState, context.workspaceState);
 
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 50);
   status.command = 'mdotion.toggleEditor';
@@ -45,10 +45,18 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('mdotion.openSource', openSource),
     vscode.commands.registerCommand('mdotion.toggleEditor', toggleEditor),
     vscode.commands.registerCommand('mdotion.copyMarkdown', (uri?: vscode.Uri) => copyMarkdown(provider, uri)),
+    vscode.commands.registerCommand('mdotion.toggleOutline', () => runInVisualEditor(provider, 'toggleOutline')),
+    vscode.commands.registerCommand('mdotion.goToHeading', () => runInVisualEditor(provider, 'goToHeading')),
     vscode.commands.registerCommand('mdotion.useAsDefault', () => setDefaultEditor(true)),
     vscode.commands.registerCommand('mdotion.stopUsingAsDefault', () => setDefaultEditor(false)),
     registerDefaultEditorPrompt(context),
   );
+}
+
+function runInVisualEditor(provider: MarkdownEditorProvider, command: 'toggleOutline' | 'goToHeading'): void {
+  if (!provider.runInActiveEditor(command)) {
+    void vscode.window.showInformationMessage('MDotion: open a Markdown file in the visual editor first.');
+  }
 }
 
 export function deactivate(): void {

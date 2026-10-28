@@ -6,11 +6,13 @@ import { useIdeDark } from '../lib/theme';
 /** Must match the keybindings contributed in package.json. */
 export const SWITCH_SHORTCUT = isMac ? '⌘⌥M' : 'Ctrl+Alt+M';
 export const COPY_ALL_SHORTCUT = isMac ? '⌘⇧⌥C' : 'Ctrl+Shift+Alt+C';
+export const OUTLINE_SHORTCUT = isMac ? '⌘⌥O' : 'Ctrl+Alt+O';
 
 interface TopbarProps {
   fileName: string;
   settings: PageSettings;
   onSettingsChange: (settings: PageSettings) => void;
+  onToggleOutline: () => void;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
   onSwitchToSource: () => void;
@@ -51,6 +53,7 @@ export function Topbar({
   fileName,
   settings,
   onSettingsChange,
+  onToggleOutline,
   theme,
   onThemeChange,
   onSwitchToSource,
@@ -90,6 +93,18 @@ export function Topbar({
             Markdown
           </button>
         </div>
+        <button
+          type="button"
+          className={`mdotion-topbar-button mdotion-outline-toggle${settings.outline ? ' is-active' : ''}`}
+          title={`${settings.outline ? 'Hide outline' : 'Show outline'} (${OUTLINE_SHORTCUT})`}
+          aria-label={settings.outline ? 'Hide outline' : 'Show outline'}
+          aria-pressed={settings.outline}
+          onClick={onToggleOutline}
+        >
+          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden>
+            <path d="M2.5 4h11M5 8h8.5M7.5 12h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
         <button
           type="button"
           className="mdotion-topbar-button mdotion-copy-all"
