@@ -116,6 +116,7 @@ export class MdotionTableView extends TableView implements NodeView {
     this.table.addEventListener('mousemove', this.onHover);
     this.table.addEventListener('mouseleave', this.onLeave);
     this.handle.addEventListener('mousedown', this.onResizeStart);
+    this.handle.addEventListener('mouseleave', this.onHandleLeave);
     this.handle.addEventListener('dblclick', this.onAutoFit);
     columnWidths.add(this);
     // Positions are only known once the view has placed the node.
@@ -222,6 +223,14 @@ export class MdotionTableView extends TableView implements NodeView {
 
   private readonly onLeave = (event: MouseEvent) => {
     if (!this.resizing && event.relatedTarget !== this.handle) {
+      this.showHandle(null);
+    }
+  };
+
+  /** The line only shows while the pointer is on the border (or dragging it). */
+  private readonly onHandleLeave = (event: MouseEvent) => {
+    const to = event.relatedTarget as HTMLElement | null;
+    if (!this.resizing && !(to && this.table.contains(to) && this.edgeAt(event.clientX) !== null)) {
       this.showHandle(null);
     }
   };
