@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  Captures what an application puts on the clipboard, to add real fixtures to
+  tests/fixtures/clipboard/ (one NAME.html and one NAME.txt per source):
+
+    npm run harness   →  http://localhost:5178/tests/browser/clipboard-capture.html
+
+  Copy a range in Excel, Numbers, Google Sheets or a web page, click the page and paste.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clipboard capture</title>
+    <style>
+      body { margin: 24px; font: 14px/1.5 -apple-system, BlinkMacSystemFont, sans-serif; }
+      #target { padding: 24px; border: 2px dashed #8888; border-radius: 8px; text-align: center; }
+      #target:focus { outline: 2px solid #2383e2; }
+      label { display: block; margin: 16px 0 4px; font-weight: 600; }
+      pre { max-height: 240px; overflow: auto; padding: 8px; background: #8881; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Clipboard capture</h1>
+    <div id="target" tabindex="0">Click here and paste (⌘V / Ctrl+V)</div>
+    <label>Fixture name <input id="name" value="excel-mac" /></label>
+    <button id="save" type="button" disabled>Download NAME.html and NAME.txt</button>
+    <label>text/html</label>
+    <pre id="html"></pre>
+    <label>text/plain</label>
+    <pre id="text"></pre>
+    <script>
+      let captured = null;
+      document.getElementById('target').addEventListener('paste', (event) => {
+        event.preventDefault();
+        const data = event.clipboardData;
+        captured = { html: data.getData('text/html'), text: data.getData('text/plain') };
+        document.getElementById('html').textContent = captured.html || '(empty)';
+        document.getElementById('text').textContent = captured.text || '(empty)';
+        document.getElementById('save').disabled = false;
+      });
+      document.getElementById('save').addEventListener('click', () => {
+        const name = document.getElementById('name').value.trim() || 'clipboard';
+        for (const [ext, content] of [['html', captured.html], ['txt', captured.text]]) {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
+          link.download = `${name}.${ext}`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      });
+    </script>
+  </body>
+</html>

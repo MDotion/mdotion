@@ -10,7 +10,10 @@ import { RawBlockView } from '../nodeviews/RawBlockView';
 import { BlockSelectionExtension } from './BlockSelection';
 import { MarkdownClipboard } from './MarkdownClipboard';
 import { NotionKeymap } from './NotionKeymap';
+import { SectionFolding } from './outline/SectionFolding';
 import { SlashCommand } from './slash/SlashCommandExtension';
+import { MdotionTableView } from './table/columnWidths';
+import { TableBehaviour } from './table/TableBehaviour';
 
 export function createEditorExtensions(): Extensions {
   return [
@@ -20,6 +23,8 @@ export function createEditorExtensions(): Extensions {
       callout: ReactNodeViewRenderer(CalloutView),
       rawBlock: ReactNodeViewRenderer(RawBlockView),
       htmlInline: htmlInlineView,
+      // Column widths are view state, so the table view is ours (see columnWidths.ts).
+      table: ({ node, view, getPos }) => new MdotionTableView(node, view, getPos),
     }),
     // The webview owns fine-grained undo (see ADR-003); edits reach the IDE as plain text changes.
     UndoRedo.configure({ depth: 500, newGroupDelay: 600 }),
@@ -50,6 +55,8 @@ export function createEditorExtensions(): Extensions {
       },
     }),
     SlashCommand,
+    TableBehaviour,
+    SectionFolding,
     BlockSelectionExtension,
     NotionKeymap,
     MarkdownClipboard,

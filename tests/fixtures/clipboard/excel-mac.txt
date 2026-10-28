@@ -1,0 +1,7 @@
+Feature	Status	Cost	Done
+Authentication	Done	1.200,50 €	95%
+Notifications | push	In progress	80,00 €	40%
+Billing		0,00 €	0%
+"Ship
+release"	Planned	15,00 €	0%
+Total		1.295,50 €	

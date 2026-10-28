@@ -28,6 +28,17 @@ Use `tests/fixtures/notion.md` (it contains every supported construct).
 - [ ] `⋮⋮` with several blocks selected: the menu shows "N blocks" and Duplicate / Move / Delete apply to all of them.
 - [ ] **Visual | Markdown** and `⌘⌥M`: the tab is replaced (not duplicated), also with unsaved changes.
 - [ ] **Copy** and `⌘⇧⌥C`: the clipboard contains the whole file.
+- [ ] **Paste a spreadsheet**: copy a range from Excel, Numbers and Google Sheets, paste in an empty line: a table appears, the first row is the header, number columns stay right-aligned; `⌘Z` removes it in one step. `⌘⇧V` pastes plain text instead. Paste a range with the caret inside an existing table: cells are filled from the caret and the table grows.
+- [ ] Paste a table copied from a GitHub README and from Wikipedia: links, bold and code are kept, merged cells are split.
+- [ ] Table grips: hover a cell → `⋯` above the column and `⋮` left of the row. Click opens the menu (insert, move, duplicate, clear, delete, column alignment); drag reorders. The `+` bars on the right and bottom edges add a column / row, dragging them adds several.
+- [ ] Table keyboard: `Tab` / `⇧Tab` move between cells, `Enter` goes to the cell below (adds a row at the bottom), `⇧Enter` adds a line break, `⌘⇧↑/↓` moves the row, `Esc` selects the table.
+- [ ] Column resize: drag the border between two header cells, double-click it to fit the content. The file is **not** marked as modified; close and reopen: the widths are kept.
+- [ ] Outline (button next to **Copy**): headings with indentation, the current section highlighted while scrolling, `!` on duplicate titles and skipped levels. Click jumps; drag a section above another (heading, content and subsections move; only those lines change in **Markdown**); `Alt+↑/↓` on a focused item does the same.
+- [ ] Folding: chevron next to a heading (or in the outline) hides its section and shows "N blocks"; the file is not modified; the arrow keys skip the hidden content; reopen the file: the section is still folded.
+- [ ] `⌘⇧O` opens the heading search; typing filters, `Enter` jumps (unfolding the section if needed).
+- [ ] **MDotion: Toggle Outline** (`⌘⌥O`) and **MDotion: Go to Heading** from the Command Palette work in the visual editor and are hidden elsewhere.
+- [ ] `/table` opens the size grid: arrow keys and the mouse change the size, `Enter` inserts it.
+- [ ] `⌘⇧V` pastes the clipboard as plain text (lines become paragraphs, no table, no Markdown).
 - [ ] Theme: sun / moon button and **•••** → Theme (Auto / Light / Dark). Close and reopen the file: the theme is kept and `mdotion.theme` shows it in Settings. **Auto** follows the IDE theme.
 
 ## Troubleshooting

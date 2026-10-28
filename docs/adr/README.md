@@ -12,5 +12,6 @@ Short, durable decisions for mdotion. Status: **Proposed** until validated by te
 | [006](./006-parse-errors.md) | Parse error handling |
 | [007](./007-supported-ide-versions.md) | Supported IDE versions |
 | [008](./008-mvp-capability-guarantee.md) | MVP capability guarantee |
+| [009](./009-view-state.md) | View state outside the document |
 
 Template: [000-template.md](./000-template.md)

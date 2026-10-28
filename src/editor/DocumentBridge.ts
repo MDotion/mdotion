@@ -3,6 +3,7 @@ import {
   type HostToWebviewMessage,
   type PageSettings,
   type Theme,
+  type ViewState,
   type WebviewToHostMessage,
 } from './protocol';
 
@@ -14,8 +15,10 @@ export interface DocumentBridgeHost {
   applyText(text: string): Promise<boolean>;
   postMessage(message: HostToWebviewMessage): void;
   /** Static data for the `init` message. */
-  getInitInfo(): { fileName: string; documentDirUri: string; settings: PageSettings; theme: Theme };
+  getInitInfo(): { fileName: string; documentDirUri: string; settings: PageSettings; theme: Theme; viewState: ViewState };
   saveSettings?(settings: PageSettings): void;
+  saveViewState?(viewState: ViewState): void;
+  readClipboard?(): Promise<string>;
   setTheme?(theme: Theme): void;
   openLink?(href: string): void;
   switchToSource?(): void;
@@ -75,6 +78,23 @@ export class DocumentBridge {
       case 'setTheme':
         this.host.setTheme?.(message.theme);
         break;
+      case 'saveViewState':
+        this.host.saveViewState?.(message.viewState);
+        break;
+      case 'readClipboard':
+        void this.host.readClipboard?.().then((text) => {
+          if (!this.disposed) {
+            this.host.postMessage({ type: 'clipboardText', text });
+          }
+        });
+        break;
+    }
+  }
+
+  /** Forwards an IDE command (Toggle Outline, Go to Heading) to the editor UI. */
+  runCommand(command: 'toggleOutline' | 'goToHeading'): void {
+    if (!this.disposed && this.ready) {
+      this.host.postMessage({ type: 'command', command });
     }
   }
 

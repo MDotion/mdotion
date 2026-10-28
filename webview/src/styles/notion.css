@@ -965,6 +965,50 @@ button {
   text-align: center;
 }
 
+.mdotion-prose th[style*='text-align: right'],
+.mdotion-prose td[style*='text-align: right'] {
+  text-align: right;
+}
+
+.mdotion-prose .tableWrapper {
+  position: relative;
+}
+
+/* Widths set by resizing columns (view state, not in the Markdown). */
+.mdotion-prose table.has-column-widths {
+  table-layout: fixed;
+  min-width: 0;
+}
+
+.mdotion-prose table.has-column-widths th,
+.mdotion-prose table.has-column-widths td {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mdotion-column-resize {
+  display: none;
+  position: absolute;
+  z-index: 3;
+  width: 8px;
+  cursor: col-resize;
+}
+
+.mdotion-column-resize::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+.mdotion-column-resize.is-active::after {
+  opacity: 1;
+}
+
 .mdotion-prose .selectedCell::after {
   content: '';
   position: absolute;
@@ -1525,10 +1569,6 @@ button {
   white-space: nowrap;
 }
 
-.mdotion-table-menu .mdotion-bubble-button {
-  font-size: 13px;
-}
-
 /* ---- Block selection (Notion) ------------------------------------------- */
 
 /* An overlay, so blocks with their own background (callouts, code, tables) are tinted too. */
@@ -1631,4 +1671,493 @@ button {
   background: var(--bg);
   color: var(--text);
   box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px;
+}
+
+/* ---- Outline ------------------------------------------------------------ */
+
+.mdotion-body {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.mdotion-body > .mdotion-scroller {
+  min-width: 0;
+  align-self: stretch;
+}
+
+.mdotion-prose h1,
+.mdotion-prose h2,
+.mdotion-prose h3,
+.mdotion-prose h4,
+.mdotion-prose h5,
+.mdotion-prose h6 {
+  scroll-margin-top: 56px;
+}
+
+.mdotion-outline {
+  position: sticky;
+  top: 45px;
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 248px;
+  height: calc(100vh - 45px);
+  padding: 8px 8px 12px 4px;
+  border-left: 1px solid var(--divider);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Narrow windows: the outline floats over the page instead of squeezing it. */
+@media (max-width: 960px) {
+  .mdotion-outline {
+    position: fixed;
+    right: 0;
+    z-index: 60;
+    box-shadow: var(--popover-shadow);
+    border-left: none;
+  }
+}
+
+.mdotion-outline-header {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 0 0 0 10px;
+  margin-bottom: 4px;
+}
+
+.mdotion-outline-title {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.mdotion-outline-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.mdotion-outline-action:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.mdotion-outline-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.mdotion-outline-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+.mdotion-outline-empty {
+  margin: 8px 10px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.mdotion-outline-hint {
+  padding: 6px 10px 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.mdotion-outline-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 6px;
+}
+
+.mdotion-outline-row:hover {
+  background: var(--hover);
+}
+
+.mdotion-outline-row.is-dragged {
+  opacity: 0.4;
+}
+
+.mdotion-outline-row.has-drop-before::before,
+.mdotion-outline-row.has-drop-after::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.mdotion-outline-row.has-drop-before::before {
+  top: -1px;
+}
+
+.mdotion-outline-row.has-drop-after::after {
+  bottom: -1px;
+}
+
+.mdotion-outline.is-dragging .mdotion-outline-row:hover {
+  background: transparent;
+}
+
+.mdotion-outline-chevron {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.mdotion-outline-chevron:hover {
+  background: var(--active);
+  color: var(--text);
+}
+
+.mdotion-outline-chevron.is-hidden {
+  visibility: hidden;
+}
+
+.mdotion-outline-chevron svg,
+.mdotion-fold-toggle svg {
+  transition: transform 120ms ease-out;
+}
+
+.mdotion-outline-chevron.is-open svg,
+.mdotion-fold-toggle.is-open svg {
+  transform: rotate(90deg);
+}
+
+.mdotion-outline-label {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px 4px 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.mdotion-outline-label.is-h1 {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.mdotion-outline-row.is-active .mdotion-outline-label {
+  color: var(--accent);
+}
+
+.mdotion-outline-label:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.mdotion-outline-untitled {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.mdotion-outline-issue {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--banner-bg);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: help;
+}
+
+.mdotion-outline-toggle.is-active {
+  background: var(--hover);
+  color: var(--text);
+}
+
+/* ---- Folded sections ---------------------------------------------------- */
+
+.mdotion-prose .mdotion-folded-hidden {
+  display: none !important;
+}
+
+.mdotion-fold-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin-left: 10px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 10px;
+  background: var(--hover);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: middle;
+  user-select: none;
+}
+
+.mdotion-fold-pill:hover {
+  background: var(--active);
+  color: var(--text);
+}
+
+/* ---- Go to heading ------------------------------------------------------ */
+
+.mdotion-jump-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 72px;
+}
+
+.mdotion-jump {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, calc(100vw - 32px));
+  max-height: min(420px, calc(100vh - 120px));
+  overflow: hidden;
+}
+
+.mdotion-jump-input {
+  height: 44px;
+  padding: 0 14px;
+  border: none;
+  border-bottom: 1px solid var(--divider);
+  background: transparent;
+  font-size: 15px;
+  outline: none;
+}
+
+.mdotion-jump-list {
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.mdotion-jump-level {
+  flex: none;
+  width: 22px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.mdotion-jump-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Table controls ----------------------------------------------------- */
+
+.mdotion-table-grip {
+  position: absolute;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--divider-strong);
+  border-radius: 4px;
+  background: var(--popover-bg);
+  color: var(--text-tertiary);
+  box-shadow: rgba(15, 15, 15, 0.06) 0 1px 2px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.mdotion-table-grip.is-col {
+  width: 24px;
+  height: 14px;
+}
+
+.mdotion-table-grip.is-row {
+  width: 14px;
+  height: 24px;
+}
+
+.mdotion-table-grip:hover {
+  color: var(--text-secondary);
+  background: var(--tile-bg);
+}
+
+.mdotion-table-grip.is-selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.mdotion-table-grip:active {
+  cursor: grabbing;
+}
+
+.mdotion-table-grow {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: var(--hover);
+  color: var(--text-tertiary);
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 120ms ease-out;
+  touch-action: none;
+}
+
+.mdotion-table-grow:hover {
+  opacity: 1;
+  background: var(--active);
+  color: var(--text-secondary);
+}
+
+.mdotion-table-grow.is-col {
+  width: 16px;
+}
+
+.mdotion-table-grow.is-row {
+  height: 16px;
+}
+
+.mdotion-table-grow span {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mdotion-table-drop {
+  position: absolute;
+  z-index: 26;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.mdotion-table-drop.is-col {
+  width: 2px;
+}
+
+.mdotion-table-drop.is-row {
+  height: 2px;
+}
+
+.mdotion-table-axis-menu {
+  position: absolute;
+  z-index: 70;
+}
+
+.mdotion-table-axis-menu .mdotion-menu-item:disabled,
+.mdotion-block-menu .mdotion-menu-item:disabled {
+  opacity: 0.4;
+  cursor: default;
+  background: transparent;
+}
+
+.mdotion-table-align {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 4px 8px;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--hover);
+}
+
+.mdotion-table-align button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.mdotion-table-align button.is-active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px;
+}
+
+/* ---- Table size picker (slash menu) ------------------------------------- */
+
+.mdotion-table-picker {
+  width: auto;
+  padding-bottom: 8px;
+}
+
+.mdotion-table-picker-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 14px;
+}
+
+.mdotion-table-picker-row {
+  display: flex;
+  gap: 3px;
+}
+
+.mdotion-table-picker-cell {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--divider-strong);
+  border-radius: 3px;
+  background: transparent;
+}
+
+.mdotion-table-picker-cell.is-in {
+  border-color: var(--accent);
+  background: var(--block-selection);
+}
+
+.mdotion-table-picker-cell.is-in.is-header {
+  background: var(--selection);
+}
+
+.mdotion-table-picker-hint {
+  padding: 6px 14px 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
 }

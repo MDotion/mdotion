@@ -7,6 +7,9 @@ import { getAdapter, getSourceMap } from '../editor/adapter';
 import { BlockSelection, KEEP_TEXT_SELECTION } from '../editor/BlockSelection';
 import { CONVERTIBLE_TYPES } from '../editor/blockTypes';
 import { duplicateBlocks, moveBlocks } from '../editor/NotionKeymap';
+import { foldingKey, isFolded, toggleFold } from '../editor/outline/SectionFolding';
+import { itemAt, moveSectionDown, moveSectionUp, nextSibling, previousSibling, type OutlineItem } from '../editor/outline/sections';
+import { CHEVRON } from './OutlinePanel';
 import { sliceToMarkdown } from '../editor/sliceToMarkdown';
 import { copyText } from '../lib/clipboard';
 import { modKey } from '../lib/env';
@@ -14,12 +17,23 @@ import { modKey } from '../lib/env';
 const LIST_ITEMS = new Set(['listItem', 'taskItem']);
 const CONVERTIBLE_NODES = new Set(['paragraph', 'heading', 'listItem', 'taskItem', 'blockquote', 'callout', 'codeBlock']);
 const HANDLE_WIDTH = 44;
+const FOLD_WIDTH = 22;
 
 interface HoverTarget {
   pos: number;
   node: PMNode;
   top: number;
   left: number;
+  /** The section the block opens, when it is a top-level heading. */
+  section: OutlineItem | null;
+}
+
+/** The outline item of a top-level heading at `pos` (sections only start at the top level). */
+function sectionAt(editor: Editor, pos: number, node: PMNode): OutlineItem | null {
+  if (node.type.name !== 'heading' || editor.state.doc.resolve(pos).depth !== 0) {
+    return null;
+  }
+  return itemAt(foldingKey.getState(editor.state)?.items ?? [], pos) ?? null;
 }
 
 /** The block under the given coordinates: the innermost list item, or the top-level block. */
@@ -79,12 +93,16 @@ export function BlockHandle({ editor, container }: { editor: Editor; container: 
       }
       const rect = dom.getBoundingClientRect();
       const box = container.getBoundingClientRect();
-      const markerGap = LIST_ITEMS.has(block.node.type.name) ? 22 : 0;
+      // Tables have their own row grips on the left edge.
+      const markerGap = LIST_ITEMS.has(block.node.type.name) ? 22 : block.node.type.name === 'table' ? 12 : 0;
+      const section = sectionAt(editor, block.pos, block.node);
+      const foldGap = section && section.end > block.pos + block.node.nodeSize ? FOLD_WIDTH : 0;
       return {
         pos: block.pos,
         node: block.node,
         top: rect.top - box.top + container.scrollTop + firstLineOffset(dom),
-        left: rect.left - box.left - HANDLE_WIDTH - markerGap - 4,
+        left: rect.left - box.left - HANDLE_WIDTH - markerGap - foldGap - 4,
+        section,
       };
     },
     [container, editor],
@@ -230,10 +248,29 @@ export function BlockHandle({ editor, container }: { editor: Editor; container: 
     apply(editor);
   };
 
+  /** Moves the section of the heading the menu was opened on. */
+  const moveSection = (direction: -1 | 1) => {
+    setMenu(null);
+    const item = menu?.section ? itemAt(foldingKey.getState(editor.state)?.items ?? [], menu.pos) : undefined;
+    if (!item) {
+      return;
+    }
+    const items = foldingKey.getState(editor.state)!.items;
+    const tr = (direction === -1 ? moveSectionUp : moveSectionDown)(editor.state, items, item.index);
+    if (tr) {
+      editor.view.dispatch(tr);
+      editor.view.focus();
+    }
+  };
+
   const shown = menu ?? hover;
   if (!shown) {
     return null;
   }
+  const foldable = !!shown.section && shown.section.end > shown.pos + shown.node.nodeSize;
+  const folded = foldable && isFolded(editor.state, shown.pos);
+  const sectionItems = foldingKey.getState(editor.state)?.items ?? [];
+  const menuSection = menu?.section ? itemAt(sectionItems, menu.pos) : undefined;
   const menuNode = menu ? nodeAt(menu) : null;
   const selectedBlocks = editor.state.selection instanceof BlockSelection ? editor.state.selection.blocks() : [];
   const canConvert = selectedBlocks.length > 0 && selectedBlocks.every(({ node }) => CONVERTIBLE_NODES.has(node.type.name));
@@ -241,6 +278,19 @@ export function BlockHandle({ editor, container }: { editor: Editor; container: 
   return (
     <>
       <div className="mdotion-block-handle" style={{ top: shown.top, left: shown.left }}>
+        {foldable ? (
+          <button
+            type="button"
+            className={`mdotion-handle-button mdotion-fold-toggle${folded ? '' : ' is-open'}`}
+            title={folded ? 'Unfold section' : 'Fold section'}
+            aria-label={folded ? 'Unfold section' : 'Fold section'}
+            aria-expanded={!folded}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => toggleFold(editor.view, shown.pos)}
+          >
+            {CHEVRON}
+          </button>
+        ) : null}
         <button
           type="button"
           className="mdotion-handle-button"
@@ -323,6 +373,30 @@ export function BlockHandle({ editor, container }: { editor: Editor; container: 
             Move down
             <span className="mdotion-menu-shortcut">{modKey}⇧↓</span>
           </button>
+          {menuSection && selectedBlocks.length === 1 ? (
+            <>
+              <button
+                type="button"
+                role="menuitem"
+                className="mdotion-menu-item"
+                disabled={previousSibling(sectionItems, menuSection.index) === null}
+                onClick={() => moveSection(-1)}
+              >
+                <span className="mdotion-menu-icon">⇡</span>
+                Move section up
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="mdotion-menu-item"
+                disabled={nextSibling(sectionItems, menuSection.index) === null}
+                onClick={() => moveSection(1)}
+              >
+                <span className="mdotion-menu-icon">⇣</span>
+                Move section down
+              </button>
+            </>
+          ) : null}
           <button
             type="button"
             role="menuitem"

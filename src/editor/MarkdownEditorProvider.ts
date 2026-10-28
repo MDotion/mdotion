@@ -9,27 +9,44 @@ import {
   pageSettingsSchema,
   parseWebviewMessage,
   themeSchema,
+  viewStateSchema,
   type PageSettings,
   type Theme,
+  type ViewState,
 } from './protocol';
 import { getWebviewHtml } from './WebviewFactory';
 
 const SETTINGS_KEY = 'mdotion.pageSettings';
+const VIEW_STATE_PREFIX = 'mdotion.viewState:';
 
 export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   public static readonly viewType = 'mdotion.markdownEditor';
 
   /** Bridges of open MDotion panels, so saves can wait for pending edits. */
   private readonly bridges = new Map<string, Set<DocumentBridge>>();
+  /** The bridge of the focused MDotion panel, for commands aimed at the editor UI. */
+  private activeBridge: DocumentBridge | null = null;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly globalState: vscode.Memento,
+    private readonly workspaceState: vscode.Memento,
   ) {}
 
   private readSettings(): PageSettings {
     const parsed = pageSettingsSchema.safeParse(this.globalState.get(SETTINGS_KEY));
     return parsed.success ? parsed.data : DEFAULT_PAGE_SETTINGS;
+  }
+
+  /** Folded sections and column widths of one file, kept in the workspace state (ADR-009). */
+  private readViewState(uri: vscode.Uri): ViewState {
+    const parsed = viewStateSchema.safeParse(this.workspaceState.get(VIEW_STATE_PREFIX + uri.toString()));
+    return parsed.success ? parsed.data : { folded: [], tableWidths: {} };
+  }
+
+  private writeViewState(uri: vscode.Uri, viewState: ViewState): void {
+    const empty = viewState.folded.length === 0 && Object.keys(viewState.tableWidths).length === 0;
+    void this.workspaceState.update(VIEW_STATE_PREFIX + uri.toString(), empty ? undefined : viewState);
   }
 
   /** The `mdotion.theme` setting (a user setting, so it applies to every window and file). */
@@ -52,6 +69,15 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   broadcastTheme(): void {
     const theme = this.readTheme();
     this.bridges.forEach((set) => set.forEach((bridge) => bridge.onThemeChanged(theme)));
+  }
+
+  /** Runs an editor UI command in the focused MDotion panel; false when none is focused. */
+  runInActiveEditor(command: 'toggleOutline' | 'goToHeading'): boolean {
+    if (!this.activeBridge) {
+      return false;
+    }
+    this.activeBridge.runCommand(command);
+    return true;
   }
 
   /** Lets `onWillSaveTextDocument` wait until queued webview edits reach the document. */
@@ -88,13 +114,20 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         documentDirUri: `${webviewPanel.webview.asWebviewUri(documentDir).toString()}/`,
         settings: this.readSettings(),
         theme: this.readTheme(),
+        viewState: this.readViewState(document.uri),
       }),
       setTheme: (theme) => this.writeTheme(theme),
       saveSettings: (settings) => void this.globalState.update(SETTINGS_KEY, settings),
+      saveViewState: (viewState) => this.writeViewState(document.uri, viewState),
+      readClipboard: () => Promise.resolve(vscode.env.clipboard.readText()),
       openLink: (href) => void openLink(document, href),
       switchToSource: () => void switchEditor(document.uri, 'source'),
       copyMarkdown: () => void copyMarkdown(this, document.uri),
     });
+
+    if (webviewPanel.active) {
+      this.activeBridge = bridge;
+    }
 
     const key = document.uri.toString();
     const set = this.bridges.get(key) ?? new Set<DocumentBridge>();
@@ -102,6 +135,13 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     this.bridges.set(key, set);
 
     const subscriptions: vscode.Disposable[] = [
+      webviewPanel.onDidChangeViewState(({ webviewPanel: panel }) => {
+        if (panel.active) {
+          this.activeBridge = bridge;
+        } else if (this.activeBridge === bridge) {
+          this.activeBridge = null;
+        }
+      }),
       vscode.workspace.onDidChangeTextDocument((event) => {
         if (event.document.uri.toString() === key && event.contentChanges.length > 0) {
           bridge.onDocumentChanged();
@@ -118,6 +158,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     ];
 
     webviewPanel.onDidDispose(() => {
+      if (this.activeBridge === bridge) {
+        this.activeBridge = null;
+      }
       bridge.dispose();
       set.delete(bridge);
       if (set.size === 0) {

@@ -1,0 +1,3 @@
+Option	Default	Description
+--watch	false	Rebuild on every change. See the docs.
+--out	dist	Output folder

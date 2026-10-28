@@ -104,6 +104,21 @@ export async function run(): Promise<void> {
     assert.strictEqual(associations()['*.md'], undefined);
   });
 
+  await check('Toggle Outline and Go to Heading reach the visual editor without touching the file', async () => {
+    const commands = await vscode.commands.getCommands(true);
+    assert.ok(commands.includes('mdotion.toggleOutline'), 'Toggle Outline is registered');
+    assert.ok(commands.includes('mdotion.goToHeading'), 'Go to Heading is registered');
+    await vscode.commands.executeCommand('workbench.action.files.revert');
+    await vscode.commands.executeCommand('vscode.openWith', uri, VIEW_TYPE);
+    await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab');
+    const before = findDocument(uri)?.getText();
+    await vscode.commands.executeCommand('mdotion.toggleOutline');
+    await vscode.commands.executeCommand('mdotion.toggleOutline');
+    await sleep(1000);
+    assert.strictEqual(findDocument(uri)?.isDirty, false, 'the outline is view state, not content');
+    assert.strictEqual(findDocument(uri)?.getText(), before);
+  });
+
   await check('the theme is a persistent extension setting', async () => {
     const config = vscode.workspace.getConfiguration('mdotion');
     assert.strictEqual(config.inspect('theme')?.defaultValue, 'auto');

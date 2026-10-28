@@ -3,7 +3,7 @@ import { UndoRedo } from '@tiptap/extensions';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MarkdownAdapter } from '../src/markdown/MarkdownAdapter';
 import { getMdotionExtensions } from '../src/markdown/mdotionExtensions';
-import { DEFAULT_PAGE_SETTINGS, type WebviewToHostMessage } from '../src/shared/messages';
+import { DEFAULT_PAGE_SETTINGS, EMPTY_VIEW_STATE, type WebviewToHostMessage } from '../src/shared/messages';
 import { EditorSync } from '../webview/src/sync/EditorSync';
 
 const SOURCE = '---\ntitle: T\n---\n# Title\n\nFirst paragraph with snake_case.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nLast *one*\n';
@@ -21,6 +21,7 @@ function setup() {
     documentDirUri: 'https://x/',
     settings: DEFAULT_PAGE_SETTINGS,
     theme: 'auto',
+    viewState: EMPTY_VIEW_STATE,
   });
   return { editor, sync, posted };
 }

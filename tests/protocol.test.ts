@@ -21,8 +21,19 @@ describe('webview message validation', () => {
     { type: 'openLink', href: '' },
     { type: 'saveSettings', settings: { fullWidth: 'yes' } },
     { type: 'setTheme', theme: 'sepia' },
+    { type: 'saveViewState', viewState: { folded: 'a', tableWidths: {} } },
+    { type: 'saveViewState', viewState: { folded: [], tableWidths: { t: [-5] } } },
   ])('rejects %j', (raw) => {
     expect(parseWebviewMessage(raw)).toBeNull();
+  });
+});
+
+describe('page settings', () => {
+  it('reads settings saved before the outline existed', () => {
+    expect(parseWebviewMessage({ type: 'saveSettings', settings: { fullWidth: true, smallText: false, font: 'serif' } })).toEqual({
+      type: 'saveSettings',
+      settings: { fullWidth: true, smallText: false, font: 'serif', outline: false },
+    });
   });
 });
 

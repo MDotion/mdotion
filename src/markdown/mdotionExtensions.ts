@@ -36,12 +36,54 @@ const MdotionLink = Link.extend({
   },
 });
 
+/**
+ * Table whose delimiter row lines up with the padded cells: the stock
+ * serializer adds the alignment colons on top of the column width.
+ */
+const MdotionTable = Table.extend({
+  renderMarkdown(node, helpers, context) {
+    const rendered = this.parent?.(node, helpers, context) ?? '';
+    return alignDelimiterRow(rendered);
+  },
+});
+
+/**
+ * Pads each delimiter cell (`---`, `:---`, `---:`, `:---:`) to the width of
+ * its column, read from the header row. Idempotent: extensions that wrap the
+ * table (node views) may run the renderer chain twice.
+ */
+export function alignDelimiterRow(table: string): string {
+  const lines = table.split('\n');
+  const index = lines.findIndex((line) => /^\|( :?-+:? \|)+$/.test(line));
+  const header = lines[index - 1];
+  if (index < 1 || !header?.startsWith('| ') || !header.endsWith(' |')) {
+    return table;
+  }
+  // Pipes inside cells are always escaped (`\|`) by the serializer.
+  const widths = header
+    .slice(1, -1)
+    .split(/(?<!\\)\|/)
+    .map((cell) => cell.length - 2);
+  const segments = lines[index].slice(1, -1).split('|');
+  if (segments.length !== widths.length) {
+    return table;
+  }
+  lines[index] = `|${segments
+    .map((segment, column) => {
+      const [, left, right] = /^ (:?)-+(:?) $/.exec(segment) ?? ['', '', ''];
+      const dashes = Math.max(widths[column] - left.length - right.length, 1);
+      return ` ${left}${'-'.repeat(dashes)}${right} `;
+    })
+    .join('|')}|`;
+  return lines.join('\n');
+}
+
 /** GFM tables only hold inline content per cell. */
 const MarkdownTableCell = TableCell.extend({ content: 'paragraph' });
 const MarkdownTableHeader = TableHeader.extend({ content: 'paragraph' });
 
 export type MdotionNodeViews = Partial<
-  Record<'codeBlock' | 'image' | 'callout' | 'rawBlock' | 'htmlInline', NodeViewRenderer>
+  Record<'codeBlock' | 'image' | 'callout' | 'rawBlock' | 'htmlInline' | 'table', NodeViewRenderer>
 >;
 
 function withView<T extends AnyExtension>(extension: T, view: NodeViewRenderer | undefined): T {
@@ -76,7 +118,7 @@ export function getMdotionExtensions(nodeViews: MdotionNodeViews = {}): Extensio
     TaskList,
     TaskItem.configure({ nested: true }),
     withView(CodeBlockLowlight, nodeViews.codeBlock).configure({ lowlight, defaultLanguage: null }),
-    Table.configure({ resizable: false }),
+    withView(MdotionTable, nodeViews.table).configure({ resizable: false }),
     TableRow,
     MarkdownTableHeader,
     MarkdownTableCell,

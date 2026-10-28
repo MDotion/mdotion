@@ -1,6 +1,8 @@
 type Events = {
   /** Open the link editor for the current selection (Cmd+K, toolbar button). */
   editLink: void;
+  /** Open the heading search (Cmd+Shift+O). */
+  jumpToHeading: void;
 };
 
 type Listener<T> = (payload: T) => void;

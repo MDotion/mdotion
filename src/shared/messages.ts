@@ -2,16 +2,30 @@ import { z } from 'zod';
 
 import { MAX_DOCUMENT_CHARS } from './protocolConstants';
 
-export { DEFAULT_PAGE_SETTINGS, MAX_DOCUMENT_CHARS, PROTOCOL_VERSION } from './protocolConstants';
+export { DEFAULT_PAGE_SETTINGS, EMPTY_VIEW_STATE, MAX_DOCUMENT_CHARS, PROTOCOL_VERSION } from './protocolConstants';
 
 export const pageSettingsSchema = z.object({
   fullWidth: z.boolean(),
   smallText: z.boolean(),
   font: z.enum(['default', 'serif', 'mono']),
+  /** Outline panel open. Settings saved before 0.2.0 have no value. */
+  outline: z.boolean().default(false),
 });
 
 export type PageSettings = z.infer<typeof pageSettingsSchema>;
 
+/**
+ * Per-file view state kept by the IDE, never written to the Markdown (ADR-009):
+ * folded sections (heading anchors) and column widths (table key → pixels).
+ */
+export const viewStateSchema = z.object({
+  folded: z.array(z.string().max(512)).max(2000),
+  tableWidths: z
+    .record(z.string().max(4096), z.array(z.number().int().min(0).max(10_000)).max(200))
+    .refine((widths) => Object.keys(widths).length <= 1000, 'Too many tables'),
+});
+
+export type ViewState = z.infer<typeof viewStateSchema>;
 
 /** `auto` follows the VS Code / Cursor theme; stored in the `mdotion.theme` setting. */
 export const themeSchema = z.enum(['auto', 'light', 'dark']);
@@ -51,6 +65,15 @@ export const webviewToHostMessageSchema = z.discriminatedUnion('type', [
     type: z.literal('setTheme'),
     theme: themeSchema,
   }),
+  z.object({
+    /** Paste as plain text (⌘⇧V): the host reads the clipboard and answers with `clipboardText`. */
+    type: z.literal('readClipboard'),
+  }),
+  z.object({
+    /** Persist the view state of this file (workspace state, not the file). */
+    type: z.literal('saveViewState'),
+    viewState: viewStateSchema,
+  }),
 ]);
 
 export const hostToWebviewMessageSchema = z.discriminatedUnion('type', [
@@ -63,6 +86,7 @@ export const hostToWebviewMessageSchema = z.discriminatedUnion('type', [
     documentDirUri: z.string(),
     settings: pageSettingsSchema,
     theme: themeSchema,
+    viewState: viewStateSchema,
   }),
   z.object({
     /** The `mdotion.theme` setting changed (from any MDotion tab or from the Settings UI). */
@@ -83,6 +107,16 @@ export const hostToWebviewMessageSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('error'),
     message: z.string(),
+  }),
+  z.object({
+    /** Clipboard text requested with `readClipboard`, to insert literally. */
+    type: z.literal('clipboardText'),
+    text: z.string(),
+  }),
+  z.object({
+    /** An IDE command aimed at the editor UI (Command Palette, keybindings). */
+    type: z.literal('command'),
+    command: z.enum(['toggleOutline', 'goToHeading']),
   }),
 ]);
 
