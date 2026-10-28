@@ -1,16 +1,24 @@
 import type { Editor } from '@tiptap/core';
-import type { Transaction } from '@tiptap/pm/state';
+import { TextSelection, type Transaction } from '@tiptap/pm/state';
 import { useEffect, useState } from 'react';
+import { readingLine, scrollToHeading } from '../../lib/scroll';
 import { foldedPositions, foldingKey, revealPosition } from './SectionFolding';
 import { computeOutline, type OutlineItem } from './sections';
 
-/** Scrolls to a heading and puts the caret at its start, unfolding the sections that hide it. */
+/**
+ * Scrolls to a heading and puts the caret at its start, unfolding the sections
+ * that hide it. The caret is placed without scrolling (no Tiptap `focus()`,
+ * whose deferred scroll-into-view would cut the jump short), so the only
+ * scroll is the one that puts the heading below the top bar.
+ */
 export function goToHeading(editor: Editor, pos: number): void {
-  revealPosition(editor.view, pos);
-  editor.chain().focus().setTextSelection(pos + 1).run();
-  const dom = editor.view.nodeDOM(pos);
+  const { view } = editor;
+  revealPosition(view, pos);
+  view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, pos + 1)));
+  view.focus();
+  const dom = view.nodeDOM(pos);
   if (dom instanceof HTMLElement) {
-    dom.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToHeading(dom);
   }
 }
 
@@ -84,12 +92,13 @@ export function useActiveHeading(editor: Editor, items: OutlineItem[], enabled: 
           return;
         }
         let current: number | null = null;
+        const line = readingLine();
         for (const item of items) {
           const dom = editor.view.nodeDOM(item.pos);
           if (!(dom instanceof HTMLElement) || dom.offsetParent === null) {
             continue;
           }
-          if (dom.getBoundingClientRect().top <= 96) {
+          if (dom.getBoundingClientRect().top <= line) {
             current = item.pos;
           } else {
             break;

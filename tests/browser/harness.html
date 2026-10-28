@@ -15,7 +15,9 @@
     <title>MDotion harness</title>
     <link rel="stylesheet" href="/dist/webview/assets/index.css" />
     <style>
-      body { display: grid; grid-template-columns: 1fr 420px; height: 100vh; overflow: hidden; }
+      body { display: grid; grid-template-columns: 1fr 420px; grid-template-rows: 100vh; height: 100vh; overflow: hidden; }
+      /* The editor scrolls in a box exactly as tall as the window, like the VS Code webview. */
+      #root, #host { min-height: 0; }
       #root { overflow: auto; }
       #host { display: flex; flex-direction: column; border-left: 1px solid #8884; font: 12px/1.5 Menlo, monospace; }
       #host header { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-bottom: 1px solid #8884; }

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-28
+
+### Fixed
+
+- **Adding a column:** the `+` bar on the right of a table disappeared as soon as the pointer left the table when the table was as wide as the page, so it could not be clicked. The table controls now stay visible while the pointer moves from the table to a grip or a `+` bar.
+- **Jumping to a heading** from the outline or with `⌘⇧O` could stop short. The heading ended up hidden under the top bar, or too far down the page. It now lands right below the top bar every time, and the outline highlights it. Links to a heading in the same page (`#heading`) behave the same way.
+
+### Changed
+
+- The page leaves room after the last block, like VS Code's *scroll beyond last line*, so the last headings of a document can also be brought to the top.
+
 ## [0.2.0] - 2026-10-28
 
 Tables you can paste from a spreadsheet and edit like one, and an outline to find your way around long documents and reorganize them. As before, the file on disk stays standard Markdown: nothing in this release adds new syntax to your files.
