@@ -2,20 +2,32 @@ name: Release
 
 # Push a tag like `v0.1.0` (matching package.json "version") to publish:
 #   - a GitHub release with the .vsix attached;
-#   - the VS Code Marketplace (secret VSCE_PAT) — used by VS Code;
+#   - the VS Code Marketplace — used by VS Code. Signs in with a Microsoft Entra
+#     app registration through GitHub OIDC (repository variables AZURE_CLIENT_ID,
+#     AZURE_TENANT_ID; AZURE_SUBSCRIPTION_ID only for a managed identity), no stored secret. The
+#     secret VSCE_PAT is used instead when the variables are not set (Azure DevOps
+#     global PATs stop working on December 1, 2026);
 #   - Open VSX (secret OVSX_PAT) — used by Cursor, VSCodium and others.
-# A marketplace is skipped when its secret is not configured.
+# A marketplace without credentials is skipped. See docs/RELEASING.md.
+#
+# Run the workflow by hand (Actions → Release → Run workflow) once, to print the
+# Marketplace id of the Entra identity, which must be added to the publisher.
 
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    # The Entra federated credential trusts this environment (subject repo:<owner>/<repo>:environment:marketplace).
+    environment: marketplace
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -47,14 +59,52 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" "$VSIX" --title "$GITHUB_REF_NAME" --notes "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
 
+      - name: Sign in to Microsoft Entra ID
+        if: vars.AZURE_CLIENT_ID != ''
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true
+
       - name: Publish to the VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        if: env.VSCE_PAT != ''
-        run: npx vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+          USE_ENTRA: ${{ vars.AZURE_CLIENT_ID != '' }}
+        if: vars.AZURE_CLIENT_ID != '' || env.VSCE_PAT != ''
+        run: |
+          if [ "$USE_ENTRA" = "true" ]; then
+            npx vsce publish --packagePath "$VSIX" --azure-credential
+          else
+            npx vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+          fi
 
       - name: Publish to Open VSX
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         if: env.OVSX_PAT != ''
         run: npx ovsx publish "$VSIX" --pat "$OVSX_PAT"
+
+  # One-time setup: the id to add as a Contributor of the Marketplace publisher.
+  marketplace-identity:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: marketplace
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true
+
+      - name: Marketplace id of the identity
+        run: |
+          ID="$(az rest -u https://app.vssps.visualstudio.com/_apis/profile/profiles/me --resource 499b84ac-1321-427f-aa17-267ca6975798 --query id -o tsv)"
+          {
+            echo "### Marketplace identity"
+            echo
+            echo "Add \`$ID\` as a **Contributor** of the publisher: https://marketplace.visualstudio.com/manage → publisher → Members."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Marketplace id: $ID"

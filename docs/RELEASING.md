@@ -4,16 +4,35 @@ Releases are published by the [Release workflow](../.github/workflows/release.ym
 
 ## One-time setup
 
-1. **VS Code Marketplace** (used by VS Code)
-   - Create the publisher `MDotion` (the `publisher` field of `package.json`) at <https://marketplace.visualstudio.com/manage>.
-   - Create an Azure DevOps personal access token with the **Marketplace → Manage** scope ([guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token)).
-   - Add it to the repository secrets as `VSCE_PAT`.
-2. **Open VSX** (used by Cursor, VSCodium and others)
-   - Sign in at <https://open-vsx.org> with GitHub, sign the publisher agreement and create an access token.
-   - Create the namespace once: `npx ovsx create-namespace MDotion -p <token>` (it must match the `publisher` field).
-   - Add the token to the repository secrets as `OVSX_PAT`.
+### VS Code Marketplace (used by VS Code)
 
-A marketplace whose secret is missing is skipped, so releases also work before both accounts exist.
+The workflow signs in with a **Microsoft Entra identity** (an app registration) through GitHub OIDC: no token is stored in GitHub. Azure DevOps global personal access tokens, the old way, stop working on December 1, 2026.
+
+1. **Directory.** Sign in to <https://portal.azure.com> with the Microsoft account that owns the `MDotion` publisher. No Azure subscription is needed: an app registration lives in Microsoft Entra ID, not in a subscription.
+2. **App registration.** **Microsoft Entra ID → App registrations → New registration**: name `mdotion-vscode-marketplace`, *Single tenant only* (*Accounts in this organizational directory only* in older portals), no redirect URI. Note the **Application (client) ID** and the **Directory (tenant) ID**.
+3. **Federated credential.** In the app: **Certificates & secrets → Federated credentials → Add credential**:
+   - scenario **GitHub Actions deploying Azure resources**;
+   - organization `MDotion`, repository `mdotion`, and their numeric ids when asked (`gh api repos/MDotion/mdotion --jq '.owner.id, .id'`);
+   - entity **Environment**, name `marketplace`.
+
+   The subject identifier must match what GitHub sends. This repository uses immutable subjects (`gh api repos/MDotion/mdotion/actions/oidc/customization/sub`), so it is `repo:MDotion@<org id>/mdotion@<repo id>:environment:marketplace`.
+4. **Repository variables** (not secrets: these are identifiers). Under **Settings → Secrets and variables → Actions → Variables**, add `AZURE_CLIENT_ID` and `AZURE_TENANT_ID`. Or use `gh variable set AZURE_CLIENT_ID --body <id>`.
+5. **Marketplace id of the identity.** Under **Actions → Release → Run workflow**, run the workflow on `main`. The run summary shows an id.
+6. **Publisher member.** At <https://marketplace.visualstudio.com/manage>, open the `MDotion` publisher → **Members** → add that id as **Contributor**.
+
+A user-assigned **managed identity** with the same federated credential works too. It needs a subscription that can register the `Microsoft.ManagedIdentity` provider (student subscriptions such as Azure Dev Tools for Teaching cannot), a **Reader** role on its resource group, and the `AZURE_SUBSCRIPTION_ID` variable.
+
+The `marketplace` environment is created by the first run. Required reviewers can be added to it (**Settings → Environments**) to approve each publish.
+
+**Fallback:** if the `AZURE_*` variables are not set, the workflow uses a `VSCE_PAT` secret. That is an Azure DevOps token for **All accessible organizations** with the **Marketplace → Manage** scope, and it only works until December 1, 2026.
+
+### Open VSX (used by Cursor, VSCodium and others)
+
+- Sign in at <https://open-vsx.org> with GitHub, sign the publisher agreement and create an access token.
+- Create the namespace once: `npx ovsx create-namespace MDotion -p <token>`. It must match the `publisher` field.
+- Add the token to the repository secrets as `OVSX_PAT`.
+
+A marketplace without credentials is skipped, so releases work before both are set up.
 
 ## Publishing a version
 
@@ -25,7 +44,7 @@ A marketplace whose secret is missing is skipped, so releases also work before b
    git push origin main v0.1.0
    ```
 
-3. The workflow checks that the tag matches `package.json`, runs lint, type checks, unit and e2e tests, packages the `.vsix`, creates a GitHub release with it, and publishes to both marketplaces.
+3. The workflow checks that the tag matches `package.json`, runs lint, type checks, unit and e2e tests, packages the `.vsix`, creates a GitHub release with it, and publishes to the marketplaces that have credentials.
 
 ## Before the first public release
 
