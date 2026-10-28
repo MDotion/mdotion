@@ -32,26 +32,14 @@ export function createEditorExtensions(): Extensions {
     Placeholder.configure({
       includeChildren: true,
       showOnlyCurrent: true,
-      placeholder: ({ node, editor }) => {
+      // Only the node decides the text here: the plugin can call this while the editor
+      // still holds the previous selection. The container (list, to-do, quote, callout,
+      // table cell) is picked in CSS from the live DOM (notion.css, "Placeholders").
+      placeholder: ({ node }) => {
         if (node.type.name === 'heading') {
           return `Heading ${String(node.attrs.level)}`;
         }
-        if (node.type.name !== 'paragraph') {
-          return '';
-        }
-        if (editor.isActive('taskItem')) {
-          return 'To-do';
-        }
-        if (editor.isActive('listItem')) {
-          return 'List';
-        }
-        if (editor.isActive('blockquote') || editor.isActive('callout')) {
-          return 'Type something…';
-        }
-        if (editor.isActive('table')) {
-          return '';
-        }
-        return "Write something, or press '/' for commands…";
+        return node.type.name === 'paragraph' ? "Write something, or press '/' for commands…" : '';
       },
     }),
     SlashCommand,

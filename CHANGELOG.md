@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-28
+
+### Fixed
+
+- **Empty table cells** showed "Write something, or press '/' for commands…". The hint wrapped inside narrow columns and spilled out of the table. Like in Notion, an empty cell now shows only the caret.
+- **Placeholders in lists, to-dos, quotes and callouts** could show the hint of the block the caret had just left. They now always match the block they are in.
+- **The blue column-resize line** stayed on screen after the pointer left the column border. It now only shows while the pointer is on the border, or while you drag it.
+- **The row grip** (`⋮`) covered the beginning of the first cell. It now sits outside the table, on its left.
+
 ## [0.2.1] - 2026-10-28
 
 ### Fixed

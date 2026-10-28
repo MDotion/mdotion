@@ -1242,6 +1242,26 @@ button {
   pointer-events: none;
 }
 
+/* Placeholders by container, read from the live DOM (see extensions.ts). */
+.mdotion-prose li p.is-empty::before {
+  content: 'List';
+}
+
+.mdotion-prose li[data-type='taskItem'] p.is-empty::before {
+  content: 'To-do';
+}
+
+.mdotion-prose blockquote p.is-empty::before,
+.mdotion-prose .mdotion-callout p.is-empty::before {
+  content: 'Type something…';
+}
+
+/* Like Notion: an empty table cell shows only the caret. */
+.mdotion-prose td .is-empty::before,
+.mdotion-prose th .is-empty::before {
+  content: none;
+}
+
 /* Selections */
 .mdotion-prose .ProseMirror-selectednode {
   outline: none;

@@ -94,7 +94,7 @@ export function BlockHandle({ editor, container }: { editor: Editor; container: 
       const rect = dom.getBoundingClientRect();
       const box = container.getBoundingClientRect();
       // Tables have their own row grips on the left edge.
-      const markerGap = LIST_ITEMS.has(block.node.type.name) ? 22 : block.node.type.name === 'table' ? 12 : 0;
+      const markerGap = LIST_ITEMS.has(block.node.type.name) ? 22 : block.node.type.name === 'table' ? 16 : 0;
       const section = sectionAt(editor, block.pos, block.node);
       const foldGap = section && section.end > block.pos + block.node.nodeSize ? FOLD_WIDTH : 0;
       return {

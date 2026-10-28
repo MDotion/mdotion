@@ -404,7 +404,8 @@ export function TableControls({ editor, container }: { editor: Editor; container
         <button
           type="button"
           className={`mdotion-table-control mdotion-table-grip is-row${selectedAxis('row', hover.row) ? ' is-selected' : ''}`}
-          style={{ top: y(row.top + row.height / 2) - 12, left: x(visibleLeft) - 7 }}
+          // Outside the table, like Notion: it never covers the text of the first column.
+          style={{ top: y(row.top + row.height / 2) - 12, left: x(visibleLeft) - 18 }}
           title={'Drag to move the row\nClick for row options'}
           aria-label="Row options"
           onPointerDown={(event) => onGripDown(event, 'row', hover.row)}
