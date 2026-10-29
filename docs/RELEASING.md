@@ -33,7 +33,7 @@ The workflow publishes with **trusted publishing**: Open VSX exchanges the workf
 1. At <https://open-vsx.org/user-settings/trusted-publishers>, signed in as a namespace owner, register a trusted publisher:
    - namespace `MDotion`, publisher **GitHub**, extension `mdotion-editor`;
    - repository `MDotion` / `mdotion`, workflow filename `release.yml`;
-   - environment `vscode-marketplace` (the GitHub environment the publishing jobs run in).
+   - environment `open-vsx` (the GitHub environment the Open VSX jobs run in; the Marketplace job has its own, `vscode-marketplace`).
 2. Every version tag then publishes to Open VSX too. To publish a release that already exists (for example one made before this setup, or after a failed upload), run **Actions → Release → Run workflow** with *publish-open-vsx* and the tag, for example `v0.2.2`. An empty tag means the latest release.
 
 Trusted publishing only works from public repositories. **Fallback:** if the secret `OVSX_PAT` (an Open VSX access token) is set, the workflow uses it instead.

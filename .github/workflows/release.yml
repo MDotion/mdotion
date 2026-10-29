@@ -1,20 +1,22 @@
 name: Release
 
 # Push a tag like `v0.1.0` (matching package.json "version") to publish:
-#   - a GitHub release with the .vsix attached;
-#   - the VS Code Marketplace — used by VS Code. Signs in with a Microsoft Entra
-#     app registration through GitHub OIDC (repository variables AZURE_CLIENT_ID,
-#     AZURE_TENANT_ID; AZURE_SUBSCRIPTION_ID only for a managed identity), no stored secret. The
-#     secret VSCE_PAT is used instead when the variables are not set (Azure DevOps
-#     global PATs stop working on December 1, 2026);
-#   - Open VSX — used by Cursor, VSCodium and others. Trusted publishing
-#     (OIDC): Open VSX trusts release.yml in the vscode-marketplace environment,
-#     no stored token. The secret OVSX_PAT is used instead when it is set.
-# See docs/RELEASING.md.
+#   - a GitHub release with the .vsix attached (job `release`);
+#   - the VS Code Marketplace, used by VS Code (job `marketplace`, environment
+#     `vscode-marketplace`). Signs in with a Microsoft Entra app registration
+#     through GitHub OIDC (repository variables AZURE_CLIENT_ID, AZURE_TENANT_ID;
+#     AZURE_SUBSCRIPTION_ID only for a managed identity). The secret VSCE_PAT is
+#     used instead when the variables are not set (Azure DevOps global PATs stop
+#     working on December 1, 2026);
+#   - Open VSX, used by Cursor, VSCodium and others (job `open-vsx`, environment
+#     `open-vsx`). Trusted publishing: Open VSX trusts this workflow in that
+#     environment. The secret OVSX_PAT is used instead when it is set.
+# No token is stored for either registry. Each registry trusts its own
+# environment, and a failed upload can be re-run on its own. See docs/RELEASING.md.
 #
 # Run the workflow by hand (Actions → Release → Run workflow) to:
 #   - publish-open-vsx: publish the .vsix of an existing GitHub release to Open
-#     VSX (a release made before Open VSX publishing was set up, or a failed upload);
+#     VSX (a release made before Open VSX publishing was set up);
 #   - marketplace-identity: print the Marketplace id of the Entra identity,
 #     which must be added to the publisher (one-time setup).
 
@@ -43,8 +45,6 @@ jobs:
   release:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    # The Entra federated credential trusts this environment (subject repo:<owner>/<repo>:environment:vscode-marketplace).
-    environment: vscode-marketplace
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -71,10 +71,29 @@ jobs:
           npm run package
           echo "VSIX=$(ls *.vsix)" >> "$GITHUB_ENV"
 
+      - uses: actions/upload-artifact@v7
+        with:
+          name: vsix
+          path: '*.vsix'
+          if-no-files-found: error
+
       - name: GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" "$VSIX" --title "$GITHUB_REF_NAME" --notes "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
+
+  marketplace:
+    needs: release
+    runs-on: ubuntu-latest
+    # The Entra federated credential trusts this environment (subject repo:<owner>/<repo>:environment:vscode-marketplace).
+    environment: vscode-marketplace
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v8
+        with:
+          name: vsix
 
       - name: Sign in to Microsoft Entra ID
         if: vars.AZURE_CLIENT_ID != ''
@@ -91,28 +110,42 @@ jobs:
           USE_ENTRA: ${{ vars.AZURE_CLIENT_ID != '' }}
         if: vars.AZURE_CLIENT_ID != '' || env.VSCE_PAT != ''
         run: |
+          VSIX="$(ls *.vsix)"
           if [ "$USE_ENTRA" = "true" ]; then
-            npx vsce publish --packagePath "$VSIX" --azure-credential
+            npx --yes @vscode/vsce@3.9.2 publish --packagePath "$VSIX" --azure-credential
           else
-            npx vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT"
+            npx --yes @vscode/vsce@3.9.2 publish --packagePath "$VSIX" --pat "$VSCE_PAT"
           fi
+
+  open-vsx:
+    needs: release
+    runs-on: ubuntu-latest
+    # Open VSX trusts this workflow in this environment (trusted publisher).
+    environment: open-vsx
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v8
+        with:
+          name: vsix
 
       - name: Publish to Open VSX
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
+          VSIX="$(ls *.vsix)"
           if [ -n "$OVSX_PAT" ]; then
-            npx ovsx publish "$VSIX" --pat "$OVSX_PAT"
+            npx --yes ovsx@1.3.0 publish "$VSIX" --pat "$OVSX_PAT"
           else
-            npx ovsx publish "$VSIX" --trusted-publishing
+            npx --yes ovsx@1.3.0 publish "$VSIX" --trusted-publishing
           fi
 
   # Publishes the .vsix of an existing GitHub release to Open VSX.
   publish-open-vsx:
     if: github.event_name == 'workflow_dispatch' && inputs.task == 'publish-open-vsx'
     runs-on: ubuntu-latest
-    # Open VSX trusts release.yml in this environment (trusted publisher).
-    environment: vscode-marketplace
+    environment: open-vsx
     steps:
       - uses: actions/setup-node@v7
         with:
@@ -127,13 +160,13 @@ jobs:
             TAG="$(gh release view -R "$GITHUB_REPOSITORY" --json tagName --jq .tagName)"
           fi
           gh release download "$TAG" -R "$GITHUB_REPOSITORY" --pattern '*.vsix'
-          echo "VSIX=$(ls *.vsix)" >> "$GITHUB_ENV"
           echo "Publishing $(ls *.vsix) from release $TAG"
 
       - name: Publish to Open VSX
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
+          VSIX="$(ls *.vsix)"
           if [ -n "$OVSX_PAT" ]; then
             npx --yes ovsx@1.3.0 publish "$VSIX" --pat "$OVSX_PAT"
           else
