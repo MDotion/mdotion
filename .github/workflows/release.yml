@@ -7,12 +7,14 @@ name: Release
 #     AZURE_TENANT_ID; AZURE_SUBSCRIPTION_ID only for a managed identity), no stored secret. The
 #     secret VSCE_PAT is used instead when the variables are not set (Azure DevOps
 #     global PATs stop working on December 1, 2026);
-#   - Open VSX (secret OVSX_PAT) — used by Cursor, VSCodium and others.
-# A marketplace without credentials is skipped. See docs/RELEASING.md.
+#   - Open VSX — used by Cursor, VSCodium and others. Trusted publishing
+#     (OIDC): Open VSX trusts release.yml in the vscode-marketplace environment,
+#     no stored token. The secret OVSX_PAT is used instead when it is set.
+# See docs/RELEASING.md.
 #
 # Run the workflow by hand (Actions → Release → Run workflow) to:
 #   - publish-open-vsx: publish the .vsix of an existing GitHub release to Open
-#     VSX (a release made before OVSX_PAT existed, or a failed upload);
+#     VSX (a release made before Open VSX publishing was set up, or a failed upload);
 #   - marketplace-identity: print the Marketplace id of the Entra identity,
 #     which must be added to the publisher (one-time setup).
 
@@ -98,13 +100,19 @@ jobs:
       - name: Publish to Open VSX
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
-        if: env.OVSX_PAT != ''
-        run: npx ovsx publish "$VSIX" --pat "$OVSX_PAT"
+        run: |
+          if [ -n "$OVSX_PAT" ]; then
+            npx ovsx publish "$VSIX" --pat "$OVSX_PAT"
+          else
+            npx ovsx publish "$VSIX" --trusted-publishing
+          fi
 
   # Publishes the .vsix of an existing GitHub release to Open VSX.
   publish-open-vsx:
     if: github.event_name == 'workflow_dispatch' && inputs.task == 'publish-open-vsx'
     runs-on: ubuntu-latest
+    # Open VSX trusts release.yml in this environment (trusted publisher).
+    environment: vscode-marketplace
     steps:
       - uses: actions/setup-node@v7
         with:
@@ -126,11 +134,11 @@ jobs:
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
-          if [ -z "$OVSX_PAT" ]; then
-            echo "The OVSX_PAT secret is not set (see docs/RELEASING.md)." >&2
-            exit 1
+          if [ -n "$OVSX_PAT" ]; then
+            npx --yes ovsx@1.3.0 publish "$VSIX" --pat "$OVSX_PAT"
+          else
+            npx --yes ovsx@1.3.0 publish "$VSIX" --trusted-publishing
           fi
-          npx --yes ovsx@1.3.0 publish "$VSIX" --pat "$OVSX_PAT"
 
   # One-time setup: the id to add as a Contributor of the Marketplace publisher.
   marketplace-identity:

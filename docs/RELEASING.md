@@ -28,15 +28,15 @@ The `vscode-marketplace` environment is created by the first run. Required revie
 
 ### Open VSX (used by Cursor, VSCodium and others)
 
-The `MDotion` namespace exists and is verified.
+The workflow publishes with **trusted publishing**: Open VSX exchanges the workflow's GitHub OIDC token for a short-lived one (`ovsx publish --trusted-publishing`). No token is stored in GitHub. The `MDotion` namespace is verified, and its first version was published by hand, as Open VSX requires.
 
-1. Sign in at <https://open-vsx.org> with the GitHub account that owns the namespace. Go to **Settings → Access Tokens → Generate New Token**.
-2. Save the token as the repository secret `OVSX_PAT`, either under **Settings → Secrets and variables → Actions → Secrets**, or with `gh secret set OVSX_PAT -R MDotion/mdotion`, which prompts for the value without echoing it.
-3. Every version tag then publishes to Open VSX too. To publish a release that already exists (made before the secret was set, or after a failed upload), run **Actions → Release → Run workflow** with *publish-open-vsx* and the tag, for example `v0.2.2`. An empty tag means the latest release.
+1. At <https://open-vsx.org/user-settings/trusted-publishers>, signed in as a namespace owner, register a trusted publisher:
+   - namespace `MDotion`, publisher **GitHub**, extension `mdotion-editor`;
+   - repository `MDotion` / `mdotion`, workflow filename `release.yml`;
+   - environment `vscode-marketplace` (the GitHub environment the publishing jobs run in).
+2. Every version tag then publishes to Open VSX too. To publish a release that already exists (for example one made before this setup, or after a failed upload), run **Actions → Release → Run workflow** with *publish-open-vsx* and the tag, for example `v0.2.2`. An empty tag means the latest release.
 
-Open VSX tokens do not expire unless you delete them. Generate a new one if it leaks, and update the secret.
-
-A marketplace without credentials is skipped, so releases work before both are set up.
+Trusted publishing only works from public repositories. **Fallback:** if the secret `OVSX_PAT` (an Open VSX access token) is set, the workflow uses it instead.
 
 ## Publishing a version
 
