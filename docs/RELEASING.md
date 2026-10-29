@@ -28,9 +28,13 @@ The `vscode-marketplace` environment is created by the first run. Required revie
 
 ### Open VSX (used by Cursor, VSCodium and others)
 
-- Sign in at <https://open-vsx.org> with GitHub, sign the publisher agreement and create an access token.
-- Create the namespace once: `npx ovsx create-namespace MDotion -p <token>`. It must match the `publisher` field.
-- Add the token to the repository secrets as `OVSX_PAT`.
+The `MDotion` namespace exists and is verified.
+
+1. Sign in at <https://open-vsx.org> with the GitHub account that owns the namespace. Go to **Settings → Access Tokens → Generate New Token**.
+2. Save the token as the repository secret `OVSX_PAT`, either under **Settings → Secrets and variables → Actions → Secrets**, or with `gh secret set OVSX_PAT -R MDotion/mdotion`, which prompts for the value without echoing it.
+3. Every version tag then publishes to Open VSX too. To publish a release that already exists (made before the secret was set, or after a failed upload), run **Actions → Release → Run workflow** with *publish-open-vsx* and the tag, for example `v0.2.2`. An empty tag means the latest release.
+
+Open VSX tokens do not expire unless you delete them. Generate a new one if it leaks, and update the secret.
 
 A marketplace without credentials is skipped, so releases work before both are set up.
 
