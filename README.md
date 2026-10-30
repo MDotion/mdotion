@@ -28,10 +28,13 @@ Files stay portable Markdown on disk — no account, no cloud, no proprietary fo
 - **Block handles** — hover a block for `+` (add below, ⌥-click above) and `⋮⋮` (drag to move, click for Turn into / Duplicate / Move / Copy as Markdown / Delete).
 - **Block selection** — drag across blocks or from the margin, `Esc`, `Shift+↑/↓`, `⌘A` twice; selected blocks can be copied, deleted, duplicated, moved or converted together.
 - **Selection toolbar** — Turn into, bold, italic, strikethrough, code, link (`⌘K`).
-- **Markdown shortcuts** — `# `, `- `, `1. `, `[] `, `> `, ` ``` `, `---`, plus `⌘B/I/E`, `⌘⇧S`, `⌘⌥1–3`, `⌘⇧7/8/9`, `⌘↵` (toggle to-do), `⌘D` (duplicate), `⌘⇧↑/↓` (move block, or the row in a table), `⌘⇧O` (go to heading), `Tab` / `⇧Tab` (indent).
+- **Markdown shortcuts** — `# `, `- `, `1. `, `[] `, `> `, ` ``` `, `---`, plus `⌘B/I/E`, `⌘⇧S`, Notion's `⌘⌥0–9` to turn a block into text, a heading, a to-do, a list, code or a callout, `⌘↵` (toggle to-do), `⌘D` (duplicate), `⌘⇧↑/↓` (move block, or the row in a table), `Tab` / `⇧Tab` (indent).
+- **Keyboard shortcuts panel** — `⌘⌥K` / `Ctrl+Alt+K` lists every shortcut, with a search; the ones marked *customizable* are real VS Code commands you can rebind in **Keyboard Shortcuts**.
+- **Find and replace** — `⌘F` / `Ctrl+F` or the magnifier in the top bar, `⌘⌥F` / `Ctrl+H` to replace. Match case, whole word and regular expressions (with `$1` in the replacement), like VS Code. Matches in folded sections count, and going to one unfolds it. **Replace all** is one undo step and only touches the blocks that contain a match.
+- **Changes since the last commit** — the **Changes** button (`⌘⌥G` / `Ctrl+Alt+G`) shows the diff against Git's HEAD like a pull request on GitHub: **Source** is the unified diff of the Markdown (line numbers, `+` / `-`, changed words, `@@` hunks with expandable context), **Rendered** is the formatted page with red and green rows, compared block by block, list item by list item and row by row. Unsaved edits included. **Open in diff editor** opens VS Code's diff.
 - **Callouts** stored as GitHub alerts (`> [!NOTE]`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`).
 - **Tables, fast** — paste a range from Excel, Numbers or Google Sheets (or a table from a web page) and get a clean GFM table; grips to reorder rows and columns, `+` bars to add several at once, column alignment, resizable columns, `Enter` to go down a row like in a spreadsheet.
-- **Outline** — a side panel with the headings of the page: jump to a section, drag a whole section (content and subsections) to reorder the document, fold sections while you work, spot duplicate titles and skipped levels; `⌘⇧O` searches the headings.
+- **Outline** — a side panel with the headings of the page: jump to a section, drag a whole section (content and subsections) to reorder the document, fold sections while you work (`⌘⌥↑` / `⌘⌥↓` for the current one, `⌘⌥T` for all), spot duplicate titles and skipped levels; `⌘⇧O` searches the headings.
 - **Code blocks** with language picker, syntax highlighting and copy button; **images** with relative paths and captions (alt text).
 - **Front matter** shown as page properties and edited as YAML.
 - **Nothing is lost** — HTML, reference definitions, badges and anything the editor cannot represent are kept verbatim as source blocks, with a sanitized preview.
@@ -68,10 +71,18 @@ MDotion never takes over your Markdown files on its own:
 | MDotion: Copy All Markdown | `mdotion.copyMarkdown` | `⌘⇧⌥C` / `Ctrl+Shift+Alt+C` |
 | MDotion: Toggle Outline | `mdotion.toggleOutline` | `⌘⌥O` / `Ctrl+Alt+O` |
 | MDotion: Go to Heading | `mdotion.goToHeading` | `⌘⇧O` / `Ctrl+Shift+O` |
+| MDotion: Find | `mdotion.find` | `⌘F` / `Ctrl+F` |
+| MDotion: Replace | `mdotion.replace` | `⌘⌥F` / `Ctrl+H` |
+| MDotion: Find Next / Find Previous | `mdotion.findNext`, `mdotion.findPrevious` | `⌘G` / `F3`, `⌘⇧G` / `Shift+F3` |
+| MDotion: Show Changes Since Last Commit | `mdotion.showChanges` | `⌘⌥G` / `Ctrl+Alt+G` |
+| MDotion: Go to Next / Previous Change | `mdotion.nextChange`, `mdotion.previousChange` | `Alt+F5`, `Shift+Alt+F5` |
+| MDotion: Fold Section / Unfold Section | `mdotion.foldSection`, `mdotion.unfoldSection` | `⌘⌥↑` / `Ctrl+Alt+↑`, `⌘⌥↓` / `Ctrl+Alt+↓` |
+| MDotion: Fold / Unfold All Sections | `mdotion.toggleFoldAll` (also `foldAll`, `unfoldAll`) | `⌘⌥T` / `Ctrl+Alt+T` |
+| MDotion: Show Keyboard Shortcuts | `mdotion.showShortcuts` | `⌘⌥K` / `Ctrl+Alt+K` |
 | MDotion: Use as Default Markdown Editor | `mdotion.useAsDefault` | |
 | MDotion: Stop Using as Default Markdown Editor | `mdotion.stopUsingAsDefault` | |
 
-Also available from the editor title bar, the status bar, the explorer context menu and **Reopen Editor With…**. Shortcuts can be changed in **Keyboard Shortcuts**.
+Also available from the editor title bar, the status bar, the explorer context menu and **Reopen Editor With…**. Shortcuts can be changed in **Keyboard Shortcuts** (search for `mdotion.`). Text formatting and block shortcuts (`⌘B`, `⌘⌥1`…) are handled inside the editor and are listed in the shortcuts panel (`⌘⌥K`). Every default shortcut uses letters, digits or arrows, so it works the same on any keyboard layout.
 
 ## Settings
 
@@ -85,7 +96,7 @@ CommonMark + GFM (tables, task lists, strikethrough, autolinks) and GitHub alert
 
 ## Privacy
 
-MDotion runs entirely inside your editor. It collects no telemetry, makes no network requests of its own and never uploads your files. Remote images referenced by your Markdown are loaded by the editor preview like in any Markdown viewer, and links are opened only when you click them.
+MDotion runs entirely inside your editor. It collects no telemetry, makes no network requests of its own and never uploads your files. **Changes** reads the last commit through VS Code's built-in Git extension, locally. Remote images referenced by your Markdown are loaded by the editor preview like in any Markdown viewer, and links are opened only when you click them.
 
 ## Contributing
 

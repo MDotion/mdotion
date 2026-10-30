@@ -34,6 +34,20 @@ body[data-mdotion-theme='light'] {
   --banner-bg: rgb(251, 243, 219);
   --checkbox-border: rgba(55, 53, 47, 0.85);
 
+  --find-match: rgba(255, 212, 0, 0.35);
+  --find-current: rgba(255, 150, 0, 0.55);
+  /* Diff colours of GitHub (Primer), so a diff reads like a pull request. */
+  --diff-add-bg: #e6ffec;
+  --diff-add-num: #ccffd8;
+  --diff-add-word: #abf2bc;
+  --diff-del-bg: #ffebe9;
+  --diff-del-num: #ffd7d5;
+  --diff-del-word: rgba(255, 129, 130, 0.4);
+  --diff-hunk-bg: #ddf4ff;
+  --diff-hunk-text: #57606a;
+  --diff-add-text: #1a7f37;
+  --diff-del-text: #d1242f;
+
   --callout-note: rgb(231, 243, 248);
   --callout-tip: rgb(237, 243, 236);
   --callout-important: rgb(244, 240, 247);
@@ -84,6 +98,19 @@ body[data-mdotion-theme='dark'] {
   --danger: #ff7369;
   --banner-bg: rgb(86, 67, 40);
   --checkbox-border: rgba(255, 255, 255, 0.6);
+
+  --find-match: rgba(255, 212, 0, 0.22);
+  --find-current: rgba(255, 150, 0, 0.45);
+  --diff-add-bg: rgba(46, 160, 67, 0.15);
+  --diff-add-num: rgba(63, 185, 80, 0.3);
+  --diff-add-word: rgba(46, 160, 67, 0.4);
+  --diff-del-bg: rgba(248, 81, 73, 0.1);
+  --diff-del-num: rgba(248, 81, 73, 0.3);
+  --diff-del-word: rgba(248, 81, 73, 0.4);
+  --diff-hunk-bg: rgba(56, 139, 253, 0.1);
+  --diff-hunk-text: #8b949e;
+  --diff-add-text: #3fb950;
+  --diff-del-text: #f85149;
 
   --callout-note: rgb(20, 58, 78);
   --callout-tip: rgb(36, 61, 48);
@@ -2173,4 +2200,597 @@ button {
   padding: 6px 14px 0;
   color: var(--text-tertiary);
   font-size: 12px;
+}
+
+/* ---- Find and replace --------------------------------------------------- */
+
+.mdotion-prose .ProseMirror-search-match {
+  background: var(--find-match);
+  border-radius: 2px;
+}
+
+.mdotion-prose .ProseMirror-active-search-match {
+  background: var(--find-current);
+  border-radius: 2px;
+}
+
+.mdotion-find {
+  position: fixed;
+  top: 52px;
+  right: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  width: min(440px, calc(100vw - 32px));
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.mdotion-find-rows {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mdotion-find-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mdotion-find-expand,
+.mdotion-find-button,
+.mdotion-find-option,
+.mdotion-find-text-button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.mdotion-find-expand {
+  width: 18px;
+}
+
+.mdotion-find-expand svg {
+  transition: transform 120ms ease;
+}
+
+.mdotion-find-expand.is-open svg {
+  transform: rotate(90deg);
+}
+
+.mdotion-find-button {
+  width: 26px;
+}
+
+.mdotion-find-text-button {
+  padding: 0 8px;
+}
+
+.mdotion-find-field {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 28px;
+  margin-right: 4px;
+  padding: 0 2px 0 8px;
+  border: 1px solid var(--divider-strong);
+  border-radius: 5px;
+  background: var(--bg);
+}
+
+.mdotion-find-field:focus-within {
+  border-color: var(--accent);
+}
+
+.mdotion-find-field.is-invalid {
+  border-color: var(--danger);
+}
+
+.mdotion-find-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+}
+
+/* VS Code outlines every focused input of a webview; the field border shows focus instead. */
+.mdotion-find .mdotion-find-input:focus,
+.mdotion-find .mdotion-find-input:focus-visible,
+.mdotion-jump-input:focus,
+.mdotion-jump-input:focus-visible {
+  outline: none;
+}
+
+.mdotion-find-option {
+  width: 24px;
+  height: 22px;
+  font-family: var(--font-code);
+  font-size: 11px;
+}
+
+.mdotion-find-option.is-active {
+  background: var(--block-selection);
+  color: var(--accent);
+}
+
+.mdotion-find-expand:hover,
+.mdotion-find-button:hover:not(:disabled),
+.mdotion-find-option:hover:not(.is-active),
+.mdotion-find-text-button:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.mdotion-find-button:disabled,
+.mdotion-find-text-button:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.mdotion-find-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  width: 168px;
+}
+
+.mdotion-find-status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 6px 0 2px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mdotion-find-field.is-invalid + .mdotion-find-status {
+  color: var(--danger);
+}
+
+.mdotion-find-elsewhere {
+  color: var(--text-tertiary);
+}
+
+/* ---- Changes since the last commit (Git-style diff) --------------------- */
+
+.mdotion-body.is-hidden {
+  display: none;
+}
+
+.mdotion-changes-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mdotion-changes-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--active);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.mdotion-topbar-button.is-active {
+  background: var(--active);
+  color: var(--text);
+}
+
+.mdotion-topbar-button:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.mdotion-topbar-button:disabled:hover {
+  background: transparent;
+}
+
+.mdotion-review {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.mdotion-review [hidden] {
+  display: none !important;
+}
+
+.mdotion-changes-bar {
+  position: sticky;
+  top: 45px;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--divider);
+  background: var(--bg);
+  font-size: 13px;
+}
+
+.mdotion-changes-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.mdotion-changes-title code {
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+.mdotion-changes-stats {
+  font-family: var(--font-code);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mdotion-changes-stats .is-add {
+  color: var(--diff-add-text);
+}
+
+.mdotion-changes-stats .is-del {
+  color: var(--diff-del-text);
+}
+
+.mdotion-changes-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.mdotion-changes-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  padding: 0;
+}
+
+.mdotion-changes-position {
+  min-width: 52px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.mdotion-changes-actions .mdotion-button-primary {
+  margin-left: 8px;
+}
+
+.mdotion-changes-empty {
+  margin: 48px 0;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Source: a unified diff, like the "Files changed" tab of a pull request. */
+.mdotion-sdiff-page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px 120px;
+}
+
+.mdotion-sdiff-file {
+  overflow: hidden;
+  border: 1px solid var(--divider-strong);
+  border-radius: 6px;
+}
+
+.mdotion-sdiff {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: var(--font-code);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.mdotion-sdiff-num-col {
+  width: 52px;
+}
+
+.mdotion-sdiff-sign-col {
+  width: 22px;
+}
+
+.mdotion-sdiff td {
+  padding: 0;
+  border: none;
+  vertical-align: top;
+}
+
+.mdotion-sdiff-num {
+  padding: 0 10px !important;
+  color: var(--text-tertiary);
+  text-align: right;
+  user-select: none;
+}
+
+.mdotion-sdiff-sign {
+  color: var(--text-secondary);
+  text-align: center;
+  user-select: none;
+}
+
+.mdotion-sdiff-code {
+  padding-right: 12px !important;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mdotion-sdiff-row.is-add .mdotion-sdiff-code,
+.mdotion-sdiff-row.is-add .mdotion-sdiff-sign {
+  background: var(--diff-add-bg);
+}
+
+.mdotion-sdiff-row.is-add .mdotion-sdiff-num {
+  background: var(--diff-add-num);
+}
+
+.mdotion-sdiff-row.is-del .mdotion-sdiff-code,
+.mdotion-sdiff-row.is-del .mdotion-sdiff-sign {
+  background: var(--diff-del-bg);
+}
+
+.mdotion-sdiff-row.is-del .mdotion-sdiff-num {
+  background: var(--diff-del-num);
+}
+
+.mdotion-sdiff-row.is-add .mdotion-sdiff-word {
+  border-radius: 2px;
+  background: var(--diff-add-word);
+}
+
+.mdotion-sdiff-row.is-del .mdotion-sdiff-word {
+  border-radius: 2px;
+  background: var(--diff-del-word);
+}
+
+.mdotion-sdiff-hunk td,
+.mdotion-sdiff-gap td {
+  background: var(--diff-hunk-bg);
+  color: var(--diff-hunk-text);
+}
+
+.mdotion-sdiff-hunk .mdotion-sdiff-code {
+  padding: 4px 12px 4px 0 !important;
+  line-height: 20px;
+}
+
+.mdotion-sdiff-gap .mdotion-sdiff-num {
+  padding: 0 !important;
+}
+
+.mdotion-sdiff-hunk.is-current td {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.mdotion-sdiff-gap button {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.mdotion-sdiff-gap .mdotion-sdiff-num button {
+  justify-content: center;
+  width: 100%;
+}
+
+.mdotion-sdiff-gap button:hover {
+  color: var(--accent);
+}
+
+/* Rendered: the formatted page, each changed block a red or green row across the whole width. */
+.mdotion-review-prose > *,
+.mdotion-review-prose li > p {
+  margin-block: 0;
+}
+
+.mdotion-review-prose > * {
+  padding-block: 2px;
+}
+
+.mdotion-review-prose .mdotion-rdiff {
+  position: relative;
+  box-shadow: 0 0 0 100vmax var(--rdiff-bg);
+  clip-path: inset(0 -100vmax);
+  background: var(--rdiff-bg);
+}
+
+.mdotion-review-prose .mdotion-rdiff.is-add {
+  --rdiff-bg: var(--diff-add-bg);
+}
+
+.mdotion-review-prose .mdotion-rdiff.is-del {
+  --rdiff-bg: var(--diff-del-bg);
+}
+
+/* The +/- of the diff, in the margin of top-level blocks. */
+.mdotion-review-prose > .mdotion-rdiff::before {
+  position: absolute;
+  top: 4px;
+  left: -28px;
+  width: 16px;
+  color: var(--text-secondary);
+  font-family: var(--font-code);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+}
+
+.mdotion-review-prose > .mdotion-rdiff.is-add::before {
+  content: '+';
+}
+
+.mdotion-review-prose > .mdotion-rdiff.is-del::before {
+  content: '−';
+}
+
+.mdotion-review-prose tr.mdotion-rdiff {
+  box-shadow: none;
+  clip-path: none;
+}
+
+.mdotion-review-prose tr.mdotion-rdiff > td,
+.mdotion-review-prose tr.mdotion-rdiff > th {
+  background: var(--rdiff-bg);
+}
+
+.mdotion-review-prose .mdotion-rdiff.is-add .mdotion-rdiff-word {
+  border-radius: 2px;
+  background: var(--diff-add-word);
+}
+
+.mdotion-review-prose .mdotion-rdiff.is-del .mdotion-rdiff-word {
+  border-radius: 2px;
+  background: var(--diff-del-word);
+}
+
+.mdotion-review-prose [data-entry] {
+  cursor: pointer;
+}
+
+.mdotion-changes-properties {
+  margin: 0 0 24px;
+}
+
+/* ---- Keyboard shortcuts ------------------------------------------------- */
+
+.mdotion-shortcuts {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+.mdotion-shortcuts-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 10px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.mdotion-shortcuts-header .mdotion-jump-input {
+  flex: 1;
+  border-bottom: none;
+}
+
+.mdotion-shortcuts-list {
+  overflow-y: auto;
+  padding: 4px 0 8px;
+}
+
+.mdotion-shortcuts-group h3 {
+  margin: 0;
+}
+
+.mdotion-shortcuts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 30px;
+  padding: 2px 14px;
+}
+
+.mdotion-shortcuts-row:hover {
+  background: var(--hover);
+}
+
+.mdotion-shortcuts-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mdotion-shortcuts-tag {
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--block-selection);
+  color: var(--accent);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.mdotion-shortcuts-keys {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.mdotion-shortcuts-keys kbd {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--hover);
+  box-shadow: inset 0 -1px 0 var(--divider-strong);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mdotion-shortcuts-footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--divider);
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .mdotion-changes-toggle span:not(.mdotion-changes-count) {
+    display: none;
+  }
+
+  .mdotion-changes-actions {
+    margin-left: 0;
+  }
+
+  .mdotion-sdiff-num-col {
+    width: 36px;
+  }
 }

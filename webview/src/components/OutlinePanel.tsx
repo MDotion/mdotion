@@ -1,8 +1,8 @@
 import type { Editor } from '@tiptap/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { modKey } from '../lib/env';
+import { shortcutLabel } from '../lib/shortcuts';
 import { depthOf, goToHeading, useActiveHeading, useOutline, visibleItems } from '../editor/outline/navigate';
-import { setFolded, toggleFold } from '../editor/outline/SectionFolding';
+import { foldAll, hasSectionContent, unfoldAll, toggleFold } from '../editor/outline/SectionFolding';
 import {
   contentEnd,
   ISSUE_MESSAGES,
@@ -27,8 +27,7 @@ export const CHEVRON = (
 );
 
 function hasContent(editor: Editor, item: OutlineItem): boolean {
-  const heading = editor.state.doc.nodeAt(item.pos);
-  return !!heading && item.end > item.pos + heading.nodeSize;
+  return hasSectionContent(editor.state, item);
 }
 
 /**
@@ -131,19 +130,17 @@ export function OutlinePanel({ editor, onClose }: { editor: Editor; onClose: () 
     }
   };
 
-  const foldAll = () => setFolded(editor.view, items.filter((item) => hasContent(editor, item)).map((item) => item.pos));
-  const unfoldAll = () => setFolded(editor.view, []);
 
   return (
     <aside className={`mdotion-outline${drag ? ' is-dragging' : ''}`} aria-label="Outline">
       <div className="mdotion-outline-header">
         <span className="mdotion-outline-title">Outline</span>
-        <button type="button" className="mdotion-outline-action" title="Fold all sections" aria-label="Fold all sections" onClick={foldAll} disabled={items.length === 0}>
+        <button type="button" className="mdotion-outline-action" title={`Fold all sections (${shortcutLabel('toggleFoldAll')})`} aria-label="Fold all sections" onClick={() => foldAll(editor.view)} disabled={items.length === 0}>
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
             <path d="M4 6l4-3 4 3M4 10l4 3 4-3" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" transform="rotate(180 8 8)" />
           </svg>
         </button>
-        <button type="button" className="mdotion-outline-action" title="Unfold all sections" aria-label="Unfold all sections" onClick={unfoldAll} disabled={folded.length === 0}>
+        <button type="button" className="mdotion-outline-action" title={`Unfold all sections (${shortcutLabel('toggleFoldAll')})`} aria-label="Unfold all sections" onClick={() => unfoldAll(editor.view)} disabled={folded.length === 0}>
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
             <path d="M4 6l4-3 4 3M4 10l4 3 4-3" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -221,7 +218,7 @@ export function OutlinePanel({ editor, onClose }: { editor: Editor; onClose: () 
           })}
         </div>
       )}
-      <div className="mdotion-outline-hint">{modKey}⇧O jump to a heading</div>
+      <div className="mdotion-outline-hint">{shortcutLabel('goToHeading')} jump to a heading</div>
     </aside>
   );
 }

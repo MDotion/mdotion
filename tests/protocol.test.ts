@@ -37,6 +37,29 @@ describe('page settings', () => {
   });
 });
 
+describe('Git and keybinding messages', () => {
+  it.each(['requestBaseline', 'openTextDiff', 'openKeybindings'])('accepts %s without payload', (type) => {
+    expect(parseWebviewMessage({ type })).toEqual({ type });
+  });
+
+  it('drops anything else the webview adds: the host decides which file to read', () => {
+    expect(parseWebviewMessage({ type: 'requestBaseline', path: '/etc/passwd' })).toEqual({ type: 'requestBaseline' });
+  });
+
+  it('validates the baseline the host sends', () => {
+    const parse = (baseline: unknown) => hostToWebviewMessageSchema.safeParse({ type: 'baseline', baseline }).success;
+    expect(parse({ status: 'ok', text: '# Hi', commit: 'a1b2c3d', committedAt: 1 })).toBe(true);
+    expect(parse({ status: 'untracked' })).toBe(true);
+    expect(parse({ status: 'none' })).toBe(true);
+    expect(parse({ status: 'ok', commit: 'a1b2c3d' })).toBe(false);
+  });
+
+  it('only forwards known editor commands', () => {
+    expect(hostToWebviewMessageSchema.safeParse({ type: 'command', command: 'find' }).success).toBe(true);
+    expect(hostToWebviewMessageSchema.safeParse({ type: 'command', command: 'rm -rf' }).success).toBe(false);
+  });
+});
+
 describe('host message types', () => {
   it('lists every message type of the schema (the webview filters on this list)', () => {
     const types = hostToWebviewMessageSchema.options.map((option) => option.shape.type.value);

@@ -9,8 +9,9 @@ import { ImageView } from '../nodeviews/ImageView';
 import { RawBlockView } from '../nodeviews/RawBlockView';
 import { BlockSelectionExtension } from './BlockSelection';
 import { MarkdownClipboard } from './MarkdownClipboard';
-import { NotionKeymap } from './NotionKeymap';
+import { BlockShortcuts, NotionKeymap } from './NotionKeymap';
 import { SectionFolding } from './outline/SectionFolding';
+import { Search } from './search/Search';
 import { SlashCommand } from './slash/SlashCommandExtension';
 import { MdotionTableView } from './table/columnWidths';
 import { TableBehaviour } from './table/TableBehaviour';
@@ -47,6 +48,8 @@ export function createEditorExtensions(): Extensions {
     SectionFolding,
     BlockSelectionExtension,
     NotionKeymap,
+    BlockShortcuts,
     MarkdownClipboard,
+    Search,
   ];
 }

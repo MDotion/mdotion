@@ -6,14 +6,18 @@
     npm run build:webview && npm run harness   →  http://localhost:5178/tests/browser/harness.html
 
   ?theme=dark switches the VS Code theme class, ?screenshot hides the host panel, ?outline opens the outline. The right panel shows the Markdown
-  the extension would write to disk.
+  the extension would write to disk. The file as it was on load plays the last commit for Changes; ?baseline=other.md
+  uses another fixture instead, ?baseline=untracked a new file and ?baseline=none a file outside Git.
 -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MDotion harness</title>
-    <link rel="stylesheet" href="/dist/webview/assets/index.css" />
+    <script>
+      // Always the latest build: the dev server sends no cache headers.
+      document.write(`<link rel="stylesheet" href="/dist/webview/assets/index.css?${Date.now()}" />`);
+    </script>
     <style>
       body { display: grid; grid-template-columns: 1fr 420px; grid-template-rows: 100vh; height: 100vh; overflow: hidden; }
       /* The editor scrolls in a box exactly as tall as the window, like the VS Code webview. */
@@ -94,6 +98,13 @@
             // Like the real host: the setting is stored, then broadcast back.
             host.theme = message.theme;
             host.send({ type: 'theme', theme: message.theme });
+          } else if (message.type === 'requestBaseline') {
+            const choice = params.get('baseline');
+            const baseline =
+              choice === 'none' || choice === 'untracked'
+                ? { status: choice }
+                : { status: 'ok', text: host.committed, commit: 'a1b2c3d', committedAt: Date.now() - 2 * 3600 * 1000 };
+            setTimeout(() => host.send({ type: 'baseline', baseline }), 50);
           } else if (message.type === 'copyMarkdown') {
             navigator.clipboard.writeText(host.text).catch(() => host.log('clipboard write refused'));
           } else if (message.type === 'edit') {
@@ -116,13 +127,17 @@
         host.render();
         host.send({ type: 'update', text: host.text, version: host.version });
       });
-      fetch('/tests/fixtures/' + (params.get('file') || 'notion.md'))
-        .then((response) => response.text())
-        .then((text) => {
+      const baselineFile = params.get('baseline');
+      Promise.all([
+        fetch('/tests/fixtures/' + (params.get('file') || 'notion.md')).then((response) => response.text()),
+        baselineFile && /\.md$/.test(baselineFile) ? fetch('/tests/fixtures/' + baselineFile).then((response) => response.text()) : null,
+      ])
+        .then(([text, committed]) => {
           host.text = text;
+          host.committed = committed ?? text;
           host.render();
           const script = document.createElement('script');
-          script.src = '/dist/webview/assets/index.js';
+          script.src = `/dist/webview/assets/index.js?${Date.now()}`;
           document.body.appendChild(script);
         });
     </script>

@@ -6,6 +6,7 @@ import { toggleEditor } from './commands/toggleEditor';
 import { getActiveMarkdown } from './commands/activeMarkdown';
 import { copyMarkdown } from './commands/copyMarkdown';
 import { registerDefaultEditorPrompt, setDefaultEditor } from './commands/defaultEditor';
+import { EDITOR_COMMANDS, type EditorCommand } from './shared/messages';
 
 export function activate(context: vscode.ExtensionContext): void {
   const provider = new MarkdownEditorProvider(context.extensionUri, context.globalState, context.workspaceState);
@@ -29,7 +30,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.tabGroups.onDidChangeTabs(refreshStatus),
     vscode.window.onDidChangeActiveTextEditor(refreshStatus),
     vscode.window.registerCustomEditorProvider(MarkdownEditorProvider.viewType, provider, {
-      webviewOptions: { retainContextWhenHidden: true, enableFindWidget: true },
+      // The webview has its own Find and Replace (Cmd+F), which sees folded sections and can replace.
+      webviewOptions: { retainContextWhenHidden: true, enableFindWidget: false },
       supportsMultipleEditorsPerDocument: true,
     }),
     // Edits typed just before Cmd+S may still be in flight from the webview.
@@ -45,15 +47,14 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('mdotion.openSource', openSource),
     vscode.commands.registerCommand('mdotion.toggleEditor', toggleEditor),
     vscode.commands.registerCommand('mdotion.copyMarkdown', (uri?: vscode.Uri) => copyMarkdown(provider, uri)),
-    vscode.commands.registerCommand('mdotion.toggleOutline', () => runInVisualEditor(provider, 'toggleOutline')),
-    vscode.commands.registerCommand('mdotion.goToHeading', () => runInVisualEditor(provider, 'goToHeading')),
+    ...EDITOR_COMMANDS.map((command) => vscode.commands.registerCommand(`mdotion.${command}`, () => runInVisualEditor(provider, command))),
     vscode.commands.registerCommand('mdotion.useAsDefault', () => setDefaultEditor(true)),
     vscode.commands.registerCommand('mdotion.stopUsingAsDefault', () => setDefaultEditor(false)),
     registerDefaultEditorPrompt(context),
   );
 }
 
-function runInVisualEditor(provider: MarkdownEditorProvider, command: 'toggleOutline' | 'goToHeading'): void {
+function runInVisualEditor(provider: MarkdownEditorProvider, command: EditorCommand): void {
   if (!provider.runInActiveEditor(command)) {
     void vscode.window.showInformationMessage('MDotion: open a Markdown file in the visual editor first.');
   }

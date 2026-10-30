@@ -12,9 +12,16 @@ function scrollParent(element: HTMLElement): HTMLElement {
   return (document.scrollingElement as HTMLElement | null) ?? document.documentElement;
 }
 
-/** Height of the sticky top bar, which covers the top of the page. */
+/** The element that scrolls the whole page (the document in VS Code). */
+export function pageScroller(): HTMLElement {
+  const app = document.querySelector<HTMLElement>('.mdotion-app');
+  return app ? scrollParent(app) : ((document.scrollingElement as HTMLElement | null) ?? document.documentElement);
+}
+
+/** Height of the sticky bars (the top bar, and the Changes bar while it is open), which cover the top of the page. */
 function topBarHeight(): number {
-  return document.querySelector<HTMLElement>('.mdotion-topbar')?.offsetHeight ?? 0;
+  const bars = document.querySelectorAll<HTMLElement>('.mdotion-topbar, .mdotion-changes-bar');
+  return [...bars].reduce((height, bar) => height + bar.offsetHeight, 0);
 }
 
 /**

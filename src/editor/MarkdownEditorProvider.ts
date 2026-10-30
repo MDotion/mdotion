@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { copyMarkdown } from '../commands/copyMarkdown';
 import { switchEditor } from '../commands/switchEditor';
+import { BaselineWatcher } from '../git/baseline';
 import { computeTextChange } from '../shared/textDiff';
 import { DocumentBridge } from './DocumentBridge';
 import {
@@ -10,6 +11,7 @@ import {
   parseWebviewMessage,
   themeSchema,
   viewStateSchema,
+  type EditorCommand,
   type PageSettings,
   type Theme,
   type ViewState,
@@ -72,7 +74,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   }
 
   /** Runs an editor UI command in the focused MDotion panel; false when none is focused. */
-  runInActiveEditor(command: 'toggleOutline' | 'goToHeading'): boolean {
+  runInActiveEditor(command: EditorCommand): boolean {
     if (!this.activeBridge) {
       return false;
     }
@@ -102,7 +104,8 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     };
     webviewPanel.webview.html = getWebviewHtml(webviewPanel.webview, this.extensionUri);
 
-    const bridge = new DocumentBridge({
+    let baseline: BaselineWatcher | null = null;
+    const bridge: DocumentBridge = new DocumentBridge({
       getText: () => normalizeEol(document.getText()),
       getVersion: () => document.version,
       applyText: (text) => applyText(document, text),
@@ -123,6 +126,15 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
       openLink: (href) => void openLink(document, href),
       switchToSource: () => void switchEditor(document.uri, 'source'),
       copyMarkdown: () => void copyMarkdown(this, document.uri),
+      requestBaseline: () => {
+        baseline ??= new BaselineWatcher(document.uri, (next) => bridge.onBaseline(next));
+        void baseline.refresh();
+      },
+      openTextDiff: () => {
+        baseline ??= new BaselineWatcher(document.uri, (next) => bridge.onBaseline(next));
+        void baseline.openTextDiff();
+      },
+      openKeybindings: () => void vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', 'mdotion.'),
     });
 
     if (webviewPanel.active) {
@@ -162,6 +174,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         this.activeBridge = null;
       }
       bridge.dispose();
+      baseline?.dispose();
       set.delete(bridge);
       if (set.size === 0) {
         this.bridges.delete(key);
