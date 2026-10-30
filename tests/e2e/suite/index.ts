@@ -144,7 +144,10 @@ export async function run(): Promise<void> {
   });
 
   await check('reads the last commit of a file through the Git extension', async () => {
-    const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'mdotion-git-')));
+    // Inside the workspace, like a real project: VS Code 1.85 does not open repositories outside it.
+    const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? os.tmpdir();
+    fs.mkdirSync(path.join(workspace, 'tests/e2e/out'), { recursive: true });
+    const repo = fs.realpathSync(fs.mkdtempSync(path.join(workspace, 'tests/e2e/out/git-')));
     const git = (...args: string[]) =>
       execFileSync('git', ['-c', 'user.name=MDotion', '-c', 'user.email=e2e@mdotion.app', '-c', 'commit.gpgsign=false', ...args], { cwd: repo });
     const notes = vscode.Uri.file(path.join(repo, 'notes.md'));
@@ -154,11 +157,15 @@ export async function run(): Promise<void> {
     git('commit', '-q', '-m', 'first');
     fs.writeFileSync(notes.fsPath, '# Committed\n\nEdited, not committed.\n');
     fs.writeFileSync(path.join(repo, 'new.md'), 'Never committed.\n');
-    // Opening the file is what makes the Git extension discover a repository outside the workspace.
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(notes));
 
-    // Like a repository opened in the workspace. Outside of it, VS Code only offers to open one.
-    const gitApi = (await vscode.extensions.getExtension<{ getAPI(version: 1): { openRepository(root: vscode.Uri): Promise<unknown>; repositories: { rootUri: vscode.Uri }[] } }>('vscode.git')!.activate()).getAPI(1);
+    // A repository created after startup is only found by a scan; open it like the Source Control view does.
+    type TestRepository = { rootUri: vscode.Uri; status(): Promise<void> };
+    const gitApi = (
+      await vscode.extensions
+        .getExtension<{ getAPI(version: 1): { openRepository(root: vscode.Uri): Promise<TestRepository | null>; repositories: TestRepository[] } }>('vscode.git')!
+        .activate()
+    ).getAPI(1);
     const opened = await gitApi.openRepository(vscode.Uri.file(repo));
     console.log(`    git repositories: ${gitApi.repositories.map((r) => r.rootUri.fsPath).join(', ')} (opened: ${opened ? 'yes' : 'no'})`);
     const received: Baseline[] = [];
@@ -183,6 +190,8 @@ export async function run(): Promise<void> {
       // A new commit is sent again without being asked.
       received.length = 0;
       git('commit', '-q', '-am', 'second');
+      // What Source Control's Refresh does; the file watcher alone can take long on CI machines.
+      await opened?.status();
       await waitFor(
         () => received.some((baseline) => baseline.status === 'ok' && baseline.text.includes('Edited, not committed.')),
         'the new HEAD after a commit',
@@ -192,6 +201,7 @@ export async function run(): Promise<void> {
       watcher.dispose();
       fresh.dispose();
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+      fs.rmSync(repo, { recursive: true, force: true });
     }
   });
 
