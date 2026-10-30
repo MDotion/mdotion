@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-30
+
+Find and replace in the page, every shortcut in one place, and the changes of a file since the last commit, shown block by block. As before, nothing in this release writes anything new into your Markdown files.
+
+### Added
+
+#### Changes since the last commit
+
+- A **Changes** button in the top bar shows how many blocks changed since the last commit. Click it, or press `⌘⌥G` / `Ctrl+Alt+G`, to see the diff, laid out like a pull request on GitHub:
+  - **Source**: the unified diff of the Markdown, with old and new line numbers, `+` / `-` lines in green and red, the changed words highlighted, `@@` hunk headers with three lines of context, and the unchanged lines collapsed behind an expand button.
+  - **Rendered**: the formatted page, with removed blocks as red rows and new ones as green rows across the whole width. A changed paragraph shows its old version, then the new one, with the changed words highlighted. Lists and tables are compared item by item and row by row.
+- Unsaved edits are included: the page is compared as you see it.
+- In **Rendered**, changes that only rewrite the Markdown (a table padded again, `*` lists turned into `-`) are left out.
+- `↑` / `↓` in the Changes bar, or `Alt+F5` / `Shift+Alt+F5`, go from one change to the next.
+- In **Rendered**, click a block to go back to editing with the caret on it. `Esc` or **Done** returns to where you were.
+- **Open in diff editor** opens VS Code's own diff of the file.
+- New files show everything as added. Files outside a Git repository have no Changes button.
+
+#### Find and replace
+
+- `⌘F` / `Ctrl+F`, or the magnifier in the top bar, opens a find bar under the top bar. `⌘⌥F` / `Ctrl+H` opens it with the replace field.
+- Match case, whole word and regular expressions, like VS Code. Replacements can use `$1`, `$2`…
+- `Enter` / `⇧Enter`, `⌘G` / `⌘⇧G` (`F3` / `Shift+F3`) go to the next or previous match. The selected text becomes the search.
+- Matches inside folded sections count, and going to one unfolds its section.
+- **Replace all** is one undo step, and only the blocks that contain a match change in the file.
+- Raw Markdown blocks and page properties are not searched: the find bar shows how many matches they contain (`+N` next to the count).
+
+#### Keyboard shortcuts
+
+- `⌘⌥K` / `Ctrl+Alt+K`, or **•••** → **Keyboard shortcuts**, lists every shortcut of the editor, with a search.
+- New Notion shortcuts to turn a block into another type: `⌘⌥4` to-do, `⌘⌥5` bulleted list, `⌘⌥6` numbered list, `⌘⌥8` code, `⌘⌥9` callout.
+- Fold the section around the caret with `⌘⌥↑`, unfold it with `⌘⌥↓` (`Ctrl+Alt+↑` / `↓`); `⌘⌥T` / `Ctrl+Alt+T` folds or unfolds every section. In the visual editor, `⌘⌥T` takes the place of VS Code's **Close Other Editors**.
+- Every default shortcut uses letters, digits or arrows, so it works the same on Italian, German, French or any other keyboard layout.
+- New commands, in the Command Palette and rebindable in **Keyboard Shortcuts**: Find, Replace, Find Next, Find Previous, Show Changes Since Last Commit, Go to Next / Previous Change, Fold Section, Unfold Section, Fold / Unfold All Sections, Fold All Sections, Unfold All Sections, Show Keyboard Shortcuts. **Customize…** in the shortcuts panel opens Keyboard Shortcuts on them.
+
+### Changed
+
+- `⌘⌥4`, `⌘⌥5` and `⌘⌥6` now turn a block into a to-do, a bulleted list and a numbered list, like in Notion, instead of headings 4 to 6. Those headings are still in the `/` menu, and typing `####` works as before.
+- `⌘F` in the visual editor opens MDotion's find bar instead of the webview's, which could not replace and did not see folded sections.
+- MDotion's shortcuts no longer act when the focus is in the sidebar, the panel or an input box, even if a visual editor is open.
+
 ## [0.2.2] - 2026-10-28
 
 ### Fixed

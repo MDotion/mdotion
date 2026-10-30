@@ -1,8 +1,12 @@
 import * as assert from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import { BaselineWatcher } from '../../../src/git/baseline';
+import type { Baseline } from '../../../src/shared/messages';
+import { EDITOR_COMMANDS } from '../../../src/shared/protocolConstants';
 
 const VIEW_TYPE = 'mdotion.markdownEditor';
 
@@ -120,6 +124,75 @@ export async function run(): Promise<void> {
     await sleep(1000);
     assert.strictEqual(findDocument(uri)?.isDirty, false, 'the outline is view state, not content');
     assert.strictEqual(findDocument(uri)?.getText(), before);
+  });
+
+  await check('every editor command is registered and none of them touches the file', async () => {
+    const commands = await vscode.commands.getCommands(true);
+    for (const command of EDITOR_COMMANDS) {
+      assert.ok(commands.includes(`mdotion.${command}`), `mdotion.${command} is registered`);
+    }
+    await vscode.commands.executeCommand('vscode.openWith', uri, VIEW_TYPE);
+    await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab');
+    const before = findDocument(uri)?.getText();
+    for (const command of ['toggleFoldAll', 'toggleFoldAll', 'foldSection', 'unfoldSection', 'find', 'findNext', 'showShortcuts', 'showShortcuts', 'showChanges', 'nextChange', 'showChanges']) {
+      await vscode.commands.executeCommand(`mdotion.${command}`);
+      await sleep(150);
+    }
+    await sleep(1000);
+    assert.strictEqual(findDocument(uri)?.isDirty, false, 'folding, find, shortcuts and changes are view state');
+    assert.strictEqual(findDocument(uri)?.getText(), before);
+  });
+
+  await check('reads the last commit of a file through the Git extension', async () => {
+    const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'mdotion-git-')));
+    const git = (...args: string[]) =>
+      execFileSync('git', ['-c', 'user.name=MDotion', '-c', 'user.email=e2e@mdotion.app', '-c', 'commit.gpgsign=false', ...args], { cwd: repo });
+    const notes = vscode.Uri.file(path.join(repo, 'notes.md'));
+    git('init', '-q');
+    fs.writeFileSync(notes.fsPath, '# Committed\r\n\nFirst version.\n');
+    git('add', 'notes.md');
+    git('commit', '-q', '-m', 'first');
+    fs.writeFileSync(notes.fsPath, '# Committed\n\nEdited, not committed.\n');
+    fs.writeFileSync(path.join(repo, 'new.md'), 'Never committed.\n');
+    // Opening the file is what makes the Git extension discover a repository outside the workspace.
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(notes));
+
+    // Like a repository opened in the workspace. Outside of it, VS Code only offers to open one.
+    const gitApi = (await vscode.extensions.getExtension<{ getAPI(version: 1): { openRepository(root: vscode.Uri): Promise<unknown>; repositories: { rootUri: vscode.Uri }[] } }>('vscode.git')!.activate()).getAPI(1);
+    const opened = await gitApi.openRepository(vscode.Uri.file(repo));
+    console.log(`    git repositories: ${gitApi.repositories.map((r) => r.rootUri.fsPath).join(', ')} (opened: ${opened ? 'yes' : 'no'})`);
+    const received: Baseline[] = [];
+    const watcher = new BaselineWatcher(notes, (baseline) => received.push(baseline));
+    const fresh = new BaselineWatcher(vscode.Uri.file(path.join(repo, 'new.md')), (baseline) => received.push(baseline));
+    try {
+      await watcher.refresh();
+      const gitExtension = vscode.extensions.getExtension('vscode.git');
+      await waitFor(
+        () => received.some((baseline) => baseline.status === 'ok'),
+        `the HEAD version (git extension: ${gitExtension ? (gitExtension.isActive ? 'active' : 'inactive') : 'missing'}, received: ${JSON.stringify(received.map((baseline) => baseline.status))})`,
+        20_000,
+      );
+      const ok = received.find((baseline) => baseline.status === 'ok') as Extract<Baseline, { status: 'ok' }>;
+      assert.strictEqual(ok.text, '# Committed\n\nFirst version.\n', 'HEAD content with LF line endings');
+      assert.match(ok.commit, /^[0-9a-f]{7}$/);
+
+      received.length = 0;
+      await fresh.refresh();
+      assert.deepStrictEqual(received.at(-1), { status: 'untracked' });
+
+      // A new commit is sent again without being asked.
+      received.length = 0;
+      git('commit', '-q', '-am', 'second');
+      await waitFor(
+        () => received.some((baseline) => baseline.status === 'ok' && baseline.text.includes('Edited, not committed.')),
+        'the new HEAD after a commit',
+        20_000,
+      );
+    } finally {
+      watcher.dispose();
+      fresh.dispose();
+      await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
   });
 
   await check('the theme is a persistent extension setting', async () => {

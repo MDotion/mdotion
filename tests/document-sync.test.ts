@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DocumentBridge, type DocumentBridgeHost } from '../src/editor/DocumentBridge';
-import { DEFAULT_PAGE_SETTINGS, EMPTY_VIEW_STATE, PROTOCOL_VERSION, type HostToWebviewMessage, type ViewState } from '../src/shared/messages';
+import { DEFAULT_PAGE_SETTINGS, EDITOR_COMMANDS, EMPTY_VIEW_STATE, PROTOCOL_VERSION, type HostToWebviewMessage, type ViewState } from '../src/shared/messages';
 
 /** In-memory TextDocument: applying an edit bumps the version and fires a change event, like VS Code. */
 function createHost(initial: string) {
@@ -10,6 +10,7 @@ function createHost(initial: string) {
   const applied: string[] = [];
   const themes: string[] = [];
   const savedViewStates: ViewState[] = [];
+  const calls: string[] = [];
   let bridge: DocumentBridge;
   const host: DocumentBridgeHost = {
     getText: () => text,
@@ -26,6 +27,9 @@ function createHost(initial: string) {
     saveViewState: (viewState) => savedViewStates.push(viewState),
     readClipboard: async () => 'from the clipboard',
     setTheme: (theme) => themes.push(theme),
+    requestBaseline: () => calls.push('requestBaseline'),
+    openTextDiff: () => calls.push('openTextDiff'),
+    openKeybindings: () => calls.push('openKeybindings'),
   };
   bridge = new DocumentBridge(host);
   return {
@@ -34,6 +38,7 @@ function createHost(initial: string) {
     applied,
     themes,
     savedViewStates,
+    calls,
     externalEdit(next: string) {
       text = next;
       version += 1;
@@ -143,6 +148,29 @@ describe('DocumentBridge', () => {
     doc.bridge.handleMessage(ready);
     doc.bridge.runCommand('goToHeading');
     expect(doc.posted.at(-1)).toEqual({ type: 'command', command: 'goToHeading' });
+  });
+
+  it('forwards every editor command, and the Git baseline once the webview is ready', () => {
+    const doc = createHost('a\n');
+    doc.bridge.onBaseline({ status: 'untracked' });
+    expect(doc.posted).toEqual([]);
+    doc.bridge.handleMessage(ready);
+    for (const command of EDITOR_COMMANDS) {
+      doc.bridge.runCommand(command);
+      expect(doc.posted.at(-1)).toEqual({ type: 'command', command });
+    }
+    doc.bridge.onBaseline({ status: 'ok', text: '# Old\n', commit: 'a1b2c3d', committedAt: null });
+    expect(doc.posted.at(-1)).toEqual({ type: 'baseline', baseline: { status: 'ok', text: '# Old\n', commit: 'a1b2c3d', committedAt: null } });
+  });
+
+  it('passes Git and keybinding requests to the host', () => {
+    const doc = createHost('a\n');
+    doc.bridge.handleMessage(ready);
+    doc.bridge.handleMessage({ type: 'requestBaseline' });
+    doc.bridge.handleMessage({ type: 'openTextDiff' });
+    doc.bridge.handleMessage({ type: 'openKeybindings' });
+    expect(doc.calls).toEqual(['requestBaseline', 'openTextDiff', 'openKeybindings']);
+    expect(doc.text).toBe('a\n');
   });
 
   it('answers readClipboard with the clipboard text (paste as plain text)', async () => {

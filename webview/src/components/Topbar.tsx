@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PageSettings, Theme } from '../../../src/shared/messages';
-import { isMac } from '../lib/env';
+import { shortcutLabel } from '../lib/shortcuts';
 import { useIdeDark } from '../lib/theme';
-
-/** Must match the keybindings contributed in package.json. */
-export const SWITCH_SHORTCUT = isMac ? '⌘⌥M' : 'Ctrl+Alt+M';
-export const COPY_ALL_SHORTCUT = isMac ? '⌘⇧⌥C' : 'Ctrl+Shift+Alt+C';
-export const OUTLINE_SHORTCUT = isMac ? '⌘⌥O' : 'Ctrl+Alt+O';
 
 interface TopbarProps {
   fileName: string;
@@ -17,6 +12,11 @@ interface TopbarProps {
   onThemeChange: (theme: Theme) => void;
   onSwitchToSource: () => void;
   onCopyAll: () => void;
+  onFind: () => void;
+  /** Null while it is not known whether the file is in a Git repository. */
+  changes: { available: boolean; total: number; open: boolean } | null;
+  onShowChanges: () => void;
+  onShowShortcuts: () => void;
 }
 
 const THEMES: { id: Theme; label: string }[] = [
@@ -58,6 +58,10 @@ export function Topbar({
   onThemeChange,
   onSwitchToSource,
   onCopyAll,
+  onFind,
+  changes,
+  onShowChanges,
+  onShowShortcuts,
 }: TopbarProps): React.ReactElement {
   const ideDark = useIdeDark();
   const dark = theme === 'auto' ? ideDark : theme === 'dark';
@@ -89,14 +93,43 @@ export function Topbar({
           <button type="button" role="tab" aria-selected className="is-active" title="Notion-style editor">
             Visual
           </button>
-          <button type="button" role="tab" aria-selected={false} onClick={onSwitchToSource} title={`Switch to the Markdown source (${SWITCH_SHORTCUT})`}>
+          <button type="button" role="tab" aria-selected={false} onClick={onSwitchToSource} title={`Switch to the Markdown source (${shortcutLabel('toggleEditor')})`}>
             Markdown
           </button>
         </div>
+        {changes?.available ? (
+          <button
+            type="button"
+            className={`mdotion-topbar-button mdotion-changes-toggle${changes.open ? ' is-active' : ''}`}
+            aria-pressed={changes.open}
+            title={`${changes.total > 0 ? `${changes.total} ${changes.total === 1 ? 'change' : 'changes'}` : 'No changes'} since the last commit (${shortcutLabel('showChanges')})`}
+            onClick={onShowChanges}
+          >
+            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden>
+              <circle cx="4.5" cy="4" r="1.8" fill="none" stroke="currentColor" strokeWidth="1.3" />
+              <circle cx="11.5" cy="12" r="1.8" fill="none" stroke="currentColor" strokeWidth="1.3" />
+              <path d="M4.5 5.8v3.7a2.5 2.5 0 0 0 2.5 2.5h2.7M11.5 10.2V6.5A2.5 2.5 0 0 0 9 4H6.3" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+            </svg>
+            <span>Changes</span>
+            {changes.total > 0 ? <span className="mdotion-changes-count">{changes.total}</span> : null}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="mdotion-topbar-button mdotion-find-toggle"
+          title={`Find and replace (${shortcutLabel('find')})`}
+          aria-label="Find and replace"
+          onClick={onFind}
+        >
+          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden>
+            <circle cx="7" cy="7" r="4.3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <path d="M10.2 10.2l3.3 3.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
         <button
           type="button"
           className={`mdotion-topbar-button mdotion-outline-toggle${settings.outline ? ' is-active' : ''}`}
-          title={`${settings.outline ? 'Hide outline' : 'Show outline'} (${OUTLINE_SHORTCUT})`}
+          title={`${settings.outline ? 'Hide outline' : 'Show outline'} (${shortcutLabel('toggleOutline')})`}
           aria-label={settings.outline ? 'Hide outline' : 'Show outline'}
           aria-pressed={settings.outline}
           onClick={onToggleOutline}
@@ -108,7 +141,7 @@ export function Topbar({
         <button
           type="button"
           className="mdotion-topbar-button mdotion-copy-all"
-          title={`Copy all Markdown (${COPY_ALL_SHORTCUT})`}
+          title={`Copy all Markdown (${shortcutLabel('copyMarkdown')})`}
           onClick={() => {
             onCopyAll();
             setCopied(true);
@@ -180,6 +213,19 @@ export function Topbar({
             <div className="mdotion-menu-divider" />
             <Toggle label="Small text" value={settings.smallText} onChange={(smallText) => onSettingsChange({ ...settings, smallText })} />
             <Toggle label="Full width" value={settings.fullWidth} onChange={(fullWidth) => onSettingsChange({ ...settings, fullWidth })} />
+            <div className="mdotion-menu-divider" />
+            <button
+              type="button"
+              role="menuitem"
+              className="mdotion-menu-item"
+              onClick={() => {
+                setOpen(false);
+                onShowShortcuts();
+              }}
+            >
+              Keyboard shortcuts
+              <span className="mdotion-menu-shortcut">{shortcutLabel('showShortcuts')}</span>
+            </button>
           </div>
         ) : null}
       </div>

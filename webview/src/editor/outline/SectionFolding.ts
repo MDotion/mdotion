@@ -68,6 +68,71 @@ export function revealPosition(view: EditorView, pos: number): void {
   }
 }
 
+/** Whether the section of `item` has anything to hide below its heading. */
+export function hasSectionContent(state: EditorState, item: OutlineItem): boolean {
+  const heading = state.doc.nodeAt(item.pos);
+  return !!heading && item.end > item.pos + heading.nodeSize;
+}
+
+function outlineOf(state: EditorState): OutlineItem[] {
+  return foldingKey.getState(state)?.items ?? computeOutline(state.doc);
+}
+
+/** Sections around `pos`, innermost first. */
+function sectionsAround(state: EditorState, pos: number): OutlineItem[] {
+  return outlineOf(state)
+    .filter((item) => pos >= item.pos && pos < item.end)
+    .reverse();
+}
+
+export function foldAll(view: EditorView): void {
+  setFolded(view, outlineOf(view.state).filter((item) => hasSectionContent(view.state, item)).map((item) => item.pos));
+}
+
+export function unfoldAll(view: EditorView): void {
+  setFolded(view, []);
+}
+
+/** Unfolds everything if a section is folded, folds everything otherwise. */
+export function toggleFoldAll(view: EditorView): void {
+  if (foldedPositions(view.state).length > 0) {
+    unfoldAll(view);
+  } else {
+    foldAll(view);
+  }
+}
+
+/**
+ * Folds the innermost open section around the caret, and its parent on the next
+ * press (like VS Code's Fold). The caret moves to the folded heading.
+ */
+export function foldSectionAtCaret(view: EditorView): boolean {
+  const { state } = view;
+  const item = sectionsAround(state, state.selection.from).find(
+    (candidate) => !isFolded(state, candidate.pos) && hasSectionContent(state, candidate),
+  );
+  if (!item) {
+    return false;
+  }
+  const heading = state.doc.nodeAt(item.pos);
+  const tr = state.tr.setMeta(foldingKey, { toggle: item.pos } satisfies FoldMeta);
+  if (heading && state.selection.from > item.pos + heading.nodeSize) {
+    tr.setSelection(TextSelection.create(tr.doc, item.pos + heading.nodeSize - 1));
+  }
+  view.dispatch(tr.scrollIntoView());
+  return true;
+}
+
+/** Unfolds the innermost folded section around the caret (the caret sits on its heading). */
+export function unfoldSectionAtCaret(view: EditorView): boolean {
+  const item = sectionsAround(view.state, view.state.selection.from).find((candidate) => isFolded(view.state, candidate.pos));
+  if (!item) {
+    return false;
+  }
+  toggleFold(view, item.pos);
+  return true;
+}
+
 function countBlocks(doc: PMNode, from: number, to: number): number {
   let count = 0;
   doc.nodesBetween(from, to, (_node, pos) => {

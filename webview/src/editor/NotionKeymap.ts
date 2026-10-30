@@ -3,6 +3,7 @@ import { Fragment } from '@tiptap/pm/model';
 import { NodeSelection, TextSelection, type Selection } from '@tiptap/pm/state';
 import { emitUiEvent } from '../lib/uiEvents';
 import { BlockSelection, blockAround } from './BlockSelection';
+import { BLOCK_TYPES } from './blockTypes';
 
 /** The blocks an action applies to: the block selection, a selected node, or the block around the caret. */
 export function selectedRange(editor: Editor): { from: number; to: number } | null {
@@ -133,6 +134,35 @@ export const NotionKeymap = Extension.create({
         }
         return true;
       },
+    };
+  },
+});
+
+/**
+ * Always takes the key: a block type's chain can report false although it
+ * converted the block (`setParagraph` on a paragraph), and the key would then
+ * reach Tiptap's own ⌘⌥4–6, which turns the result into a heading.
+ */
+function turnInto(editor: Editor, id: string): boolean {
+  BLOCK_TYPES.find((type) => type.id === id)?.apply(editor);
+  return true;
+}
+
+/**
+ * Notion's "turn into" shortcuts. They take ⌘⌥4–6 from Tiptap's H4–H6 (still
+ * available from `/` and by typing `####`), so they run first.
+ */
+export const BlockShortcuts = Extension.create({
+  name: 'notionBlockShortcuts',
+  priority: 1000,
+
+  addKeyboardShortcuts() {
+    return {
+      'Mod-Alt-4': ({ editor }) => turnInto(editor, 'taskList'),
+      'Mod-Alt-5': ({ editor }) => turnInto(editor, 'bulletList'),
+      'Mod-Alt-6': ({ editor }) => turnInto(editor, 'orderedList'),
+      'Mod-Alt-8': ({ editor }) => turnInto(editor, 'codeBlock'),
+      'Mod-Alt-9': ({ editor }) => turnInto(editor, 'callout'),
     };
   },
 });

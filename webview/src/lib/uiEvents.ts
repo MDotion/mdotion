@@ -1,8 +1,12 @@
+import type { EditorCommand } from '../../../src/shared/protocolConstants';
+
 type Events = {
   /** Open the link editor for the current selection (Cmd+K, toolbar button). */
   editLink: void;
   /** Open the heading search (Cmd+Shift+O). */
   jumpToHeading: void;
+  /** An IDE command for the editor UI (Find, Next Change, Show Keyboard Shortcuts…). */
+  command: EditorCommand;
 };
 
 type Listener<T> = (payload: T) => void;
@@ -10,7 +14,7 @@ type Listener<T> = (payload: T) => void;
 const listeners: { [K in keyof Events]?: Set<Listener<Events[K]>> } = {};
 
 export function onUiEvent<K extends keyof Events>(name: K, listener: Listener<Events[K]>): () => void {
-  const set = (listeners[name] ??= new Set()) as Set<Listener<Events[K]>>;
+  const set = (listeners[name] ??= new Set() as never) as Set<Listener<Events[K]>>;
   set.add(listener);
   return () => set.delete(listener);
 }

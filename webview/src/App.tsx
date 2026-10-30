@@ -1,20 +1,28 @@
+import { Selection } from '@tiptap/pm/state';
 import { EditorContent, useEditor } from '@tiptap/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PageSettings, Theme } from '../../src/shared/messages';
-import { DEFAULT_PAGE_SETTINGS } from '../../src/shared/protocolConstants';
+import { DEFAULT_PAGE_SETTINGS, type EditorCommand } from '../../src/shared/protocolConstants';
+import { changesModel, useChanges } from './changes/model';
 import { BlockHandle } from './components/BlockHandle';
 import { BlockMarquee } from './components/BlockMarquee';
 import { BubbleToolbar } from './components/BubbleToolbar';
+import { ChangesView } from './components/ChangesView';
+import { FindBar } from './components/FindBar';
 import { HeadingJump } from './components/HeadingJump';
 import { LinkPopover } from './components/LinkPopover';
 import { OutlinePanel } from './components/OutlinePanel';
 import { Properties } from './components/Properties';
+import { ShortcutsHelp } from './components/ShortcutsHelp';
 import { TableControls } from './components/TableControls';
 import { Topbar } from './components/Topbar';
 import { initAdapter } from './editor/adapter';
 import { createEditorExtensions } from './editor/extensions';
 import { insertPlainText } from './editor/MarkdownClipboard';
+import { foldAll, foldSectionAtCaret, revealPosition, toggleFoldAll, unfoldAll, unfoldSectionAtCaret } from './editor/outline/SectionFolding';
 import { openLink, postToHost, setDocumentDirUri, toHostMessage } from './lib/env';
+import { pageScroller, scrollToHeading } from './lib/scroll';
+import { isIdeShortcut } from './lib/shortcuts';
 import { applyTheme } from './lib/theme';
 import { emitUiEvent } from './lib/uiEvents';
 import { viewState } from './lib/viewState';
@@ -41,6 +49,84 @@ export function App(): React.ReactElement | null {
   const [theme, setTheme] = useState<Theme>('auto');
   const [page, setPage] = useState<HTMLDivElement | null>(null);
   const [scroller, setScroller] = useState<HTMLElement | null>(null);
+  /** The Changes view, open on the top of the page (null) or on the first / last change. */
+  const [review, setReview] = useState<{ startAt: 1 | -1 | null } | null>(null);
+  const reviewRef = useRef(review);
+  reviewRef.current = review;
+  /** Where the page was scrolled before the Changes view opened, restored when it closes. */
+  const savedScroll = useRef<number | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const changes = useChanges(editor, sync);
+  const changesAvailable = useChangesAvailable();
+
+  const openReview = (startAt: 1 | -1 | null) => {
+    if (!changesModel.available()) {
+      setNotice('Changes are shown for files in a Git repository, compared with the last commit.');
+      return;
+    }
+    if (!reviewRef.current) {
+      savedScroll.current = pageScroller().scrollTop;
+    }
+    setReview({ startAt });
+  };
+  const closeReview = () => setReview(null);
+
+  /** IDE commands aimed at the editor UI (Command Palette and rebindable shortcuts). */
+  const runCommand = (command: EditorCommand) => {
+    if (!editor) {
+      return;
+    }
+    const reviewing = reviewRef.current !== null;
+    switch (command) {
+      case 'toggleOutline': {
+        const next = { ...settingsRef.current, outline: !settingsRef.current.outline };
+        setSettings(next);
+        postToHost({ type: 'saveSettings', settings: next });
+        return;
+      }
+      case 'goToHeading':
+        if (!reviewing) {
+          emitUiEvent('jumpToHeading', undefined);
+        }
+        return;
+      case 'showChanges':
+        if (reviewing) {
+          closeReview();
+        } else {
+          openReview(null);
+        }
+        return;
+      case 'nextChange':
+      case 'previousChange':
+        if (reviewing) {
+          emitUiEvent('command', command);
+        } else {
+          openReview(command === 'nextChange' ? 1 : -1);
+        }
+        return;
+      case 'foldSection':
+      case 'unfoldSection':
+      case 'toggleFoldAll':
+      case 'foldAll':
+      case 'unfoldAll':
+        if (!reviewing) {
+          ({ foldSection: foldSectionAtCaret, unfoldSection: unfoldSectionAtCaret, toggleFoldAll, foldAll, unfoldAll })[command](editor.view);
+        }
+        return;
+      default:
+        emitUiEvent('command', command);
+    }
+  };
+  const runCommandRef = useRef(runCommand);
+  runCommandRef.current = runCommand;
+
+  // Back from the Changes view: the page is where it was.
+  useLayoutEffect(() => {
+    if (!review && savedScroll.current !== null) {
+      pageScroller().scrollTop = savedScroll.current;
+      savedScroll.current = null;
+    }
+  }, [review]);
 
   useEffect(() => {
     if (!sync) {
@@ -68,19 +154,18 @@ export function App(): React.ReactElement | null {
         return;
       }
       if (message.type === 'command') {
-        if (message.command === 'toggleOutline') {
-          const next = { ...settingsRef.current, outline: !settingsRef.current.outline };
-          setSettings(next);
-          postToHost({ type: 'saveSettings', settings: next });
-        } else {
-          emitUiEvent('jumpToHeading', undefined);
-        }
+        runCommandRef.current(message.command);
+        return;
+      }
+      if (message.type === 'baseline') {
+        changesModel.setBaseline(message.baseline);
         return;
       }
       sync.handleMessage(message);
       if (message.type === 'init') {
         // After the document is loaded, so folded sections can be found by anchor.
         viewState.load(message.viewState);
+        postToHost({ type: 'requestBaseline' });
       }
     };
     window.addEventListener('message', onMessage);
@@ -124,21 +209,21 @@ export function App(): React.ReactElement | null {
      * would also undo the TextDocument, Cmd+K/I would trigger Cursor's AI commands…
      */
     const onKeyDown = (event: KeyboardEvent) => {
+      // The IDE runs these (Find, Fold Section, Switch, Copy all…): no browser default, but the key
+      // goes on to VS Code, with the pending edits sent first.
+      if (isIdeShortcut(event)) {
+        event.preventDefault();
+        sync.flush();
+        return;
+      }
       const mod = event.metaKey || event.ctrlKey;
       if (!mod) {
         return;
       }
       const key = event.key.toLowerCase();
-      // Save, close, switch view (⌘⌥M) and copy all (⌘⇧⌥C) are IDE commands: send pending edits first.
-      if (key === 's' || key === 'w' || (event.altKey && (event.code === 'KeyM' || event.code === 'KeyC'))) {
+      // Save and close are IDE commands too: send pending edits first.
+      if (key === 's' || key === 'w') {
         sync.flush();
-        return;
-      }
-      // ⌘⇧O is VS Code's Go to Symbol, which custom editors do not have: search the headings instead.
-      if (key === 'o' && event.shiftKey && !event.altKey) {
-        event.preventDefault();
-        event.stopPropagation();
-        emitUiEvent('jumpToHeading', undefined);
         return;
       }
       const target = event.target as HTMLElement;
@@ -220,7 +305,19 @@ export function App(): React.ReactElement | null {
           sync.flush();
           postToHost({ type: 'copyMarkdown' });
         }}
+        onFind={() => runCommand('find')}
+        changes={changesAvailable === null ? null : { available: changesAvailable, total: changes?.total ?? 0, open: review !== null }}
+        onShowChanges={() => (review ? closeReview() : openReview(null))}
+        onShowShortcuts={() => runCommand('showShortcuts')}
       />
+      {notice ? (
+        <div className="mdotion-banner" role="status">
+          <span>{notice}</span>
+          <button type="button" onClick={() => setNotice(null)}>
+            Dismiss
+          </button>
+        </div>
+      ) : null}
       {state?.error ? (
         <div className="mdotion-banner is-error" role="alert">
           <span>{state.error}</span>
@@ -242,7 +339,22 @@ export function App(): React.ReactElement | null {
           </button>
         </div>
       ) : null}
-      <div className="mdotion-body">
+      {review ? (
+        <ChangesView
+          result={changes}
+          baseline={changesModel.getBaseline()}
+          pageClass={pageClass}
+          startAt={review.startAt}
+          onClose={closeReview}
+          onLocate={(pos) => {
+            savedScroll.current = null;
+            setReview(null);
+            requestAnimationFrame(() => locateBlock(editor, pos));
+          }}
+          onOpenTextDiff={() => postToHost({ type: 'openTextDiff' })}
+        />
+      ) : null}
+      <div className={`mdotion-body${review ? ' is-hidden' : ''}`}>
         <main className="mdotion-scroller" ref={setScroller}>
           <div className={pageClass} ref={setPage}>
             <Properties frontMatter={state?.frontMatter ?? null} onChange={(fm) => sync.setFrontMatter(fm)} />
@@ -260,6 +372,31 @@ export function App(): React.ReactElement | null {
       <BubbleToolbar editor={editor} />
       <LinkPopover editor={editor} />
       <HeadingJump editor={editor} />
+      <FindBar editor={editor} frontMatter={state?.frontMatter ?? null} disabled={review !== null} />
+      <ShortcutsHelp editor={editor} />
     </div>
   );
+}
+
+/** Caret at the start of a block of the editor, scrolled below the top bar (from the Changes view). */
+function locateBlock(editor: NonNullable<ReturnType<typeof useEditor>>, pos: number): void {
+  const { view } = editor;
+  if (pos > view.state.doc.content.size) {
+    return;
+  }
+  revealPosition(view, pos);
+  view.dispatch(view.state.tr.setSelection(Selection.near(view.state.doc.resolve(Math.min(pos + 1, view.state.doc.content.size)))));
+  view.focus();
+  const dom = view.nodeDOM(pos);
+  if (dom instanceof HTMLElement) {
+    scrollToHeading(dom);
+  }
+}
+
+/** Whether the file is in a Git repository: null until the host has answered. */
+function useChangesAvailable(): boolean | null {
+  const read = () => (changesModel.getBaseline() === null ? null : changesModel.available());
+  const [available, setAvailable] = useState(read);
+  useEffect(() => changesModel.onChange(() => setAvailable(read())), []);
+  return available;
 }

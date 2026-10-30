@@ -1,5 +1,7 @@
 import {
   PROTOCOL_VERSION,
+  type Baseline,
+  type EditorCommand,
   type HostToWebviewMessage,
   type PageSettings,
   type Theme,
@@ -23,6 +25,10 @@ export interface DocumentBridgeHost {
   openLink?(href: string): void;
   switchToSource?(): void;
   copyMarkdown?(): void;
+  /** Starts sending the HEAD version of the file through `onBaseline`. */
+  requestBaseline?(): void;
+  openTextDiff?(): void;
+  openKeybindings?(): void;
 }
 
 /**
@@ -88,13 +94,29 @@ export class DocumentBridge {
           }
         });
         break;
+      case 'requestBaseline':
+        this.host.requestBaseline?.();
+        break;
+      case 'openTextDiff':
+        this.host.openTextDiff?.();
+        break;
+      case 'openKeybindings':
+        this.host.openKeybindings?.();
+        break;
     }
   }
 
-  /** Forwards an IDE command (Toggle Outline, Go to Heading) to the editor UI. */
-  runCommand(command: 'toggleOutline' | 'goToHeading'): void {
+  /** Forwards an IDE command (Toggle Outline, Find, Show Changes…) to the editor UI. */
+  runCommand(command: EditorCommand): void {
     if (!this.disposed && this.ready) {
       this.host.postMessage({ type: 'command', command });
+    }
+  }
+
+  /** The HEAD version of the file, for the Changes view. */
+  onBaseline(baseline: Baseline): void {
+    if (!this.disposed && this.ready) {
+      this.host.postMessage({ type: 'baseline', baseline });
     }
   }
 

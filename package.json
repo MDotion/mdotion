@@ -1,8 +1,8 @@
 {
   "name": "mdotion-editor",
   "displayName": "MDotion: Visual Markdown Editor",
-  "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, an outline to reorder sections, tables you can paste from Excel or Sheets. Files stay plain .md, untouched blocks are saved byte for byte.",
-  "version": "0.2.2",
+  "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, an outline to reorder sections, tables you can paste from Excel or Sheets, find and replace, and the changes since your last commit shown block by block. Files stay plain .md, untouched blocks are saved byte for byte.",
+  "version": "0.3.0",
   "preview": true,
   "publisher": "MDotion",
   "author": {
@@ -43,7 +43,10 @@
     "table editor",
     "paste from excel",
     "outline",
-    "gfm"
+    "gfm",
+    "find and replace",
+    "git diff",
+    "keyboard shortcuts"
   ],
   "activationEvents": [
     "onLanguage:markdown"
@@ -102,6 +105,74 @@
         "category": "MDotion"
       },
       {
+        "command": "mdotion.find",
+        "title": "Find",
+        "category": "MDotion",
+        "icon": "$(search)"
+      },
+      {
+        "command": "mdotion.replace",
+        "title": "Replace",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.findNext",
+        "title": "Find Next",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.findPrevious",
+        "title": "Find Previous",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.showChanges",
+        "title": "Show Changes Since Last Commit",
+        "category": "MDotion",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "mdotion.nextChange",
+        "title": "Go to Next Change",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.previousChange",
+        "title": "Go to Previous Change",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.foldSection",
+        "title": "Fold Section",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.unfoldSection",
+        "title": "Unfold Section",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.toggleFoldAll",
+        "title": "Fold / Unfold All Sections",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.foldAll",
+        "title": "Fold All Sections",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.unfoldAll",
+        "title": "Unfold All Sections",
+        "category": "MDotion"
+      },
+      {
+        "command": "mdotion.showShortcuts",
+        "title": "Show Keyboard Shortcuts",
+        "category": "MDotion",
+        "icon": "$(keyboard)"
+      },
+      {
         "command": "mdotion.useAsDefault",
         "title": "Use as Default Markdown Editor",
         "category": "MDotion"
@@ -152,6 +223,58 @@
         {
           "command": "mdotion.goToHeading",
           "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.find",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.replace",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.findNext",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.findPrevious",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.showChanges",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.nextChange",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.previousChange",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.foldSection",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.unfoldSection",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.toggleFoldAll",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.foldAll",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.unfoldAll",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
+        },
+        {
+          "command": "mdotion.showShortcuts",
+          "when": "activeCustomEditorId == mdotion.markdownEditor"
         }
       ]
     },
@@ -172,13 +295,79 @@
         "command": "mdotion.toggleOutline",
         "key": "ctrl+alt+o",
         "mac": "cmd+alt+o",
-        "when": "activeCustomEditorId == mdotion.markdownEditor"
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
       },
       {
         "command": "mdotion.goToHeading",
         "key": "ctrl+shift+o",
         "mac": "cmd+shift+o",
-        "when": "activeCustomEditorId == mdotion.markdownEditor"
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.find",
+        "key": "ctrl+f",
+        "mac": "cmd+f",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.replace",
+        "key": "ctrl+h",
+        "mac": "cmd+alt+f",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.findNext",
+        "key": "f3",
+        "mac": "cmd+g",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.findPrevious",
+        "key": "shift+f3",
+        "mac": "cmd+shift+g",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.showChanges",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.nextChange",
+        "key": "alt+f5",
+        "mac": "alt+f5",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.previousChange",
+        "key": "shift+alt+f5",
+        "mac": "shift+alt+f5",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.foldSection",
+        "key": "ctrl+alt+up",
+        "mac": "cmd+alt+up",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.unfoldSection",
+        "key": "ctrl+alt+down",
+        "mac": "cmd+alt+down",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.toggleFoldAll",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
+      },
+      {
+        "command": "mdotion.showShortcuts",
+        "key": "ctrl+alt+k",
+        "mac": "cmd+alt+k",
+        "when": "activeCustomEditorId == mdotion.markdownEditor && !sideBarFocus && !panelFocus && !auxiliaryBarFocus && !inputFocus"
       }
     ],
     "configuration": {
@@ -256,9 +445,11 @@
     "@tiptap/react": "3.32.0",
     "@tiptap/starter-kit": "3.32.0",
     "@tiptap/suggestion": "3.32.0",
+    "diff": "9.0.0",
     "highlight.js": "11.11.2",
     "lowlight": "3.3.0",
     "marked": "17.0.6",
+    "prosemirror-search": "1.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "^3.24.1"

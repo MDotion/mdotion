@@ -3,7 +3,15 @@ import { EditorState, TextSelection } from '@tiptap/pm/state';
 import { afterEach, describe, expect, it } from 'vitest';
 import { getDefaultAdapter, MarkdownAdapter } from '../src/markdown/MarkdownAdapter';
 import { getMdotionExtensions } from '../src/markdown/mdotionExtensions';
-import { foldedPositions, isFolded, SectionFolding, toggleFold } from '../webview/src/editor/outline/SectionFolding';
+import {
+  foldedPositions,
+  foldSectionAtCaret,
+  isFolded,
+  SectionFolding,
+  toggleFold,
+  toggleFoldAll,
+  unfoldSectionAtCaret,
+} from '../webview/src/editor/outline/SectionFolding';
 import {
   computeOutline,
   moveSection,
@@ -192,5 +200,30 @@ describe('folding sections', () => {
     expect(ed.state.selection.$from.parent.textContent).toBe('B');
     ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, inside)));
     expect(ed.state.selection.$from.parent.textContent).toBe('A');
+  });
+
+  it('folds the section around the caret, then its parent, like VS Code', () => {
+    const { ed } = setup(SOURCE);
+    const [a, a1] = computeOutline(ed.state.doc);
+    const sub = a1.pos + ed.state.doc.nodeAt(a1.pos)!.nodeSize + 2;
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, sub)));
+    expect(foldSectionAtCaret(ed.view)).toBe(true);
+    expect(foldedPositions(ed.state)).toEqual([a1.pos]);
+    expect(ed.state.selection.$from.parent.textContent).toBe('A1');
+    expect(foldSectionAtCaret(ed.view)).toBe(true);
+    expect(foldedPositions(ed.state)).toEqual([a.pos, a1.pos]);
+    expect(unfoldSectionAtCaret(ed.view)).toBe(true);
+    expect(foldedPositions(ed.state)).toEqual([a1.pos]);
+  });
+
+  it('folds everything, or unfolds everything when something is folded', () => {
+    const { ed } = setup(SOURCE);
+    toggleFoldAll(ed.view);
+    expect(foldedPositions(ed.state)).toEqual(computeOutline(ed.state.doc).map((item) => item.pos));
+    toggleFoldAll(ed.view);
+    expect(foldedPositions(ed.state)).toEqual([]);
+    toggleFold(ed.view, 0);
+    toggleFoldAll(ed.view);
+    expect(foldedPositions(ed.state)).toEqual([]);
   });
 });

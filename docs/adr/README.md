@@ -13,5 +13,6 @@ Short, durable decisions for mdotion. Status: **Proposed** until validated by te
 | [007](./007-supported-ide-versions.md) | Supported IDE versions |
 | [008](./008-mvp-capability-guarantee.md) | MVP capability guarantee |
 | [009](./009-view-state.md) | View state outside the document |
+| [010](./010-block-level-changes.md) | Block-level changes against the last commit |
 
 Template: [000-template.md](./000-template.md)

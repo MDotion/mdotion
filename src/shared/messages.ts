@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
-import { MAX_DOCUMENT_CHARS } from './protocolConstants';
+import { EDITOR_COMMANDS, MAX_DOCUMENT_CHARS } from './protocolConstants';
 
-export { DEFAULT_PAGE_SETTINGS, EMPTY_VIEW_STATE, MAX_DOCUMENT_CHARS, PROTOCOL_VERSION } from './protocolConstants';
+export { DEFAULT_PAGE_SETTINGS, EDITOR_COMMANDS, EMPTY_VIEW_STATE, MAX_DOCUMENT_CHARS, PROTOCOL_VERSION } from './protocolConstants';
+export type { EditorCommand } from './protocolConstants';
 
 export const pageSettingsSchema = z.object({
   fullWidth: z.boolean(),
@@ -74,7 +75,38 @@ export const webviewToHostMessageSchema = z.discriminatedUnion('type', [
     type: z.literal('saveViewState'),
     viewState: viewStateSchema,
   }),
+  z.object({
+    /** Ask for the file as it is in the last commit; the host answers with `baseline`. */
+    type: z.literal('requestBaseline'),
+  }),
+  z.object({
+    /** Open VS Code's line-based diff of this file against the last commit. */
+    type: z.literal('openTextDiff'),
+  }),
+  z.object({
+    /** Open Keyboard Shortcuts filtered on MDotion's commands. */
+    type: z.literal('openKeybindings'),
+  }),
 ]);
+
+/**
+ * The file at the last commit, for the Changes view. `untracked`: in a repository
+ * but never committed; `none`: no repository, or Git is not available.
+ */
+export const baselineSchema = z.discriminatedUnion('status', [
+  z.object({
+    status: z.literal('ok'),
+    text: z.string(),
+    /** Abbreviated commit hash. */
+    commit: z.string(),
+    /** Commit date, in ms since the epoch, when Git reports it. */
+    committedAt: z.number().nullable(),
+  }),
+  z.object({ status: z.literal('untracked') }),
+  z.object({ status: z.literal('none') }),
+]);
+
+export type Baseline = z.infer<typeof baselineSchema>;
 
 export const hostToWebviewMessageSchema = z.discriminatedUnion('type', [
   z.object({
@@ -116,7 +148,12 @@ export const hostToWebviewMessageSchema = z.discriminatedUnion('type', [
   z.object({
     /** An IDE command aimed at the editor UI (Command Palette, keybindings). */
     type: z.literal('command'),
-    command: z.enum(['toggleOutline', 'goToHeading']),
+    command: z.enum(EDITOR_COMMANDS),
+  }),
+  z.object({
+    /** Answer to `requestBaseline`, sent again whenever the repository moves (commit, checkout, pull). */
+    type: z.literal('baseline'),
+    baseline: baselineSchema,
   }),
 ]);
 
