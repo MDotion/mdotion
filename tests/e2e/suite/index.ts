@@ -201,7 +201,11 @@ export async function run(): Promise<void> {
       watcher.dispose();
       fresh.dispose();
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-      fs.rmSync(repo, { recursive: true, force: true });
+      try {
+        fs.rmSync(repo, { recursive: true, force: true });
+      } catch {
+        // Windows keeps the folder while the Git extension watches it; tests/e2e/out is ignored anyway.
+      }
     }
   });
 
