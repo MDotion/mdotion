@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
 import { MarkdownEditorProvider } from '../editor/MarkdownEditorProvider';
 import { getActiveMarkdown } from './activeMarkdown';
+import { setKeptAsText } from './keptAsText';
 
 export async function openVisualEditor(uri?: vscode.Uri): Promise<void> {
   const target = uri ?? getActiveMarkdown()?.uri ?? (await pickMarkdownFile());
   if (!target) {
     return;
   }
+  setKeptAsText(target, false);
   try {
     await vscode.commands.executeCommand('vscode.openWith', target, MarkdownEditorProvider.viewType);
   } catch (error) {

@@ -2,7 +2,7 @@
   "name": "mdotion-editor",
   "displayName": "MDotion: Visual Markdown Editor",
   "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, an outline to reorder sections, tables you can paste from Excel or Sheets, find and replace, and the changes since your last commit shown block by block. Files stay plain .md, untouched blocks are saved byte for byte.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "preview": true,
   "publisher": "MDotion",
   "author": {
@@ -49,7 +49,8 @@
     "keyboard shortcuts"
   ],
   "activationEvents": [
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -387,6 +388,11 @@
           ],
           "default": "auto",
           "description": "Colour theme of the MDotion visual editor. Also changed from the sun / moon button in the editor."
+        },
+        "mdotion.reopenTextTabs": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "When MDotion is the default Markdown editor, reopen in MDotion the Markdown files that other extensions open in the text editor (for example the file links of AI chats). Files opened at a specific line, with unsaved changes, or that you switched to Markdown yourself stay in the text editor."
         }
       }
     }

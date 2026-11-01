@@ -6,6 +6,7 @@ import { toggleEditor } from './commands/toggleEditor';
 import { getActiveMarkdown } from './commands/activeMarkdown';
 import { copyMarkdown } from './commands/copyMarkdown';
 import { registerDefaultEditorPrompt, setDefaultEditor } from './commands/defaultEditor';
+import { registerReopenTextTabs } from './commands/reopenTextTabs';
 import { EDITOR_COMMANDS, type EditorCommand } from './shared/messages';
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -51,6 +52,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('mdotion.useAsDefault', () => setDefaultEditor(true)),
     vscode.commands.registerCommand('mdotion.stopUsingAsDefault', () => setDefaultEditor(false)),
     registerDefaultEditorPrompt(context),
+    registerReopenTextTabs(),
   );
 }
 

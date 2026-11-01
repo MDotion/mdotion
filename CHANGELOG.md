@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-01
+
+### Added
+
+- When MDotion is your default Markdown editor, Markdown files that other extensions open in the text editor (the file links in Claude Code or Cursor chats, for example) now open in MDotion as well. Files opened at a specific line, with unsaved changes, or that you switched to Markdown yourself stay in the text editor. Turn it off with `mdotion.reopenTextTabs`.
+
+### Fixed
+
+- Cursor: switching a Markdown file between the text editor and MDotion (⌘⌥M / Ctrl+Alt+M, the editor title button, or "Use by default" in the first-run prompt) failed with "Tab close: Invalid tab not found!" and left the text tab open.
+
 ## [0.3.0] - 2026-10-30
 
 Find and replace in the page, every shortcut in one place, and the changes of a file since the last commit, shown block by block. As before, nothing in this release writes anything new into your Markdown files.

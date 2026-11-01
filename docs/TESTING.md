@@ -27,6 +27,8 @@ Use `tests/fixtures/notion.md` (it contains every supported construct).
 - [ ] Block selection: drag from one paragraph to another, or from the left margin; `Esc`, `Shift+↓`, `⌘A` twice. `⌘C` and paste into another file: formatted Markdown is pasted.
 - [ ] `⋮⋮` with several blocks selected: the menu shows "N blocks" and Duplicate / Move / Delete apply to all of them.
 - [ ] **Visual | Markdown** and `⌘⌥M`: the tab is replaced (not duplicated), also with unsaved changes.
+- [ ] In **Cursor** too: `⌘⌥M` switches both ways with no error notification and a single tab.
+- [ ] With MDotion as the default editor, a `.md` link clicked in the Claude Code / Cursor chat opens in MDotion; a search result in a `.md` file, and a file switched to Markdown with `⌘⌥M`, stay in the text editor.
 - [ ] **Copy** and `⌘⇧⌥C`: the clipboard contains the whole file.
 - [ ] **Paste a spreadsheet**: copy a range from Excel, Numbers and Google Sheets, paste in an empty line: a table appears, the first row is the header, number columns stay right-aligned; `⌘Z` removes it in one step. `⌘⇧V` pastes plain text instead. Paste a range with the caret inside an existing table: cells are filled from the caret and the table grows.
 - [ ] Paste a table copied from a GitHub README and from Wikipedia: links, bold and code are kept, merged cells are split.
