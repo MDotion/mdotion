@@ -55,7 +55,8 @@ Requires VS Code 1.85 or later (or an editor built on it).
 MDotion never takes over your Markdown files on its own:
 
 - open any `.md` file and click the **book** icon in the editor title bar, the **MDotion** status bar item, or press `⌘⌥M` / `Ctrl+Alt+M`;
-- the first time you open a Markdown file, MDotion asks whether it should become your **default Markdown editor**. You can change this at any time with **MDotion: Use as Default Markdown Editor** / **MDotion: Stop Using as Default Markdown Editor**.
+- the first time you open a Markdown file, MDotion asks whether it should become your **default Markdown editor**. You can change this at any time with **MDotion: Use as Default Markdown Editor** / **MDotion: Stop Using as Default Markdown Editor**;
+- once it is the default, Markdown files that other extensions open in the text editor, such as the file links in Claude Code or Cursor chats, open in MDotion too. Files opened at a specific line, with unsaved changes, or that you switched to Markdown yourself stay in the text editor.
 
 | Slash menu (dark theme) | Block selection |
 |---|---|
@@ -89,6 +90,7 @@ Also available from the editor title bar, the status bar, the explorer context m
 | Setting | Values | Default |
 |---|---|---|
 | `mdotion.theme` | `auto` (follow the IDE), `light`, `dark` | `auto` |
+| `mdotion.reopenTextTabs` | Reopen in MDotion the Markdown files other extensions open as text (only when MDotion is the default editor) | `true` |
 
 ## Supported Markdown
 

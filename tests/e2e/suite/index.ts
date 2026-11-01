@@ -108,6 +108,58 @@ export async function run(): Promise<void> {
     assert.strictEqual(associations()['*.md'], undefined);
   });
 
+  await check('Markdown that other extensions open as text is reopened in the visual editor', async () => {
+    const isTextEditor = () => vscode.window.activeTextEditor?.document.uri.toString() === uri.toString();
+    const closeAll = async () => {
+      await vscode.commands.executeCommand('workbench.action.files.revert');
+      await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+      await waitFor(() => tabsFor(uri) === 0, 'every tab of the file to close');
+      await sleep(600); // a link clicked later, not a "Reopen Editor With…"
+    };
+    await closeAll();
+    await vscode.commands.executeCommand('mdotion.useAsDefault');
+    try {
+      // What the file links of an AI chat do.
+      await vscode.window.showTextDocument(uri);
+      await waitFor(() => activeViewType() === VIEW_TYPE, 'the text tab to be reopened in MDotion');
+      await waitFor(() => tabsFor(uri) === 1, 'a single tab for the file');
+
+      // Switched to the source on purpose: it stays there.
+      await vscode.commands.executeCommand('mdotion.toggleEditor');
+      await waitFor(isTextEditor, 'text editor');
+      await sleep(1500);
+      assert.ok(isTextEditor(), 'the source the user asked for stays open');
+
+      // "Reopen Editor With… > Text Editor" from the visual editor: it stays there too.
+      if ((await vscode.commands.getCommands(true)).includes('reopenActiveEditorWith')) {
+        await vscode.commands.executeCommand('mdotion.openVisualEditor', uri);
+        await waitFor(() => activeViewType() === VIEW_TYPE, 'custom editor tab');
+        await vscode.commands.executeCommand('reopenActiveEditorWith', 'default');
+        await waitFor(isTextEditor, 'text editor');
+        await sleep(1500);
+        assert.ok(isTextEditor(), 'Reopen Editor With is respected');
+      }
+
+      // Opened at a line (search results, Problems): it stays in the text editor.
+      await vscode.commands.executeCommand('mdotion.openVisualEditor', uri);
+      await closeAll();
+      await vscode.window.showTextDocument(uri, { selection: new vscode.Range(2, 0, 2, 0) });
+      await sleep(1500);
+      assert.ok(isTextEditor(), 'a file opened at a line stays in the text editor');
+
+      // Turned off in the settings.
+      await closeAll();
+      await vscode.workspace.getConfiguration('mdotion').update('reopenTextTabs', false, vscode.ConfigurationTarget.Global);
+      await vscode.window.showTextDocument(uri);
+      await sleep(1500);
+      assert.ok(isTextEditor(), 'the setting turns it off');
+    } finally {
+      await vscode.workspace.getConfiguration('mdotion').update('reopenTextTabs', undefined, vscode.ConfigurationTarget.Global);
+      await vscode.commands.executeCommand('mdotion.stopUsingAsDefault');
+      await closeAll();
+    }
+  });
+
   await check('Toggle Outline and Go to Heading reach the visual editor without touching the file', async () => {
     const commands = await vscode.commands.getCommands(true);
     assert.ok(commands.includes('mdotion.toggleOutline'), 'Toggle Outline is registered');

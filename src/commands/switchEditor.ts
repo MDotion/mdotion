@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { MarkdownEditorProvider } from '../editor/MarkdownEditorProvider';
+import { setKeptAsText } from './keptAsText';
 
 export type EditorKind = 'visual' | 'source';
 
@@ -23,6 +24,7 @@ export async function switchEditor(uri: vscode.Uri, target: EditorKind): Promise
   const group = vscode.window.tabGroups.activeTabGroup;
   const source: EditorKind = target === 'visual' ? 'source' : 'visual';
   const editorId = target === 'visual' ? MarkdownEditorProvider.viewType : 'default';
+  setKeptAsText(uri, target === 'source');
 
   if (isKind(group.activeTab, uri, source)) {
     try {
@@ -35,13 +37,42 @@ export async function switchEditor(uri: vscode.Uri, target: EditorKind): Promise
     }
   }
 
-  const previous = group.tabs.find((tab) => isKind(tab, uri, source));
+  const column = group.viewColumn;
+  const hadPrevious = group.tabs.some((tab) => isKind(tab, uri, source));
   await vscode.commands.executeCommand('vscode.openWith', uri, editorId, {
-    viewColumn: group.viewColumn,
+    viewColumn: column,
     preview: false,
   });
-  const document = vscode.workspace.textDocuments.find((doc) => doc.uri.toString() === uri.toString());
-  if (previous && !document?.isDirty) {
-    await vscode.window.tabGroups.close(previous, true);
+  if (hadPrevious) {
+    await closeOldTab(column, uri, source);
+  }
+}
+
+/**
+ * Closes the tab the switch replaced. Cursor has no "reopenActiveEditorWith", and right after
+ * the open its tab objects can lag behind the editors: closing one then throws "Tab close:
+ * Invalid tab not found!". So the tab is read again on every attempt.
+ */
+async function closeOldTab(
+  column: vscode.ViewColumn | undefined,
+  uri: vscode.Uri,
+  kind: EditorKind,
+): Promise<void> {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const tab = (
+      vscode.window.tabGroups.all.find((group) => group.viewColumn === column)?.tabs ?? []
+    ).find((candidate) => isKind(candidate, uri, kind));
+    const document = vscode.workspace.textDocuments.find(
+      (doc) => doc.uri.toString() === uri.toString(),
+    );
+    if (!tab || document?.isDirty) {
+      return;
+    }
+    try {
+      await vscode.window.tabGroups.close(tab, true);
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   }
 }
