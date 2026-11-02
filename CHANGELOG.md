@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-11-02
+
+### Changed
+
+- Type scale aligned with Notion: quotes use the body text size (they were 1.2×), headings have Notion's spacing above them (less space above H1 and H2), code blocks have Notion's padding, and HTML kept as source uses the same size as other code.
+
 ## [0.3.2] - 2026-11-02
 
 ### Changed

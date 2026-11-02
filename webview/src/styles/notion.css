@@ -526,6 +526,9 @@ button {
   min-height: 1.5em;
 }
 
+/* Notion's spacing above a heading is 2em / 1.4em / 1em of the body text,
+ * divided here by the heading's own size because `em` margins resolve
+ * against it. */
 .mdotion-prose h1,
 .mdotion-prose h2,
 .mdotion-prose h3,
@@ -540,24 +543,26 @@ button {
 
 .mdotion-prose h1 {
   font-size: 1.875em;
-  margin-top: 1.4em;
+  margin-top: calc(2em / 1.875);
+  margin-bottom: 4px;
 }
 
 .mdotion-prose h2 {
   font-size: 1.5em;
-  margin-top: 1.1em;
+  margin-top: calc(1.4em / 1.5);
 }
 
 .mdotion-prose h3 {
   font-size: 1.25em;
-  margin-top: 1em;
+  margin-top: calc(1em / 1.25);
 }
 
+/* Notion stops at H3: deeper levels stay just above body text. */
 .mdotion-prose h4,
 .mdotion-prose h5,
 .mdotion-prose h6 {
   font-size: 1.1em;
-  margin-top: 0.8em;
+  margin-top: calc(0.8em / 1.1);
 }
 
 /* The first H1 of the file plays the role of Notion's page title. */
@@ -719,15 +724,11 @@ button {
   background: transparent;
 }
 
+/* Body size, like Notion's default quote (its "large" quote is 1.2em). */
 .mdotion-prose blockquote {
   margin: 4px 0;
   padding: 0 0 0 14px;
   border-left: 3px solid currentColor;
-  font-size: 1.2em;
-}
-
-.mdotion-prose blockquote blockquote {
-  font-size: 1em;
 }
 
 /* Divider */
@@ -878,7 +879,7 @@ button {
 
 .mdotion-code pre {
   margin: 0;
-  padding: 34px 16px 28px 26px;
+  padding: 34px 16px 32px 32px;
   overflow-x: auto;
   font-family: var(--font-code);
   font-size: 85%;
@@ -1227,8 +1228,8 @@ button {
   width: 100%;
   margin: 0;
   font-family: var(--font-code);
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 85%;
+  line-height: 1.5;
   white-space: pre-wrap;
   color: var(--text-secondary);
 }
