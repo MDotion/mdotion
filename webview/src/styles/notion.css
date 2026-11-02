@@ -711,7 +711,14 @@ button {
   text-decoration-color: var(--text-tertiary);
 }
 
-/* Quote */
+/* Quote. VS Code's default webview stylesheet paints blockquotes with
+ * --vscode-textBlockQuote-background, which follows the VS Code theme, not
+ * `mdotion.theme` (dark grey quotes on a forced-light page). Reset it. */
+.mdotion-prose blockquote,
+.mdotion-raw-preview blockquote {
+  background: transparent;
+}
+
 .mdotion-prose blockquote {
   margin: 4px 0;
   padding: 0 0 0 14px;
