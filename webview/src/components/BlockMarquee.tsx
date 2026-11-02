@@ -1,4 +1,5 @@
 import type { Editor } from '@tiptap/core';
+import { Selection } from '@tiptap/pm/state';
 import { useEffect, useState } from 'react';
 import { BlockSelection } from '../editor/BlockSelection';
 
@@ -49,9 +50,36 @@ function selectBlocksIn(editor: Editor, box: Box, upward: boolean): void {
 }
 
 /**
+ * A plain click in the page margin: caret on the text closest to the click's
+ * line, as in Notion. The mousedown was prevented, so without this a selected
+ * divider, image or run of blocks stayed selected.
+ */
+function placeCaretBeside(editor: Editor, clientX: number, clientY: number): void {
+  const { view, state } = editor;
+  const rect = view.dom.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) {
+    return;
+  }
+  const left = Math.min(Math.max(clientX, rect.left + 1), rect.right - 1);
+  const top = Math.min(Math.max(clientY, rect.top + 1), rect.bottom - 1);
+  const hit = view.posAtCoords({ left, top });
+  if (!hit) {
+    return;
+  }
+  const $pos = state.doc.resolve(hit.pos);
+  const next =
+    Selection.findFrom($pos, -1, true) ?? Selection.findFrom($pos, 1, true) ?? Selection.near($pos);
+  if (!state.selection.eq(next)) {
+    view.dispatch(state.tr.setSelection(next));
+  }
+  view.focus();
+}
+
+/**
  * Notion rubber-band selection: dragging from the page margins (or below the
  * last block) draws a rectangle and selects the blocks it touches. A plain
- * click below the content puts the caret at the end.
+ * click below the content puts the caret at the end; a plain click beside it
+ * puts the caret on that line.
  */
 export function BlockMarquee({ editor, container }: { editor: Editor; container: HTMLElement | null }): React.ReactElement | null {
   const [box, setBox] = useState<Box | null>(null);
@@ -98,6 +126,8 @@ export function BlockMarquee({ editor, container }: { editor: Editor; container:
           editor.view.focus();
         } else if (target.closest('.mdotion-page-tail')) {
           editor.commands.focus('end');
+        } else {
+          placeCaretBeside(editor, startX, startY);
         }
       };
       window.addEventListener('mousemove', onMove);

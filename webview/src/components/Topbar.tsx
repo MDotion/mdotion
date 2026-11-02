@@ -85,7 +85,6 @@ export function Topbar({
   return (
     <header className="mdotion-topbar">
       <div className="mdotion-breadcrumb" title={fileName}>
-        <span aria-hidden>📄</span>
         <span className="mdotion-breadcrumb-name">{fileName.replace(/\.(md|markdown)$/i, '') || 'Untitled'}</span>
       </div>
       <div className="mdotion-topbar-actions" ref={menuRef}>

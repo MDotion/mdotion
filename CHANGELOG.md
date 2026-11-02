@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-02
+
+### Changed
+
+- The top bar shows the file name without the 📄 icon.
+
+### Fixed
+
+- Quotes showed a dark background when `mdotion.theme` forced the light theme in a dark VS Code theme.
+- Clicking the blank page margin did not clear a selected divider, image or block selection. It now puts the caret on the line you clicked beside, as in Notion.
+
 ## [0.3.1] - 2026-11-01
 
 ### Added

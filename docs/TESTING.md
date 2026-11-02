@@ -25,6 +25,7 @@ Use `tests/fixtures/notion.md` (it contains every supported construct).
 - [ ] Clicking a link places the caret (no browser); `⌘`-click opens it; a link to another `.md` opens it in the IDE.
 - [ ] Tables, callouts (click the icon to change type), code blocks (language picker, Copy), relative images, front matter (**Edit properties**).
 - [ ] Block selection: drag from one paragraph to another, or from the left margin; `Esc`, `Shift+↓`, `⌘A` twice. `⌘C` and paste into another file: formatted Markdown is pasted.
+- [ ] Select a divider (or press `Esc` on a block), then click the blank margin beside a line: the selection clears and the caret lands on that line.
 - [ ] `⋮⋮` with several blocks selected: the menu shows "N blocks" and Duplicate / Move / Delete apply to all of them.
 - [ ] **Visual | Markdown** and `⌘⌥M`: the tab is replaced (not duplicated), also with unsaved changes.
 - [ ] In **Cursor** too: `⌘⌥M` switches both ways with no error notification and a single tab.
@@ -50,6 +51,7 @@ Use `tests/fixtures/notion.md` (it contains every supported construct).
 - [ ] **Changes** (file in a Git repository, edited since the last commit): the top bar shows the number of changed blocks, updated a moment after each edit. Open it on **Source**: a GitHub-style unified diff with old and new line numbers, `+` / `-` rows in green and red, the changed words darker, `@@` headers, three lines of context and an expand button on the hidden lines. Switch to **Rendered**: removed blocks as red rows and new ones as green rows across the whole width, a changed paragraph as old then new with the changed words marked, a new list item green on its own (not the whole list), a changed table row as old then new row, changed properties at the top. A re-padded table does not show in **Rendered**. `↑` / `↓` and `Alt+F5` go through the changes in both views. In **Rendered**, clicking a block returns to editing on it; `Esc` returns to the same scroll position. Reopening the view keeps the last tab. The file is never marked as modified by opening or closing the view.
 - [ ] **Changes** after a commit (from the Source Control view or the terminal): the count drops to zero without reopening the file. A new file shows **New file** and everything as added; a file outside any repository has no Changes button. **Open in diff editor** opens VS Code's diff against HEAD.
 - [ ] Theme: sun / moon button and **•••** → Theme (Auto / Light / Dark). Close and reopen the file: the theme is kept and `mdotion.theme` shows it in Settings. **Auto** follows the IDE theme.
+- [ ] Light theme forced in a dark IDE theme (and dark in a light one): quotes, inline code and links use the page colours, not the IDE's.
 
 ## Troubleshooting
 
