@@ -457,21 +457,38 @@ button {
   font-size: 14px;
 }
 
-.mdotion-property {
+.mdotion-properties-list {
   display: flex;
-  align-items: baseline;
-  min-height: 34px;
-  padding: 6px 4px;
-  border-radius: 4px;
+  flex-direction: column;
 }
 
-.mdotion-property:hover {
-  background: var(--hover);
+.mdotion-property {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 2px 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.mdotion-property-key,
+.mdotion-property-value {
+  margin: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  text-align: left;
+  cursor: text;
 }
 
 .mdotion-property-key {
   flex: 0 0 160px;
   overflow: hidden;
+  padding: 3px 4px 3px 0;
   color: var(--text-secondary);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -479,14 +496,88 @@ button {
 
 .mdotion-property-key::before {
   content: '≡';
-  margin-right: 8px;
+  margin-right: 6px;
   color: var(--text-tertiary);
 }
 
 .mdotion-property-value {
   flex: 1;
   min-width: 0;
+  padding: 3px 4px;
   overflow-wrap: anywhere;
+}
+
+/* Quiet affordance: only the hovered cell, never the whole row. */
+.mdotion-property:not(.is-editing) .mdotion-property-key:hover,
+.mdotion-property:not(.is-editing) .mdotion-property-value:hover {
+  background: var(--hover);
+}
+
+.mdotion-property-input {
+  margin: 0;
+  padding: 3px 4px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--divider-strong);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.4;
+  outline: none;
+  caret-color: var(--text);
+}
+
+.mdotion-property-input:focus {
+  box-shadow: inset 0 0 0 1px var(--text-tertiary);
+}
+
+.mdotion-property-key-input {
+  flex: 0 0 160px;
+  width: 160px;
+  color: var(--text-secondary);
+}
+
+.mdotion-property-value-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.mdotion-property-remove {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+}
+
+.mdotion-property:hover .mdotion-property-remove,
+.mdotion-property.is-editing .mdotion-property-remove {
+  opacity: 1;
+}
+
+.mdotion-property-remove:hover {
+  color: var(--danger);
+}
+
+.mdotion-properties-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.mdotion-properties-note {
+  margin: 6px 0 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
 }
 
 .mdotion-muted {
@@ -496,15 +587,20 @@ button {
 .mdotion-properties-source {
   width: 100%;
   min-height: 80px;
-  padding: 10px 12px;
-  border: 1px solid var(--divider-strong);
-  border-radius: 4px;
-  background: var(--code-bg);
+  padding: 8px 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 var(--divider);
   font-family: var(--font-code);
   font-size: 13px;
   line-height: 1.6;
   resize: none;
   outline: none;
+}
+
+.mdotion-properties-source:focus {
+  box-shadow: inset 0 -1px 0 var(--text-tertiary);
 }
 
 /* ---- Editor content ----------------------------------------------------- */
@@ -877,7 +973,10 @@ button {
   color: var(--text);
 }
 
-.mdotion-code pre {
+/* TipTap injects `.ProseMirror pre { white-space: pre-wrap }` at runtime; keep
+   specificity above that so wide fences (ASCII diagrams, tables-as-text) scroll
+   instead of wrapping and losing column alignment. */
+.mdotion-prose .mdotion-code pre {
   margin: 0;
   padding: 34px 16px 32px 32px;
   overflow-x: auto;
@@ -886,13 +985,19 @@ button {
   line-height: 1.5;
   tab-size: 2;
   white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
-.mdotion-code pre code {
+.mdotion-prose .mdotion-code pre code {
+  display: block;
   padding: 0;
   background: none;
   color: var(--text);
   font-size: inherit;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .hljs-comment,

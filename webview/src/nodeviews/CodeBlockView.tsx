@@ -70,7 +70,13 @@ export function CodeBlockView({ node, updateAttributes, editor }: ReactNodeViewP
         </button>
       </div>
       <pre spellCheck={false}>
-        <NodeViewContent<'code'> as="code" className={language ? `hljs language-${language}` : 'hljs'} />
+        {/* TipTap's NodeViewContent defaults to white-space: pre-wrap (inline), which wraps
+            wide ASCII / diagrams. Force `pre` so columns stay aligned and the block scrolls. */}
+        <NodeViewContent<'code'>
+          as="code"
+          className={language ? `hljs language-${language}` : 'hljs'}
+          style={{ whiteSpace: 'pre' }}
+        />
       </pre>
     </NodeViewWrapper>
   );

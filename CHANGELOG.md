@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-11-13
+
+### Added
+
+- Page properties can be edited inline: click a key or value, add or remove a property, or open **Edit as YAML** for nested front matter. Empty YAML removes the fences. Escape cancels.
+
+### Fixed
+
+- Wide fenced code (ASCII diagrams and aligned columns) no longer wraps in the page column; the block scrolls horizontally so columns stay aligned.
+
+### Changed
+
+- Property editing UI is quieter (Notion-like): no full-row gray while editing; inputs use a light outline instead of a filled box.
+
 ## [0.3.3] - 2026-11-02
 
 ### Changed

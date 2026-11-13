@@ -2,7 +2,7 @@
   "name": "mdotion-editor",
   "displayName": "MDotion: Visual Markdown Editor",
   "description": "Edit Markdown like a block editor: slash menu, drag-and-drop blocks, an outline to reorder sections, tables you can paste from Excel or Sheets, find and replace, and the changes since your last commit shown block by block. Files stay plain .md, untouched blocks are saved byte for byte.",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "preview": true,
   "publisher": "MDotion",
   "author": {

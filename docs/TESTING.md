@@ -23,7 +23,8 @@ Use `tests/fixtures/notion.md` (it contains every supported construct).
 - [ ] `⌘Z` / `⌘⇧Z` undo and redo one step at a time and the caret stays in place.
 - [ ] Edit the file in the source editor side by side: the visual editor updates without moving the caret.
 - [ ] Clicking a link places the caret (no browser); `⌘`-click opens it; a link to another `.md` opens it in the IDE.
-- [ ] Tables, callouts (click the icon to change type), code blocks (language picker, Copy), relative images, front matter (**Edit properties**).
+- [ ] Tables, callouts (click the icon to change type), code blocks (language picker, Copy), relative images, front matter: click a value to edit, **+ Add property**, × to remove, **Edit as YAML** for nested YAML; Esc cancels, empty YAML removes the fences.
+- [ ] A wide plain fence (ASCII diagram / aligned columns wider than the page): lines do **not** wrap; the block scrolls horizontally and columns stay aligned.
 - [ ] Block selection: drag from one paragraph to another, or from the left margin; `Esc`, `Shift+↓`, `⌘A` twice. `⌘C` and paste into another file: formatted Markdown is pasted.
 - [ ] Select a divider (or press `Esc` on a block), then click the blank margin beside a line: the selection clears and the caret lands on that line.
 - [ ] `⋮⋮` with several blocks selected: the menu shows "N blocks" and Duplicate / Move / Delete apply to all of them.
